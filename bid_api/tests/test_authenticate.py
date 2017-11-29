@@ -61,7 +61,7 @@ class AuthenticateTest(AbstractAPITest):
         self.assertEqual('application/json', response.get('content-type'))
 
         payload = json.loads(response.content)
-        self.assertEqual({'error': 'badpw'}, payload)
+        self.assertEqual({'error': 'bad-pw'}, payload)
 
     def test_authenticate_nonexistant_email(self):
         response = self.post({
@@ -72,7 +72,7 @@ class AuthenticateTest(AbstractAPITest):
         self.assertEqual('application/json', response.get('content-type'))
 
         payload = json.loads(response.content)
-        self.assertEqual({'error': 'badpw'}, payload)
+        self.assertEqual({'error': 'no-such-account'}, payload)
 
     def test_authenticate_bad_token_scope(self):
         wrong_token = AccessToken.objects.create(

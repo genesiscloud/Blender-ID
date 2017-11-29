@@ -16,6 +16,12 @@ class AuthenticateView(AbstractAPIView):
     This API endpoint allows an external system to validate an email + password
     against our user database. The external system MUST authenticate itself
     with a bearer token that has the 'authenticate' scope.
+
+    Since the external system is supposed to be trusted, we return extra
+    failure information; a 403 response will indicate whether the password
+    was invalid or the user doesn't exist at all. This allows the external
+    system to gracefully fall back to local authentication when we cannot
+    authenticate the user.
     """
     log = logging.getLogger(f'{__name__}.AuthenticateView')
 
@@ -37,10 +43,17 @@ class AuthenticateView(AbstractAPIView):
         fake_request = http.HttpRequest()
         db_user = authenticate(fake_request, username=email, password=password)
         if not db_user:
-            self.log.debug('invalid login of user %r on behalf of %s',
-                           email, request.user)
+            # See whether a user with this email account actually exists at all.
+            if len(UserModel.objects.filter(email=email)):
+                error = 'bad-pw'
+            else:
+                error = 'no-such-account'
+
+            self.log.debug('invalid login (%s) of user %r on behalf of %s',
+                           error, email, request.user)
+
             return http.JsonResponse({
-                'error': 'badpw'
+                'error': error
             }, content_type='application/json', status=403)
 
         return http.JsonResponse({
