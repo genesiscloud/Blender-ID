@@ -204,4 +204,6 @@ class OAuth2Application(oa2_models.AbstractApplication):
     class Meta:
         verbose_name = 'OAuth2 application'
 
-    url = models.URLField(unique=False, blank=True)
+    url = models.URLField(
+        unique=False, blank=True,
+        help_text="URL to display on 'access' page for users.")
