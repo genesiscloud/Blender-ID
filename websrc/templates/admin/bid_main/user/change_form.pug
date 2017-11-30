@@ -1,0 +1,12 @@
+| {% extends "loginas/change_form.html" %}
+| {% load i18n admin_urls static admin_modify %}
+
+| {% block object-tools-items %}
+| {{ block.super }}
+li
+	a(href="https://store.blender.org/wp-admin/users.php?s={{ original.email|urlencode }}",target='_blank')
+		| {% trans "Find in Store" %}</a>
+li
+	a(href="https://cloud.blender.org/u/#q={{ original.email|urlencode }}&amp;page=1",target='_blank')
+		| {% trans "Find in Cloud" %}</a>
+| {% endblock %}

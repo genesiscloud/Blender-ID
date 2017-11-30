@@ -29,8 +29,6 @@ def unmake_staff(modeladmin, request, queryset):
 
 @admin.register(models.User)
 class UserAdmin(BaseUserAdmin):
-    change_form_template = 'loginas/change_form.html'
-
     inlines = (UserSettingInline,)
 
     fieldsets = (
