@@ -3,7 +3,9 @@ from django.conf.urls import url
 from .views import info, badger, create_user, authenticate
 
 urlpatterns = [
-    url(r'^(?:user|me)$', info.user_info, name='user'),
+    url(r'^user$', info.user_info, name='user'),
+    url(r'^me$', info.user_info),
+    url(r'^user/(?P<user_id>\d+)$', info.UserInfoView.as_view(), name='user-info-by-id'),
     url(r'^badger/grant/(?P<badge>[^/]+)/(?P<email>[^/]+)$',
         badger.BadgerView.as_view(action='grant'), name='badger_grant'),
     url(r'^badger/revoke/(?P<badge>[^/]+)/(?P<email>[^/]+)$',
