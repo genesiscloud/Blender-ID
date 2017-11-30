@@ -21,10 +21,17 @@ class Command(BaseCommand):
     managed_roles = {'cloud_subscriber', 'cloud_has_subscription'}
     help = 'Reconciles subscription status based on info in reconcile_subscribers.json'
 
-    @atomic()
+    def add_arguments(self, parser):
+        parser.add_argument('email', help='Email address of badger user')
+
     def handle(self, *args, **options):
-        self.stdout.write('Going.')
-        self.api_user = UserModel.objects.get(email=API_USER)
+        """Pass email address of badger user as first arg."""
+
+        try:
+            self.api_user = UserModel.objects.get(email=options['email'])
+        except UserModel.DoesNotExist:
+            self.stdout.write(self.style.ERROR(f'User {options["email"]} does not exist!'))
+            raise SystemExit()
 
         with open('reconcile_subscribers.json') as infile:
             email_to_roles = json.load(infile)
@@ -39,6 +46,7 @@ class Command(BaseCommand):
                     log.exception('Error updating user %s', email)
                     print(email, file=errfile)
 
+    @atomic()
     def do_user(self, email, roles):
         to_grant = set(roles)
         to_revoke = self.managed_roles - to_grant
