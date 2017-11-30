@@ -207,3 +207,6 @@ class OAuth2Application(oa2_models.AbstractApplication):
     url = models.URLField(
         unique=False, blank=True,
         help_text="URL to display on 'access' page for users.")
+    notes = models.TextField(
+        blank=True,
+        help_text='Information about this application, for staff only, not to present on frontend.')
