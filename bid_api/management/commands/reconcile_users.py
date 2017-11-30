@@ -55,6 +55,7 @@ class Command(BaseCommand):
         request.user = self.api_user
 
         view = BadgerView()
+        view.action = 'grant'
 
         for role in to_grant:
             resp = view.do_badger(request, role, email)
@@ -63,6 +64,7 @@ class Command(BaseCommand):
             if resp.status_code != 200:
                 raise ValueError('Error %s for email %s' % (resp.status_code, email))
 
+        view.action = 'revoke'
         for role in to_revoke:
             resp = view.do_badger(request, role, email)
             if resp.status_code == 422:
