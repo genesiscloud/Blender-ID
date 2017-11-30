@@ -24,6 +24,13 @@ class BadgerView(AbstractAPIView):
 
     @method_decorator(protected_resource(scopes=['badger']))
     def post(self, request, badge: str, email: str) -> HttpResponse:
+        return self.do_badger(request, badge, email)
+
+    def do_badger(self, request, badge: str, email: str) -> HttpResponse:
+        """Performs the actual badger service, can be called without OAuth token
+
+        This makes it possible for management commands to use this functionality.
+        """
         user = request.user
         action = self.action
 
@@ -43,7 +50,7 @@ class BadgerView(AbstractAPIView):
         try:
             target_user: bid_main_models.User = UserModel.objects.get(email=email)
         except UserModel.DoesNotExist:
-            log.warning('User %s tried to %s role %r to nonexistant user %s.',
+            log.warning('User %s tried to %s role %r to nonexistent user %s.',
                         user, action, badge, email)
             return HttpResponseUnprocessableEntity()
 
