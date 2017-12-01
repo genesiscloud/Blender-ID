@@ -1,6 +1,12 @@
 # Blender ID
 
-Test implementation of [Blender ID](https://www.blender.org/id/) using Django.
+[Blender ID](https://www.blender.org/id/) is the unified login system for all services around 
+Blender.  With just one account you can set up a Blender Cloud subscription, manage your 
+professional profile on Blender Network, your BFCT application, Blender Conference talks, your 
+purchases on the Blender Store.
+
+You can also authenticate within Blender via the Blender ID add-on, and log in authorized 
+third-party websites and much more.
 
 Requires Python 3.6, Django 1.11,
 [Django-OAuth-Toolkit](https://django-oauth-toolkit.readthedocs.io/), and a database.
@@ -17,7 +23,7 @@ The project contains the following top-level Python modules:
 - `bid_api`: Django app for APIs that are neither OAuth2 nor Blender ID add-on support.
 
 
-## Post-clone configuration
+## Development setup
 
 After cloning the Git repo, perform these steps to create a working dev server:
 
@@ -27,7 +33,7 @@ After cloning the Git repo, perform these steps to create a working dev server:
 4. In production, set up a cron job that calls the
    [cleartokens](https://django-oauth-toolkit.readthedocs.io/en/latest/management_commands.html#cleartokens)
    management command regularly.
-5. Create super user ./manage.py createsuperuser
+5. Run `./manage.py createsuperuser` to create super user
 6. Load any fixtures you want to use.
    - list fixtures  `ls */fixtures/*`
    - `./manage.py loaddata blender_cloud_devserver`
