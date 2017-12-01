@@ -61,56 +61,54 @@
 
 
 .bid-roles.container
-	.row
-		.col-md-6.col-md-offset-3
-			h3.text-center Your Blender ID Apps
+	h3.text-center Your Blender ID Apps
 
-			ul
-				li
-					.bid-roles-role
-						.bid-roles-role-image
-							i.bf-cloud
-						.bid-roles-role-info
-							a.title(href="https://cloud.blender.org") Blender Cloud
-							hr
-							ul
-								li
-									a(href='https://cloud.blender.org/settings/billing') Subscription Details
-								li
-									a(href='https://cloud.blender.org/settings/emails') Preferences
+	ul
+		li
+			.bid-roles-role
+				.bid-roles-role-image
+					i.bf-cloud
+				.bid-roles-role-info
+					a.title(href="https://cloud.blender.org") Blender Cloud
+					hr
+					ul
+						li
+							a(href='https://cloud.blender.org/settings/billing') Subscription Details
+						li
+							a(href='https://cloud.blender.org/settings/emails') Preferences
 
-				| {% if 'network_member' in user.role_names %}
-				li
-					.bid-roles-role
-						.bid-roles-role-image
-							i.bf-network
-						.bid-roles-role-info
-							a.title(href="https://www.blendernetwork.org") Blender Network
-							hr
-							ul
-								li
-									a(href='https://www.blendernetwork.org/billing/') Subscription Details
-								li
-									a(href='https://www.blendernetwork.org/profile/edit') Blender Network Profile
-				| {% endif %}
+		| {% if 'network_member' in user.role_names %}
+		li
+			.bid-roles-role
+				.bid-roles-role-image
+					i.bf-network
+				.bid-roles-role-info
+					a.title(href="https://www.blendernetwork.org") Blender Network
+					hr
+					ul
+						li
+							a(href='https://www.blendernetwork.org/billing/') Subscription Details
+						li
+							a(href='https://www.blendernetwork.org/profile/edit') Blender Network Profile
+		| {% endif %}
 
-				| {% if 'bfct_trainer' in user.role_names %}
-				li
-					.bid-roles-role
-						.bid-roles-role-image
-							i.fa.fa-graduation-cap(style="font-size: .8em; margin-top: 5px")
-						.bid-roles-role-info
-							a.title(href="https://www.blendernetwork.org/certification/") Blender Foundation Certified Trainer
-							hr
-							ul
-								li
-									a(href='https://www.blendernetwork.org/certification/') Certification Details
+		| {% if 'bfct_trainer' in user.role_names %}
+		li
+			.bid-roles-role
+				.bid-roles-role-image
+					i.fa.fa-graduation-cap(style="font-size: .8em; margin-top: 5px")
+				.bid-roles-role-info
+					a.title(href="https://www.blendernetwork.org/certification/") Blender Foundation Certified Trainer
+					hr
+					ul
+						li
+							a(href='https://www.blendernetwork.org/certification/') Certification Details
 
-							| {% if 'bfct_board' in user.role_names %}
-							hr
-							p.
-								BFCT Board Member {% if 'bfct_manager' in user.role_names %} &amp; Manager{% endif %}
-							| {% endif %}
-				| {% endif %}
+					| {% if 'bfct_board' in user.role_names %}
+					hr
+					p.
+						BFCT Board Member {% if 'bfct_manager' in user.role_names %} &amp; Manager{% endif %}
+					| {% endif %}
+		| {% endif %}
 
 | {% endblock %}
