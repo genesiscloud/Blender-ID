@@ -113,8 +113,8 @@ def make_inactive(modeladmin, request, queryset):
 class RoleAdmin(admin.ModelAdmin):
     model = models.Role
 
-    list_display = ('name', 'description', 'is_badge', 'is_active')
-    list_filter = ('is_badge', 'is_active')
+    list_display = ('name', 'description', 'is_badge', 'is_public', 'is_active')
+    list_filter = ('is_badge', 'is_public', 'is_active')
     search_fields = ('name', 'description')
 
     actions = [make_badge, make_not_badge, make_active, make_inactive]
