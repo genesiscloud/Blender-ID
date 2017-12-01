@@ -1,8 +1,12 @@
+import logging
+
 from django.db import models
 from django.conf import settings
 from django.core.mail import send_mail
 from django.contrib.auth.models import PermissionsMixin
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
+from django.db.models.signals import m2m_changed
+from django.dispatch import receiver
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
@@ -63,6 +67,12 @@ class User(AbstractBaseUser, PermissionsMixin):
     )
     full_name = models.CharField(_('full name'), max_length=80, blank=True, db_index=True)
     roles = models.ManyToManyField('Role', related_name='users', blank=True)
+    public_roles_as_string = models.CharField(
+        'Public roles as string',
+        max_length=255,
+        blank=True,
+        default='',
+        help_text=_('String representation of public roles, for comparison in webhooks'))
 
     confirmed_email_at = models.DateTimeField(
         null=True, blank=True,
@@ -105,10 +115,21 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def save(self, *args, **kwargs):
         self.last_update = timezone.now()
+        updated_fields = {'last_update'}
 
         if kwargs.get('update_fields') is not None:
-            kwargs['update_fields'].append('last_update')
+            kwargs['update_fields'] = set(kwargs['update_fields']).union(updated_fields)
+
         return super().save(*args, **kwargs)
+
+    def public_roles(self) -> set:
+        """Returns public role names.
+
+        Used in the bid_api.signals module to detect role changes without
+        using more lookups in the database.
+        """
+        return {role.name
+                for role in self.roles.filter(is_public=True, is_active=True)}
 
     def get_full_name(self):
         """
@@ -210,3 +231,26 @@ class OAuth2Application(oa2_models.AbstractApplication):
     notes = models.TextField(
         blank=True,
         help_text='Information about this application, for staff only, not to present on frontend.')
+
+
+@receiver(m2m_changed)
+def modified_user_role(sender, instance, action, reverse, model, **kwargs):
+    log = logging.getLogger(f'{__name__}.modified_user_role')
+    if not action.startswith('post_'):
+        log.debug('Ignoring m2m %r on %s - %s', action, type(instance), model)
+        return
+    if not isinstance(instance, User) or not issubclass(model, Role):
+        log.debug('Ignoring m2m %r on %s - %s', action, type(instance), model)
+        return
+    if not instance.id:
+        log.debug('Ignoring m2m %r on %s (no ID) - %s', action, type(instance), model)
+        return
+
+    # User's roles changed, so we have to update their public_roles_as_string.
+    new_roles = ' '.join(sorted(instance.public_roles()))
+    if new_roles != instance.public_roles_as_string:
+        instance.public_roles_as_string = new_roles
+        log.debug('    saving user again for new roles %r', new_roles)
+        instance.save(update_fields=['public_roles_as_string'])
+    else:
+        log.debug('    new roles are old roles: %r', new_roles)

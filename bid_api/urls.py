@@ -14,3 +14,6 @@ urlpatterns = [
     url(r'^create-user/?$', create_user.CreateUserView.as_view(), name='create_user'),
     url(r'^authenticate/?$', authenticate.AuthenticateView.as_view(), name='authenticate'),
 ]
+
+# noinspection PyUnresolvedReferences
+from . import signals as _
