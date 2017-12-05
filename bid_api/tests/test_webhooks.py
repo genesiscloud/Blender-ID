@@ -335,3 +335,35 @@ class WebhookBaseTest(TestCase):
 
         # The queue should be empty now.
         self.assertEqual(0, models.WebhookQueuedCall.objects.count())
+
+    @responses.activate
+    def test_queueing_after_failure(self):
+        """When one item is queued, new items should also be queued to ensure order."""
+
+        # No POST response set up, so hook wil fail and be queued.
+        user = UserModel.objects.create_user('test@user.com', '123456')
+        user.full_name = 'ဖန်စီဘောင်းဘီ'
+        user.save()
+        self.assertEqual(1, models.WebhookQueuedCall.objects.count())
+
+        # Set up POST to fix the hook
+        responses.add(responses.POST,
+                      self.hook.url,
+                      json={'status': 'success'},
+                      status=200)
+
+        # A new change should also be queued, even though the webhook can be reached.
+        user.full_name = 'another name'
+        user.save()
+        self.assertEqual(2, models.WebhookQueuedCall.objects.count())
+
+        # Flushing should work now.
+        models.WebhookQueuedCall.flush_all()
+        self.assertEqual(3, len(responses.calls))  # one failed + two successful calls
+        self.assertEqual(0, models.WebhookQueuedCall.objects.count())
+
+        # Another change should go through just fine.
+        user.full_name = 'yet another name'
+        user.save()
+        self.assertEqual(4, len(responses.calls))  # one failed + three successful calls
+        self.assertEqual(0, models.WebhookQueuedCall.objects.count())

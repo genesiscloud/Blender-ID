@@ -82,6 +82,15 @@ class Webhook(models.Model):
                 queued.error_msg = error_msg
             queued.save()
 
+        queue_size = self.queue_size()
+        if queue_size > 0 and queued is None:
+            # Refuse sending new items when there are items already queued.
+            # Sending out queued items is okay, though.
+            log.warning('immediately queueing webhook "%s" payload because we already '
+                        'have %d items queued.', self, queue_size)
+            record_error(0, f'queueing because we already have {queue_size} items queued')
+            return
+
         mac = hmac.new(self.secret.encode(), payload, hashlib.sha256)
         try:
             log.debug('sending to %s', self.url)
@@ -95,11 +104,11 @@ class Webhook(models.Model):
                 timeout=self.timeout,
             )
             if resp.status_code >= 400:
-                log.warning('error calling hook %s, HTTP %s, queueing', self, resp.status_code)
+                log.warning('error calling hook "%s", HTTP %s, queueing', self, resp.status_code)
                 record_error(resp.status_code, resp.text or '')
                 return
         except (IOError, OSError) as ex:
-            log.warning('error calling hook %s, queueing: %s', self, ex)
+            log.warning('error calling hook "%s", queueing: %s', self, ex)
             record_error(0, str(ex))
             return
 
