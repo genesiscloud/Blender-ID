@@ -134,3 +134,204 @@ class WebhookBaseTest(TestCase):
                           'email': 'test@user.com',
                           'roles': []},
                          payload)
+
+    @responses.activate
+    def test_queue_after_error_500(self):
+        responses.add(responses.POST,
+                      self.HOOK_URL,
+                      json={'status': 'error'},
+                      status=500)
+
+        user = UserModel.objects.create_user('test@user.com', '123456')
+        user.full_name = 'ဖန်စီဘောင်းဘီ'
+        user.save()
+
+        # The POST to the webhook should be queued now.
+        queue = list(models.WebhookQueuedCall.objects.all())
+        self.assertEqual(1, len(queue))
+
+        queued: models.WebhookQueuedCall = queue[0]
+        self.assertEqual(500, queued.error_code)
+        self.assertEqual('{"status": "error"}', queued.error_msg)
+
+        payload = json.loads(queued.payload)
+        self.assertEqual({'id': user.id,
+                          'old_email': 'test@user.com',
+                          'full_name': 'ဖန်စီဘောင်းဘီ',
+                          'email': 'test@user.com',
+                          'roles': []},
+                         payload,
+                         'The payload in the queue should be the POSTed JSON')
+
+    @responses.activate
+    def test_queue_after_ioerror(self):
+        # Explicitly do not call responses.add(), so that it'll cause an error.
+
+        user = UserModel.objects.create_user('test@user.com', '123456')
+        user.full_name = 'ဖန်စီဘောင်းဘီ'
+        user.save()
+
+        # The POST to the webhook should be queued now.
+        queue = list(models.WebhookQueuedCall.objects.all())
+        self.assertEqual(1, len(queue))
+
+        queued: models.WebhookQueuedCall = queue[0]
+        self.assertEqual(0, queued.error_code)
+        self.assertEqual('Connection refused: POST http://www.unit.test/api/webhook',
+                         queued.error_msg)
+
+        payload = json.loads(queued.payload)
+        self.assertEqual({'id': user.id,
+                          'old_email': 'test@user.com',
+                          'full_name': 'ဖန်စီဘောင်းဘီ',
+                          'email': 'test@user.com',
+                          'roles': []},
+                         payload,
+                         'The payload in the queue should be the POSTed JSON')
+
+    @responses.activate
+    def test_flushing_queue_happy(self):
+        # Expect the hook at a new URL.
+        new_hook_url = self.HOOK_URL.replace('webhook', 'webhooks/user-changed')
+        responses.add(responses.POST,
+                      new_hook_url,
+                      json={'status': 'success'},
+                      status=200)
+
+        user = UserModel.objects.create_user('test@user.com', '123456')
+        user.full_name = 'ဖန်စီဘောင်းဘီ'
+        user.save()
+
+        # The POST to the webhook should be queued now.
+        queue = list(models.WebhookQueuedCall.objects.all())
+        self.assertEqual(1, len(queue))
+        self.assertEqual(1, len(responses.calls))  # the failed call
+
+        # Change some parameters to "fix" the hook.
+        self.hook.secret = 'new-secret'
+        self.hook.url = new_hook_url
+        self.hook.save()
+
+        # The queue flush should work at the new URL and use the new secret.
+        models.WebhookQueuedCall.flush_all()
+
+        self.assertEqual(2, len(responses.calls))  # the failed + the successful call
+        call = responses.calls[1]
+        self.assertEqual(new_hook_url, call.request.url)
+
+        payload = json.loads(call.request.body)
+        self.assertEqual({'id': user.id,
+                          'old_email': 'test@user.com',
+                          'full_name': 'ဖန်စီဘောင်းဘီ',
+                          'email': 'test@user.com',
+                          'roles': []},
+                         payload)
+
+        mac = hmac.new(b'new-secret', call.request.body, hashlib.sha256)
+        hexdigest = mac.hexdigest()
+        self.assertEqual(hexdigest, call.request.headers['X-Webhook-HMAC'])
+        self.assertEqual('application/json', call.request.headers['Content-Type'])
+
+        # The queue should be empty now.
+        self.assertEqual(0, models.WebhookQueuedCall.objects.count())
+
+    @responses.activate
+    def test_flushing_queue_fails(self):
+        import time
+
+        # Expect the hook at a new URL.
+        new_hook_url = self.HOOK_URL.replace('webhook', 'webhooks/user-changed')
+        responses.add(responses.POST,
+                      new_hook_url,
+                      json={'status': 'success'},
+                      status=200)
+
+        user = UserModel.objects.create_user('test@user.com', '123456')
+        user.full_name = 'ဖန်စီဘောင်းဘီ'
+        user.save()
+
+        # The POST to the webhook should be queued now.
+        queue = list(models.WebhookQueuedCall.objects.all())
+        self.assertEqual(1, len(queue))
+        self.assertEqual(1, len(responses.calls))  # the failed call
+
+        old_timestamp = queue[0].updated
+
+        time.sleep(1)  # sleep for a second so that the change in 'updated' can be seen.
+        models.WebhookQueuedCall.flush_all()
+
+        # Flushing will fail, but should not create more queued items.
+        queue = list(models.WebhookQueuedCall.objects.all())
+        self.assertEqual(1, len(queue))
+
+        # The updated timestamp should be, well, updated.
+        self.assertGreater(queue[0].updated, old_timestamp)
+
+    @responses.activate
+    def test_flushing_larger_queue(self):
+        """Test that we can flush three items at once."""
+
+        # Update three users, causing three failed webhook calls.
+        for domain in ('user1.com', 'user2.com', 'user3.com'):
+            user = UserModel.objects.create_user(f'test@{domain}', '123456')
+            user.email = f'new@{domain}'
+            user.save(update_fields={'email'})
+        self.assertEqual(3, models.WebhookQueuedCall.objects.count())
+
+        # Website comes up again, flushing will succeed.
+        responses.add(responses.POST,
+                      self.hook.url,
+                      json={'status': 'success'},
+                      status=200)
+
+        models.WebhookQueuedCall.flush_all()
+        self.assertEqual(0, models.WebhookQueuedCall.objects.count())
+
+    @responses.activate
+    def test_flushing_queue_via_cli_cmd_happy(self):
+        # Expect the hook at a new URL.
+        new_hook_url = self.HOOK_URL.replace('webhook', 'webhooks/user-changed')
+        responses.add(responses.POST,
+                      new_hook_url,
+                      json={'status': 'success'},
+                      status=200)
+
+        user = UserModel.objects.create_user('test@user.com', '123456')
+        user.full_name = 'ဖန်စီဘောင်းဘီ'
+        user.save()
+
+        # The POST to the webhook should be queued now.
+        queue = list(models.WebhookQueuedCall.objects.all())
+        self.assertEqual(1, len(queue))
+        self.assertEqual(1, len(responses.calls))  # the failed call
+
+        # Change some parameters to "fix" the hook.
+        self.hook.secret = 'new-secret'
+        self.hook.url = new_hook_url
+        self.hook.save()
+
+        # The queue flush should work at the new URL and use the new secret.
+        from bid_api.management.commands import flush_webhooks
+
+        cmd = flush_webhooks.Command()
+        cmd.handle(flush=True, verbosity=3)
+
+        self.assertEqual(2, len(responses.calls))  # the failed + the successful call
+        call = responses.calls[1]
+        self.assertEqual(new_hook_url, call.request.url)
+
+        payload = json.loads(call.request.body)
+        self.assertEqual({'id': user.id,
+                          'old_email': 'test@user.com',
+                          'full_name': 'ဖန်စီဘောင်းဘီ',
+                          'email': 'test@user.com',
+                          'roles': []},
+                         payload)
+
+        mac = hmac.new(b'new-secret', call.request.body, hashlib.sha256)
+        hexdigest = mac.hexdigest()
+        self.assertEqual(hexdigest, call.request.headers['X-Webhook-HMAC'])
+        self.assertEqual('application/json', call.request.headers['Content-Type'])
+
+        # The queue should be empty now.
+        self.assertEqual(0, models.WebhookQueuedCall.objects.count())

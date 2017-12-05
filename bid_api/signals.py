@@ -102,10 +102,6 @@ def modified_user_to_webhooks(sender, user: UserModel, **kwargs):
     hooks = models.Webhook.objects.filter(enabled=True)
     log.debug('Sending modification of %s to %d webhooks', user.email, len(hooks))
 
-    sess = requests.Session()
-    sess.mount('https://', requests.adapters.HTTPAdapter(max_retries=5))
-    sess.mount('http://', requests.adapters.HTTPAdapter(max_retries=5))
-
     # Get the old email address so that the webhook receiver can match by
     # either database ID or email address.
     old_email = getattr(user, 'webhook_pre_save', {}).get('email', None)
@@ -118,6 +114,7 @@ def modified_user_to_webhooks(sender, user: UserModel, **kwargs):
                'roles': user.public_roles_as_string.split()}
     json_payload = json.dumps(payload).encode()
 
+    sess = models.webhook_session()
     for hook in hooks:
         log.debug('Sending to %s, %s', hook, hook.url)
         hook.send(json_payload, sess)
