@@ -60,7 +60,7 @@ def _check_user_modification(new_user: UserModel, old_user: UserModel) -> bool:
 @receiver(pre_save)
 @filter_user_save_hook
 def inspect_modified_user(sender, user: UserModel, **kwargs):
-    update_fields = kwargs.get('update_fields')
+    # update_fields = kwargs.get('update_fields')
     # log.debug('pre-save of %s, fields %s', user.email, update_fields)
 
     # Default to False
