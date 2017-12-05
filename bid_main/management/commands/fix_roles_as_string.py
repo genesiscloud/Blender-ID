@@ -23,7 +23,7 @@ class Command(BaseCommand):
         for idx, user in enumerate(all_users):
             do_print = (
                 (user_count > 250 and idx % 250 == 0) or
-                (user_count > 100 and idx % 10 == 0) or
+                (250 >= user_count > 100 and idx % 10 == 0) or
                 (user_count <= 100)
             )
             if do_print:
