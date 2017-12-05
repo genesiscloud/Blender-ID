@@ -38,6 +38,7 @@ if [ -n "$(git log origin/production..production --oneline)" ]; then
     read dummy
 fi
 
+./gulp --production
 
 python3 manage.py collectstatic --noinput --verbosity 0  || exit 4
 rsync -va static/ $DEPLOYHOST:$DEPLOYPATH/static/ --delete-after || exit 5
