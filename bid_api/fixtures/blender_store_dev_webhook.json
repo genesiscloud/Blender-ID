@@ -1,0 +1,14 @@
+[
+    {
+        "fields": {
+            "description": "Blender Store dev server.",
+            "enabled": true,
+            "hook_type": "USER_MODIFIED",
+            "name": "Blender Store",
+            "secret": "Mee3paeyaix9Reisooke8aa3PhieVa1a",
+            "url": "http://localhost:8080/wp-content/plugins/blender-id/webhooks/user-changed.php"
+        },
+        "model": "bid_api.webhook",
+        "pk": 2
+    }
+]
