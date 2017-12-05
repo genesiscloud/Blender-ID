@@ -1,7 +1,5 @@
 import copy
 import functools
-import hashlib
-import hmac
 import json
 import logging
 
@@ -16,6 +14,7 @@ log = logging.getLogger(__name__)
 UserModel = get_user_model()
 
 USER_SAVE_INTERESTING_FIELDS = {'email', 'full_name', 'public_roles_as_string'}
+WEBHOOK_TIMEOUT_SECS = 5
 
 
 def filter_user_save_hook(wrapped):
@@ -121,18 +120,4 @@ def modified_user_to_webhooks(sender, user: UserModel, **kwargs):
 
     for hook in hooks:
         log.debug('Sending to %s, %s', hook, hook.url)
-
-        mac = hmac.new(hook.secret.encode(), json_payload, hashlib.sha256)
-        try:
-            log.debug('    - %s', hook)
-            resp = sess.post(
-                hook.url,
-                data=json_payload,
-                headers={
-                    'Content-Type': 'application/json',
-                    'X-Webhook-HMAC': mac.hexdigest(),
-                },
-            )
-            resp.raise_for_status()
-        except (IOError, OSError) as ex:
-            log.warning('error calling hook %s: %s', hook, ex)
+        hook.send(json_payload, sess)
