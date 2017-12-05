@@ -33,14 +33,18 @@ After cloning the Git repo, perform these steps to create a working dev server:
 4. In production, set up a cron job that calls the
    [cleartokens](https://django-oauth-toolkit.readthedocs.io/en/latest/management_commands.html#cleartokens)
    management command regularly.
-5. Run `./manage.py createsuperuser` to create super user
-6. Load any fixtures you want to use.
+5. In production, set up a cron job that calls the `flush_webhooks --flush -v 0` management command
+   regularly.
+6. Run `./manage.py createsuperuser` to create super user
+7. Load any fixtures you want to use.
    - list fixtures  `ls */fixtures/*`
-   - `./manage.py loaddata blender_cloud_devserver`
    - `./manage.py loaddata default_site`
-7. Run ./gulp  to compile javascript
-8. Add to /etc/hosts  127.0.0.1 blender-id
-9. ./manage.py runserver
+   - `./manage.py loaddata blender_cloud_devserver`
+   - `./manage.py loaddata blender_cloud_dev_webhook`
+8. Run ./gulp  to compile javascript
+9. Add to /etc/hosts  127.0.0.1 blender-id
+10. ./manage.py runserver
+
 
 ## Setting up the Blender Store (and other `bid_api` users)
 
@@ -169,6 +173,11 @@ Assuming deployment on FreeBSD with uWSGI, take care to:
       # -- troubled/sybren @ Nov 21 2017 hangout chat
       #uwsgi_configfile="/usr/local/etc/uwsgi/uwsgi.ini"
       uwsgi_flags="-L --ini /usr/local/etc/uwsgi/uwsgi.conf"
+
+- Set up the following cron jobs:
+
+      47  *  *   *   *  cd /data/www/vhosts/www.blender.org/blender-id && ../venv-bid/bin/python3 manage.py cleartokens
+      */5  *  *   *   *  cd /data/www/vhosts/www.blender.org/blender-id && ../venv-bid/bin/python3 manage.py flush_webhooks --flush --verbosity 0
 
 
 ## Troubleshooting
