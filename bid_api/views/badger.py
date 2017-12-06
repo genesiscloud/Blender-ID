@@ -42,7 +42,7 @@ class BadgerView(AbstractAPIView):
 
         if badge not in may_manage:
             log.warning(
-                'User %s tried to %s role %r to user %s, is not allowed to grant that role.',
+                'User %s tried to %s role %r to user %s, is not allowed to grant that role',
                 user, action, badge, email)
             return HttpResponseForbidden()
 
@@ -50,20 +50,20 @@ class BadgerView(AbstractAPIView):
         try:
             target_user: bid_main_models.User = UserModel.objects.get(email=email)
         except UserModel.DoesNotExist:
-            log.warning('User %s tried to %s role %r to nonexistent user %s.',
+            log.warning('User %s tried to %s role %r to nonexistent user %s',
                         user, action, badge, email)
             return HttpResponseUnprocessableEntity()
 
         # Check the role for being an active badge.
         role = may_manage[badge]
         if not role.is_active:
-            log.warning('User %s tried to %s non-active role %r to user %s.',
+            log.warning('User %s tried to %s non-active role %r to user %s',
                         user, action, badge, email)
             return HttpResponseForbidden()
 
         # Grant/revoke the role to/from the target user.
         if action == 'grant':
-            log.info('User %s grants role %r to user %s.', user, badge, email)
+            log.info('User %s grants role %r to user %s', user, badge, email)
             action_flag = ADDITION
             if role in target_user.roles.all():
                 log.debug('User %s already has role %r', email, badge)
@@ -71,7 +71,7 @@ class BadgerView(AbstractAPIView):
             target_user.roles.add(role)
             change_message = f'Granted role {badge}.'
         elif action == 'revoke':
-            log.info('User %s revokes role %r from user %s.', user, badge, email)
+            log.info('User %s revokes role %r from user %s', user, badge, email)
             action_flag = DELETION
             if role not in target_user.roles.all():
                 log.debug('User %s already does not have role %r', email, badge)
