@@ -36,6 +36,29 @@ class IndexView(LoginRequiredMixin, PageIdMixin, TemplateView):
     login_url = reverse_lazy('bid_main:login')
     redirect_field_name = None
 
+    # Anyone with any of those roles gets that app listed
+    # on the index page.
+    BID_APP_TO_ROLES = {
+        'cloud': {'cloud_demo', 'cloud_has_subscription'},
+        'network': {'network_member'},
+        'bfct': {'bfct_trainer', 'bfct_board'},
+    }
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        role_names = self.request.user.role_names
+
+        # Figure out which Blender ID 'apps' the user has access to.
+        # Currently this is just based on a hard-coded set of roles.
+        apps = {name for name, roles in self.BID_APP_TO_ROLES.items()
+                if roles.intersection(role_names)}
+        ctx['apps'] = apps
+
+        ctx['cloud_needs_renewal'] = ('cloud_has_subscription' in role_names and
+                                      'cloud_subscriber' not in role_names)
+
+        return ctx
+
 
 class LoginView(PageIdMixin, auth_views.LoginView):
     """Shows the login view."""

@@ -52,6 +52,10 @@
 		a.btn(href="{% url 'bid_main:password_change' %}").
 			#[i.fa.fa-shield] Change Password
 
+		| {% if user.is_staff %}
+		a.btn(href="{% url 'admin:bid_main_user_change' user.id %}").
+			#[i.fa.fa-lock] Your account in admin
+		| {% endif %}
 	hr
 
 	.bid-links
@@ -64,6 +68,7 @@
 	h3.text-center Your Blender ID Apps
 
 	ul
+		| {% if 'cloud' in apps %}
 		li
 			.bid-roles-role
 				.bid-roles-role-image
@@ -72,12 +77,30 @@
 					a.title(href="https://cloud.blender.org") Blender Cloud
 					hr
 					ul
+						| {% if cloud_needs_renewal %}
+						li.link-renew-cloud
+							a(href='https://store.blender.org/my-account/subscriptions/') » Renew your Blender Cloud subscription «
+						| {% endif %}
 						li
-							a(href='https://cloud.blender.org/settings/billing') Subscription Details
+							a(href='https://store.blender.org/my-account/subscriptions/') Subscription Details
 						li
 							a(href='https://cloud.blender.org/settings/emails') Preferences
+		| {% endif %}
 
-		| {% if 'network_member' in user.role_names %}
+		li
+			.bid-roles-role
+				.bid-roles-role-image
+					i.fa.fa-shopping-cart(style="font-size: .8em; margin-top: 5px")
+				.bid-roles-role-info
+					a.title(href="https://store.blender.org/") Blender Store
+					hr
+					ul
+						li
+							a(href='https://store.blender.org/my-account/') Your Store account
+						li
+							a(href='https://store.blender.org/') Visit the Store
+
+		| {% if 'network' in apps %}
 		li
 			.bid-roles-role
 				.bid-roles-role-image
@@ -92,7 +115,7 @@
 							a(href='https://www.blendernetwork.org/profile/edit') Blender Network Profile
 		| {% endif %}
 
-		| {% if 'bfct_trainer' in user.role_names %}
+		| {% if 'bfct' in apps %}
 		li
 			.bid-roles-role
 				.bid-roles-role-image
@@ -107,7 +130,7 @@
 					| {% if 'bfct_board' in user.role_names %}
 					hr
 					p.
-						BFCT Board Member {% if 'bfct_manager' in user.role_names %} &amp; Manager{% endif %}
+						You are a #[em BFCT Board Member].
 					| {% endif %}
 		| {% endif %}
 

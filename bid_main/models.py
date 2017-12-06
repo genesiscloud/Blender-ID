@@ -1,4 +1,5 @@
 import logging
+import typing
 
 from django.db import models
 from django.conf import settings
@@ -153,7 +154,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         return self.confirmed_email_at is not None
 
     @property
-    def role_names(self):
+    def role_names(self) -> typing.Set[str]:
         return {role.name for role in self.roles.all()}
 
 
