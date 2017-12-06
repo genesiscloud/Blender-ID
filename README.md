@@ -39,6 +39,7 @@ After cloning the Git repo, perform these steps to create a working dev server:
 7. Load any fixtures you want to use.
    - list fixtures  `ls */fixtures/*`
    - `./manage.py loaddata default_site`
+   - `./manage.py loaddata default_roles`
    - `./manage.py loaddata blender_cloud_devserver`
    - `./manage.py loaddata blender_cloud_dev_webhook`
 8. Run ./gulp  to compile javascript
