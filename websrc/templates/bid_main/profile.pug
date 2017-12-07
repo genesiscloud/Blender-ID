@@ -25,11 +25,12 @@
 							| {{ form.full_name.errors }}
 
 							// Email display
-							label.control-label E-mail (cannot be changed)
-							.input-group.disabled
+							label.control-label E-mail
+							.input-group
 								span.input-group-addon
 									i.fa.fa-envelope-o
-								span.form-control {{user.email}}
+								| {{ form.email }}
+							| {{ form.errors }}
 
 						.col-md-3
 							.bid-user.profile
