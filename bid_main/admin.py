@@ -15,6 +15,7 @@ admin.site.site_header = 'Blender-ID Administration'
 class UserSettingInline(admin.TabularInline):
     model = models.UserSetting
     extra = 0
+    classes = ['collapse']
 
 
 @short_description('Make selected users staff')
