@@ -11,7 +11,7 @@ fi
 cd $(dirname $($readlink -f $0))
 
 DEPLOYHOST="$1"
-SSH="ssh -o ClearAllForwardings=yes ${DEPLOYHOST}"
+SSH="ssh -o ClearAllForwardings=yes -o PermitLocalCommand=no ${DEPLOYHOST}"
 DEPLOYPATH="/data/www/vhosts/www.blender.org/blender-id"
 VENVPATH="/data/www/vhosts/www.blender.org/venv-bid"
 
