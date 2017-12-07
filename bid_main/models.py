@@ -234,6 +234,27 @@ class OAuth2Application(oa2_models.AbstractApplication):
         help_text='Information about this application, for staff only, not to present on frontend.')
 
 
+class UserNote(models.Model):
+    """CRM-like note added to a user."""
+    class Meta:
+        verbose_name = 'Note'
+        ordering = ('-created', )
+
+    user = models.ForeignKey(User, related_name='notes', on_delete=models.CASCADE)
+    creator = models.ForeignKey(User,
+                                null=True,
+                                blank=True,
+                                related_name='created_notes',
+                                on_delete=models.PROTECT,
+                                limit_choices_to={'is_staff': True})
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+    note = models.TextField(blank=False)
+
+    def __str__(self):
+        return 'Note'
+
+
 @receiver(m2m_changed)
 def modified_user_role(sender, instance, action, reverse, model, **kwargs):
     log = logging.getLogger(f'{__name__}.modified_user_role')

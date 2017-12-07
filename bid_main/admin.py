@@ -18,6 +18,14 @@ class UserSettingInline(admin.TabularInline):
     classes = ['collapse']
 
 
+class UserNotesInline(admin.TabularInline):
+    model = models.UserNote
+    fk_name = 'user'
+    extra = 0
+    readonly_fields = ('creator', 'created')
+    fields = ('creator', 'created', 'note')
+
+
 @short_description('Make selected users staff')
 def make_staff(modeladmin, request, queryset):
     queryset.update(is_staff=True)
@@ -30,7 +38,7 @@ def unmake_staff(modeladmin, request, queryset):
 
 @admin.register(models.User)
 class UserAdmin(BaseUserAdmin):
-    inlines = (UserSettingInline,)
+    inlines = (UserSettingInline, UserNotesInline)
 
     fieldsets = (
         (None, {'fields': ('email', 'password', 'full_name', 'roles')}),
@@ -79,6 +87,19 @@ class UserAdmin(BaseUserAdmin):
             suffix = ', … and %i more…' % (len(roles) - 3)
             roles = roles[:3]
         return ', '.join(g.name for g in roles) + suffix
+
+    def save_formset(self, request, form, formset, change):
+        """Sets the note.creator for new notes to the current user."""
+        if not issubclass(formset.model, models.UserNote):
+            return super().save_formset(request, form, formset, change)
+
+        changed_notes = formset.save()
+        for note in changed_notes:
+            if note.creator is not None:
+                continue
+            note.creator = request.user
+            note.save()
+        return changed_notes
 
 
 @admin.register(models.Setting)
