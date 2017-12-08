@@ -5,12 +5,13 @@ import logging
 
 from django.contrib.auth import get_user_model
 from django.db.models.signals import pre_save, post_save
-from django.dispatch import receiver
+from django.dispatch import receiver, Signal
 
 from . import models
 
 log = logging.getLogger(__name__)
 UserModel = get_user_model()
+user_email_changed = Signal(providing_args=['user', 'old_email'])
 
 USER_SAVE_INTERESTING_FIELDS = {'email', 'full_name', 'public_roles_as_string'}
 WEBHOOK_TIMEOUT_SECS = 5
@@ -104,6 +105,10 @@ def modified_user_to_webhooks(sender, user: UserModel, **kwargs):
     # Get the old email address so that the webhook receiver can match by
     # either database ID or email address.
     old_email = getattr(user, 'webhook_pre_save', {}).get('email', None)
+
+    if old_email != user.email:
+        log.debug('User changed email from %s to %s', old_email, user.email)
+        user_email_changed.send(sender, user=user, old_email=old_email)
 
     # Do our own JSON encoding so that we can compute the HMAC using the hook's secret.
     payload = {'id': user.id,

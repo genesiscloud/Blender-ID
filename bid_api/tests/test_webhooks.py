@@ -367,3 +367,39 @@ class WebhookBaseTest(TestCase):
         user.save()
         self.assertEqual(4, len(responses.calls))  # one failed + three successful calls
         self.assertEqual(0, models.WebhookQueuedCall.objects.count())
+
+    @responses.activate
+    def test_email_changed_signal(self):
+        received = []
+
+        def store_signals(sender, signal, **kwargs):
+            received.append((sender, signal, kwargs))
+
+        signals.user_email_changed.connect(store_signals)
+        responses.add(responses.POST,
+                      self.hook.url,
+                      json={'status': 'success'},
+                      status=200)
+
+        user = UserModel.objects.create_user('test@user.com', '123456')
+        self.assertEqual([], received, 'User creation should not triggger email changed signal')
+
+        expect_signal = (UserModel,
+                         signals.user_email_changed,
+                         {'user': user, 'old_email': 'test@user.com'})
+
+        user.full_name = 'ဖန်စီဘောင်းဘီ'
+        user.save()
+        self.assertEqual([], received,
+                         'Changing full name should not triggger email changed signal')
+
+        user.email = 'new+email@user.com'
+        user.save()
+        self.assertEqual([expect_signal], received,
+                         'Change of email should trigger email changed signal')
+        received.clear()
+
+        user.email = 'new+email@user.com'
+        user.save()
+        self.assertEqual([], received,
+                         'Saving user without email change should not trigger email changed signal')
