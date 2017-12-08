@@ -51,6 +51,8 @@ class AuthenticationForm(BootstrapModelFormMixin, auth_forms.AuthenticationForm)
 
 
 class UserProfileForm(BootstrapModelFormMixin, forms.ModelForm):
+    log = log.getChild('UserProfileForm')
+
     class Meta:
         model = User
         fields = ['full_name', 'email']
@@ -60,6 +62,10 @@ class UserProfileForm(BootstrapModelFormMixin, forms.ModelForm):
         if not full_name:
             raise forms.ValidationError(_('Full Name is a required field'))
         return full_name
+
+    def save(self, *args, **kwargs):
+        self.log.debug('%s updated their profile', self.cleaned_data['email'])
+        return super().save(*args, **kwargs)
 
 
 class PasswordChangeForm(BootstrapModelFormMixin, auth_forms.PasswordChangeForm):
