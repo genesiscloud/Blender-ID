@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.conf.urls import url
 from django.urls import reverse_lazy
 from django.contrib.auth import views as auth_views
@@ -53,7 +54,11 @@ urlpatterns = [
     url(r'^register/complete/$', auth_views.password_reset_complete, {
         'template_name': 'registration/registration_complete.html',
     }, name='register-complete'),
-
-    # Only enable this on a dev server:
-    # url(r'^error/(?P<code>\d+)$', views.test_error)
 ]
+
+# Only enable this on a dev server:
+if settings.DEBUG:
+    urlpatterns += [
+        url(r'^debug/email-changed$', views.test_email_changed_mail),
+        url(r'^error/(?P<code>\d+)$', views.test_error),
+    ]

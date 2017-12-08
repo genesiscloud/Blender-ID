@@ -95,3 +95,8 @@ INTERNAL_IPS = ['127.0.0.1']
 #     # release based on the git info.
 #     'release': raven.fetch_git_sha(os.path.abspath(os.curdir)),
 # }
+
+# For development, dump email to the console instead of trying to actually send it.
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# Alternatively, run python3 -m smtpd -n -c DebuggingServer -d '0.0.0.0:2525' and set
+# EMAIL_PORT = 2525

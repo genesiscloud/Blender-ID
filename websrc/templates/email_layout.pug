@@ -1,27 +1,28 @@
 doctype html
 html
 	head
+		title {% block title %}{{ subject }}{% endblock %}
 		style.
 			html, body {
 				background-color: white;
 				color: black;
-				font-family: sans-serif;
+				font-family: 'Roboto', 'Noto Sans', sans-serif;
+				font-size: 10pt;
 			}
 
 			body {
 				max-width: 100%;
-				width: 50ex;
-				margin-left: auto;
+				width: 60ex;
 				margin-right: auto;
-				border: 1px solid black;
-				border-radius: 5px;
-				padding: 1em 2em;
-				box-shadow: 10px 10px 5px #ddd;
-				text-shadow: 2px 2px 3px #ddd;
+				padding: 0.5em 1em;
 			}
 
 			p {
 				line-height: 150%;
+				text-align: justify;
+			}
+			p.closing {
+				margin-top: 3.5em;
 			}
 
 			a.button {
@@ -36,6 +37,18 @@ html
 				border-radius: 1em;
 				box-shadow: 5px 5px 5px #ddd;
 			}
+			img#blender {
+				height: 3em;
+				width: auto;
+				margin-right: 0;
+				margin-top: -0.5em;
+				margin-bottom: -0.2em;
+				vertical-align: middle;
+			}
 
+			section.about {
+				margin-top: 2em;
+				color: #888;
+			}
 	body
 		| {% block body %}{% endblock %}

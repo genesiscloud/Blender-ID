@@ -1,0 +1,25 @@
+Hi {{ user.full_name|default:user.email }}!
+
+
+Somebody, maybe it was you, changed your email address on Blender
+ID, from {{ old_email }} to {{ user.email }}.
+
+This notification is sent to both your old and your new email
+addresses. If you did not receive it at your new address, please
+verify that your address is correct.
+
+If this change was not your intent, or you made a mistake, please
+log in with {{ user.email }} and your current password at
+{{ blender_id }} and you'll be able to change it back. You can
+always contact us at cloudsupport@blender.org about this as well.
+
+Use your new email address ({{ user.email }}) to log in to any
+Blender ID enabled website, such as Blender Cloud, Blender
+Network, Blender Store, etc.
+
+Check your dashboard at {{ blender_id }} for more information.
+
+
+Kind regards,
+
+The Blender Web Team

@@ -149,6 +149,16 @@ class SwitchUserView(LoginRequiredMixin, auth_views.LoginView):
     success_url_allowed_hosts = settings.NEXT_REDIR_AFTER_LOGIN_ALLOWED_HOSTS
 
 
+def test_email_changed_mail(request):
+    """View for designing the email without having to send it all the time."""
+    from django.http import HttpResponse
+    from .signals import construct_email_changed_mail
+
+    email_body_html, *_ = construct_email_changed_mail(request.user, 'old@email.nl')
+
+    return HttpResponse(email_body_html)
+
+
 def test_error(request, code):
     from django.core import exceptions
     from django.http import response, Http404
