@@ -49,7 +49,9 @@
 							| Save Changes
 						a.btn(href="{% url 'bid_main:index' %}")
 							i.fa.fa-times
-							| Discard Changes
+							| Discard
+						a.btn(href="{% url 'bid_main:password_change' %}").
+							#[i.fa.fa-shield] Change Password
 
 			| {% if user.is_staff %}
 			hr
