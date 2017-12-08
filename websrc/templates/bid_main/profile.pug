@@ -1,6 +1,6 @@
 | {% extends 'layout.html' %}
 | {% load gravatar %}
-| {% block page_title %}Your Profile -- Blender ID{% endblock %}
+| {% block page_title %}Edit Your Profile -- Blender ID{% endblock %}
 | {% block body %}
 .bid.box
 	.row
@@ -9,7 +9,7 @@
 				ul.bid-icons
 					li
 						i.fa.fa-vcard
-				h1 Profile Details
+				h1 Edit Your Profile
 
 			form(action='', method='POST')
 				| {% csrf_token %}
@@ -49,7 +49,7 @@
 							| Save Changes
 						a.btn(href="{% url 'bid_main:index' %}")
 							i.fa.fa-times
-							| Cancel
+							| Discard Changes
 
 			| {% if user.is_staff %}
 			hr
