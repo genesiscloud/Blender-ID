@@ -1,4 +1,3 @@
-import logging
 import typing
 
 from django.db import models
@@ -6,8 +5,6 @@ from django.conf import settings
 from django.core.mail import send_mail
 from django.contrib.auth.models import PermissionsMixin
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
-from django.db.models.signals import m2m_changed
-from django.dispatch import receiver
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
@@ -253,26 +250,3 @@ class UserNote(models.Model):
 
     def __str__(self):
         return 'Note'
-
-
-@receiver(m2m_changed)
-def modified_user_role(sender, instance, action, reverse, model, **kwargs):
-    log = logging.getLogger(f'{__name__}.modified_user_role')
-    if not action.startswith('post_'):
-        log.debug('Ignoring m2m %r on %s - %s', action, type(instance), model)
-        return
-    if not isinstance(instance, User) or not issubclass(model, Role):
-        log.debug('Ignoring m2m %r on %s - %s', action, type(instance), model)
-        return
-    if not instance.id:
-        log.debug('Ignoring m2m %r on %s (no ID) - %s', action, type(instance), model)
-        return
-
-    # User's roles changed, so we have to update their public_roles_as_string.
-    new_roles = ' '.join(sorted(instance.public_roles()))
-    if new_roles != instance.public_roles_as_string:
-        instance.public_roles_as_string = new_roles
-        log.debug('    saving user again for new roles %r', new_roles)
-        instance.save(update_fields=['public_roles_as_string'])
-    else:
-        log.debug('    new roles are old roles: %r', new_roles)
