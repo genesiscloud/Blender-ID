@@ -1,9 +1,11 @@
+import datetime
 import hashlib
 import hmac
 import json
 
 import responses
 from django.test import TestCase
+from django.utils import timezone
 
 from .abstract import UserModel
 from bid_main.models import Role
@@ -28,6 +30,8 @@ class WebhookBaseTest(TestCase):
         self.hook.save()
         super().setUp()
 
+
+class WebhookTest(WebhookBaseTest):
     @responses.activate
     def test_modify_user_email_only(self):
         responses.add(responses.POST,
@@ -314,7 +318,7 @@ class WebhookBaseTest(TestCase):
         from bid_api.management.commands import flush_webhooks
 
         cmd = flush_webhooks.Command()
-        cmd.handle(flush=True, verbosity=3)
+        cmd.handle(flush=True, verbosity=3, monitor=False)
 
         self.assertEqual(2, len(responses.calls))  # the failed + the successful call
         call = responses.calls[1]
@@ -403,3 +407,124 @@ class WebhookBaseTest(TestCase):
         user.save()
         self.assertEqual([], received,
                          'Saving user without email change should not trigger email changed signal')
+
+
+class WebhookFlushDelayTest(WebhookBaseTest):
+    """To simplify the test, we use a fake 'now' for evaluation.
+
+    This prevents setting queued_call.created after saving it and saving
+    it again.
+    """
+    def queue_call(self):
+        queued_call = models.WebhookQueuedCall(
+            webhook=self.hook,
+            payload='"payload"',
+            error_code=0,
+            error_msg='unit test',
+        )
+        queued_call.save()
+
+    def test_empty_queue(self):
+        flush_delay = self.hook.flush_delay()
+        self.assertIsNone(flush_delay)
+
+    def test_just_queued(self):
+        self.queue_call()
+
+        now = timezone.now()
+        flush_delay = self.hook.flush_delay(now=now)
+        self.assertEqual(flush_delay, datetime.timedelta(seconds=1))
+
+    def test_queued_1_min_ago(self):
+        self.queue_call()
+
+        now = timezone.now() + datetime.timedelta(minutes=1)
+        flush_delay = self.hook.flush_delay(now=now)
+        self.assertEqual(flush_delay, datetime.timedelta(seconds=5))
+
+    def test_queued_3_min_ago(self):
+        self.queue_call()
+
+        now = timezone.now() + datetime.timedelta(minutes=3)
+        flush_delay = self.hook.flush_delay(now=now)
+        self.assertEqual(flush_delay, datetime.timedelta(seconds=10))
+
+    def test_queued_10_min_ago(self):
+        self.queue_call()
+
+        now = timezone.now() + datetime.timedelta(minutes=10)
+        flush_delay = self.hook.flush_delay(now=now)
+        self.assertEqual(flush_delay, datetime.timedelta(seconds=10))
+
+    def test_queued_1_hour_ago(self):
+        self.queue_call()
+
+        now = timezone.now() + datetime.timedelta(hours=1)
+        flush_delay = self.hook.flush_delay(now=now)
+        self.assertEqual(flush_delay, datetime.timedelta(seconds=15))
+
+
+class WebhookFlushTimeTest(WebhookBaseTest):
+
+    def assertCloseTo(self, time1, time2, **kwargs):
+        """Asserts that 'time1' is close to 'time2 + timedelta(**kwargs)'."""
+        delta = datetime.timedelta(**kwargs)
+        precision = datetime.timedelta(milliseconds=10)
+
+        if time2 + delta - precision <= time1 <= time2 + delta + precision:
+            return
+        self.fail(f'{time1} is not close to {time2} + {delta}:\n'
+                  f'Actual  : {time1}\n'
+                  f'Expected: {time2+delta}')
+
+    def queue_call(self, created: datetime.datetime):
+        queued_call = models.WebhookQueuedCall(
+            webhook=self.hook,
+            payload='"payload"',
+            error_code=0,
+            error_msg='unit test',
+        )
+        queued_call.save()
+        queued_call.created = created
+        queued_call.save(update_fields={'created'})
+
+    def test_empty_queue(self):
+        flush_time = self.hook.flush_time()
+        self.assertIsNone(flush_time)
+
+    def test_just_queued_never_flushed(self):
+        now = timezone.now()
+        self.queue_call(now)
+
+        flush_time = self.hook.flush_time(now=now)
+        self.assertCloseTo(flush_time, now, seconds=0)
+
+    def test_queued_47_min_ago_flushed_never(self):
+        now = timezone.now()
+        # Oldest queued call was queued 47 minutes ago.
+        self.queue_call(now - datetime.timedelta(minutes=47))
+
+        # Verify that the creation timestamp was set correctly.
+        oldest = self.hook.queue.order_by('created').first()
+        age = now - oldest.created
+        self.assertEqual(47 * 60, age.total_seconds())
+
+        # Should be flushed soon.
+        flush_time = self.hook.flush_time(now=now)
+        self.assertCloseTo(flush_time, now, seconds=0)
+
+    def test_queued_47_min_ago_flushed_3_sec_ago(self):
+        now = timezone.now()
+        # Oldest queued call was queued 47 minutes ago.
+        self.queue_call(now - datetime.timedelta(minutes=47))
+
+        # Last flush was 3 seconds ago.
+        self.hook.last_flush_attempt = now - datetime.timedelta(seconds=3)
+        self.hook.save()
+
+        # Should be flushed 15 seconds after last flush.
+        flush_delay = self.hook.flush_delay(now=now)
+        self.assertEqual(datetime.timedelta(seconds=15), flush_delay)
+
+        flush_time = self.hook.flush_time(now=now)
+        self.assertCloseTo(flush_time, now, seconds=12)

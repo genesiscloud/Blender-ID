@@ -1,6 +1,8 @@
 import logging
+import time
 
 from django.core.management.base import BaseCommand
+from django.utils import timezone
 
 from bid_api import models
 
@@ -16,17 +18,26 @@ class Command(BaseCommand):
                             default=False,
                             help='Really perform the flush; without this only the '
                                  'size of the queue is shown.')
+        parser.add_argument('--monitor', '-m',
+                            action='store_true',
+                            default=False,
+                            help='Continually monitors the webhook queues.')
 
     def handle(self, *args, **options):
         do_flush = options['flush']
         verbose = options['verbosity'] > 0
 
         levels = {
-            0: logging.WARNING,
-            1: logging.INFO,
+            0: logging.ERROR,
+            1: logging.WARNING,
+            2: logging.INFO,
+            3: logging.DEBUG,
         }
         level = levels.get(options['verbosity'], logging.DEBUG)
         logging.getLogger('bid_api').setLevel(level)
+        logging.disable(level - 1)
+        if options['monitor']:
+            return self.monitor()
 
         queue = models.WebhookQueuedCall.objects
 
@@ -57,3 +68,41 @@ class Command(BaseCommand):
                 self.stdout.write(self.style.WARNING(f'There is still 1 item queued.'))
             else:
                 self.stdout.write(self.style.WARNING(f'There are still {new_count} items queued.'))
+
+    def monitor(self):
+        """Keeps monitoring the queues."""
+
+        try:
+            while True:
+                self._monitor_iteration()
+                time.sleep(1)
+        except KeyboardInterrupt:
+            log.info('shutting down webhook queue monitor')
+
+    def _monitor_iteration(self):
+        """Single iteration of queue monitor."""
+
+        hooks = models.Webhook.objects.filter(enabled=True)
+        if not hooks:
+            log.debug('no enabled hooks')
+            return
+
+        def get_flush_info():
+            for hook in hooks:
+                ft = hook.flush_time()
+                if ft is None:
+                    continue
+                yield ft, hook
+
+        flush_info = list(get_flush_info())
+        if not flush_info:
+            log.debug('nothing to flush')
+            return
+
+        flush_time, flush_hook = min(flush_info)
+        secs_in_future = (flush_time - timezone.now()).total_seconds()
+        if secs_in_future > 1:
+            log.debug('soonest to flush is %s, but is %d seconds in future; waiting',
+                      flush_hook, secs_in_future)
+            return
+        flush_hook.flush()

@@ -1,14 +1,27 @@
+import datetime
 import hashlib
 import hmac
 import logging
+import typing
 
 from django.db import models
+from django.utils import timezone
 import requests
 
 WEBHOOK_TYPES = [
     ('USER_MODIFIED', 'User Modified'),
 ]
 WEBHOOK_RETRY_COUNT = 5
+
+# List of (max age of oldest queued item, delay before flushing again) tuples.
+# if age >= tuple[0] → flush after tuple[1]
+WEBHOOK_FLUSH_INTERVALS = [
+    (datetime.timedelta(minutes=30), datetime.timedelta(seconds=15)),
+    (datetime.timedelta(minutes=2), datetime.timedelta(seconds=10)),
+    (datetime.timedelta(seconds=30), datetime.timedelta(seconds=5)),
+    (datetime.timedelta(seconds=5), datetime.timedelta(seconds=2)),
+    (datetime.timedelta(seconds=0), datetime.timedelta(seconds=1)),
+]
 
 
 def webhook_session() -> requests.Session:
@@ -38,6 +51,9 @@ class Webhook(models.Model):
                                    help_text='Description of this webhook, for staff-eyes only.')
     timeout = models.IntegerField(default=3,
                                   help_text='Timeout for HTTP calls to this webhook, in seconds.')
+    last_flush_attempt = models.DateTimeField(
+        null=True,
+        help_text='Records when we last tried to flush this queue')
 
     def __str__(self):
         return self.name
@@ -45,6 +61,46 @@ class Webhook(models.Model):
     def queue_size(self) -> int:
         """Returns the number of queued calls to this webhook."""
         return self.queue.count()
+
+    def flush_time(self, *, now: datetime.datetime = None) -> typing.Optional[datetime.datetime]:
+        """Returns the datetime at which this queue should be flushed.
+
+        :returns: the datetime when should be flushed, or None when the queue is empty.
+        """
+        if self.queue_size() == 0:
+            return None
+
+        if self.last_flush_attempt is None:
+            if now is not None:
+                return now
+            return timezone.now()
+
+        delay = self.flush_delay()
+        if delay is None:
+            return None
+        return self.last_flush_attempt + delay
+
+    def flush_delay(self, *, now: datetime.datetime = None) -> typing.Optional[datetime.timedelta]:
+        """Returns the delay after which this queue should be flushed.
+
+        Add this to last_flush_attempt to have an absolute datetime.
+
+        :returns: the timedelta after it should be flushed, or None when the queue is empty.
+        """
+        if self.queue_size() == 0:
+            return None
+
+        if now is None:
+            now = timezone.now()
+
+        oldest = self.queue.order_by('created').first()
+        age = now - oldest.created
+        for agelimit, delay in WEBHOOK_FLUSH_INTERVALS:
+            if age >= agelimit:
+                return delay
+
+        # Fall back to rapid re-flushing.
+        return datetime.timedelta(seconds=1)
 
     def send(self, payload: bytes, session: requests.Session,
              *, queued: 'WebhookQueuedCall' = None):
@@ -116,6 +172,29 @@ class Webhook(models.Model):
         if queued:
             log.info('dequeueing webhook call to %s', self.url)
             queued.delete()
+
+    def flush(self):
+        """Tries to deliver all queued calls of this webhook."""
+        log = logging.getLogger(f'{__name__}.Webhook.flush')
+
+        self.last_flush_attempt = timezone.now()
+        self.save(update_fields={'last_flush_attempt'})
+
+        queued_count = self.queue.count()
+        if queued_count == 0:
+            log.debug('nothing to flush')
+            return
+
+        log.info('flushing %d queued item(s) to %s', queued_count, self.url)
+
+        # Order by 'created' to keep items in the correct order. This is important
+        # for subscription statuses for example (the store takes away the subscription
+        # role when payment is due, and gives it back when paid, and those should be
+        # handled in the correct order).
+        sess = webhook_session()
+        for item in self.queue.order_by('created'):
+            payload = item.payload.encode()
+            item.webhook.send(payload, sess, queued=item)
 
 
 class WebhookQueuedCall(models.Model):

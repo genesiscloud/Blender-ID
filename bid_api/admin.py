@@ -18,12 +18,13 @@ def enable_webhook(modeladmin, request, queryset):
 
 @admin.register(models.Webhook)
 class WebhookAdmin(ModelAdmin):
-    list_display = ('name', 'hook_type', 'url', 'enabled', 'queue_size')
+    list_display = ('name', 'hook_type', 'url', 'enabled', 'queue_size', 'last_flush_attempt')
     list_display_links = ('name', 'hook_type', 'url')
     list_filter = ('hook_type', 'enabled')
     search_fields = ('name', 'hook_type', 'url')
     ordering = ('name',)
     actions = [disable_webhook, enable_webhook]
+    readonly_fields = ('queue_size', 'last_flush_attempt')
 
     def queue_size(self, item: models.Webhook) -> str:
         """The queue size of the webhook, or '-' when empty."""
