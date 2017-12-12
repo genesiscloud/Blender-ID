@@ -1,13 +1,10 @@
 import logging
 
-from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
 
 from bid_api import models
 
 log = logging.getLogger(__name__)
-UserModel = get_user_model()
-API_USER = 'sybren@stuvel.eu'
 
 
 class Command(BaseCommand):

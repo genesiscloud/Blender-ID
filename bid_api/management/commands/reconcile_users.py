@@ -14,7 +14,6 @@ from bid_api.views.badger import BadgerView
 
 log = logging.getLogger(__name__)
 UserModel = get_user_model()
-API_USER = 'sybren@stuvel.eu'
 
 
 class Command(BaseCommand):
