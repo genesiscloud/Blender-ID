@@ -528,3 +528,23 @@ class WebhookFlushTimeTest(WebhookBaseTest):
 
         flush_time = self.hook.flush_time(now=now)
         self.assertCloseTo(flush_time, now, seconds=12)
+
+
+    def test_more_queued_47_min_ago_flushed_3_sec_ago(self):
+        now = timezone.now()
+        # Oldest queued call was queued 47 minutes ago.
+        self.queue_call(now - datetime.timedelta(minutes=47))
+        # But there are others that are more recent. They should not have an effect.
+        self.queue_call(now - datetime.timedelta(minutes=13))
+        self.queue_call(now - datetime.timedelta(seconds=10))
+
+        # Last flush was 3 seconds ago.
+        self.hook.last_flush_attempt = now - datetime.timedelta(seconds=3)
+        self.hook.save()
+
+        # Should be flushed 15 seconds after last flush.
+        flush_delay = self.hook.flush_delay(now=now)
+        self.assertEqual(datetime.timedelta(seconds=15), flush_delay)
+
+        flush_time = self.hook.flush_time(now=now)
+        self.assertCloseTo(flush_time, now, seconds=12)
