@@ -188,7 +188,7 @@ Assuming deployment on FreeBSD with uWSGI, take care to:
       BASE=/data/www/vhosts/www.blender.org
       exec su borg -c bash -ex <<EOT
       cd $BASE/blender-id
-      exec $BASE/venv-bid/bin/python manage.py flush_webhooks -m -v 3
+      exec $BASE/venv-bid/bin/python manage.py flush_webhooks -m -v 0
       EOT
 
 - Start the daemon supervisor with `sudo service svscan start` if necessary.
