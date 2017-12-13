@@ -125,7 +125,8 @@ The following tables are explicitly *not* migrated:
 
 Assuming deployment on FreeBSD with uWSGI, take care to:
 
-- Install `python36`, `apache24`, `a24_mod_proxy_uwsgi`, and `mysql56-server`.
+- Install `python36`, `apache24`, `a24_mod_proxy_uwsgi`, `mysql56-server`, and
+  `sysutils/daemontools`.
 - Add the following to `/etc/make.conf`. Remove the `.if` and `.endif` lines if you're fine having
   Python 3.6 as a global default.
 
@@ -175,10 +176,21 @@ Assuming deployment on FreeBSD with uWSGI, take care to:
       #uwsgi_configfile="/usr/local/etc/uwsgi/uwsgi.ini"
       uwsgi_flags="-L --ini /usr/local/etc/uwsgi/uwsgi.conf"
 
-- Set up the following cron jobs:
+      svscan_enable="YES"
+      svscan_logdir="/var/log/service"
+
+- Create the directories `/var/log/service` and `/var/service/blender-id-flush-webhooks`,
+  put this file into `/var/service/blender-id-flush-webhooks/run` and `chmod +x` it:
+
+      #!/bin/sh
+      # on one long line:
+      su borg -c '/data/www/vhosts/www.blender.org/venv-bid/bin/python   /data/www/vhosts/www.blender.org/blender-id/manage.py flush_webhooks -m -v 3'
+
+- Start the daemon supervisor with `sudo service svscan start` if necessary.
+
+- Set up the following cron job:
 
       47  *  *   *   *  cd /data/www/vhosts/www.blender.org/blender-id && ../venv-bid/bin/python3 manage.py cleartokens
-      */5  *  *   *   *  cd /data/www/vhosts/www.blender.org/blender-id && ../venv-bid/bin/python3 manage.py flush_webhooks --flush --verbosity 0
 
 
 ## Troubleshooting
