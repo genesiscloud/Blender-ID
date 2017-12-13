@@ -82,6 +82,12 @@ class Command(BaseCommand):
     def _monitor_iteration(self):
         """Single iteration of queue monitor."""
 
+        # Quick check to see if any hook got anything queued.
+        queue_size = models.WebhookQueuedCall.objects.count()
+        if queue_size == 0:
+            log.debug('nothing queued')
+            return
+
         # Investigate the hook status every time, since they can have been
         # enabled/disabled since our last iteration.
         hooks = models.Webhook.objects.filter(enabled=True)
