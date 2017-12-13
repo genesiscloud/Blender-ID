@@ -207,9 +207,9 @@ class WebhookQueuedCall(models.Model):
     webhook = models.ForeignKey(Webhook, on_delete=models.CASCADE, related_name='queue')
     payload = models.TextField(help_text='The payload to POST to the webhook')
 
-    error_code = models.IntegerField(blank=True,
+    error_code = models.IntegerField(blank=True, default=0,
                                      help_text='The HTTP status code received when POSTing')
-    error_msg = models.TextField(blank=True,
+    error_msg = models.TextField(blank=True, default='',
                                  help_text='The HTTP response received when POSTing')
 
     created = models.DateTimeField(auto_now_add=True)
