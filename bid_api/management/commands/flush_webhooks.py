@@ -82,19 +82,20 @@ class Command(BaseCommand):
     def _monitor_iteration(self):
         """Single iteration of queue monitor."""
 
+        # Investigate the hook status every time, since they can have been
+        # enabled/disabled since our last iteration.
         hooks = models.Webhook.objects.filter(enabled=True)
         if not hooks:
             log.debug('no enabled hooks')
             return
 
-        def get_flush_info():
-            for hook in hooks:
-                ft = hook.flush_time()
-                if ft is None:
-                    continue
-                yield ft, hook
-
-        flush_info = list(get_flush_info())
+        # Skip hooks that don't have to be flushed.
+        flush_info = []
+        for hook in hooks:
+            ft = hook.flush_time()
+            if ft is None:  # Means that there is nothing queued.
+                continue
+            flush_info.append((ft, hook))
         if not flush_info:
             log.debug('nothing to flush')
             return
