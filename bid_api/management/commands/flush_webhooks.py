@@ -95,21 +95,16 @@ class Command(BaseCommand):
             log.debug('no enabled hooks')
             return
 
-        # Skip hooks that don't have to be flushed.
-        flush_info = []
-        for hook in hooks:
-            ft = hook.flush_time()
-            if ft is None:  # Means that there is nothing queued.
-                continue
-            flush_info.append((ft, hook))
-        if not flush_info:
-            log.debug('nothing to flush')
-            return
+        # Flush all hooks that have to be flushed now.
+        for flush_hook in hooks:
+            flush_time = flush_hook.flush_time()
 
-        flush_time, flush_hook = min(flush_info)
-        secs_in_future = (flush_time - timezone.now()).total_seconds()
-        if secs_in_future > 1:
-            log.debug('soonest to flush is %s, but is %d seconds in future; waiting',
-                      flush_hook, secs_in_future)
-            return
-        flush_hook.flush()
+            if flush_time is None:  # Means that there is nothing queued.
+                continue
+            secs_in_future = (flush_time - timezone.now()).total_seconds()
+            if secs_in_future > 1:
+                log.debug('skipping %s, flush time is %d seconds in future',
+                          flush_hook, secs_in_future)
+                continue
+
+            flush_hook.flush()
