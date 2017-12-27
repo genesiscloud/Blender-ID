@@ -4,6 +4,9 @@
 | {% block object-tools-items %}
 | {{ block.super }}
 li
+	a(href="https://store.blender.org/bid-refresh.php?blenderid={{ original.email|urlencode }}",target='_blank')
+		| {% trans "Refresh from Store" %}</a>
+li
 	a(href="https://store.blender.org/wp-admin/users.php?s={{ original.email|urlencode }}",target='_blank')
 		| {% trans "Find in Store" %}</a>
 li
