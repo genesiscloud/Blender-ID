@@ -65,7 +65,7 @@ class CreateUserTest(AbstractAPITest):
             'full_name': 'Other',
             'password': '$2a$some-other-hash-here',
         })
-        self.assertEqual(400, response.status_code, f'response: {response}')
+        self.assertEqual(409, response.status_code, f'response: {response}')
         self.assertEqual('application/json', response.get('content-type'))
         self.assertEqual({
             'email': [{'code': 'unique',

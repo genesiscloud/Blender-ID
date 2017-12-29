@@ -32,11 +32,17 @@ class CreateUserView(AbstractAPIView):
     @method_decorator(protected_resource(scopes=['usercreate']))
     @transaction.atomic()
     def post(self, request) -> HttpResponse:
+        self.log.debug('POST received: %s', request.POST)
+        self.log.debug('Headers: %s', request.META)
         cuf = CreateUserForm(request.POST)
         if not cuf.is_valid():
             errors = cuf.errors.as_json()
             self.log.warning('invalid form received: %s', errors)
-            return HttpResponse(errors, content_type='application/json', status=400)
+            if cuf.has_error('email', 'unique'):
+                status = 409
+            else:
+                status = 400
+            return HttpResponse(errors, content_type='application/json', status=status)
 
         self.log.info('Creating user %r on behalf of %s', request.POST['email'], request.user)
         db_user = UserModel.objects.create_user(
