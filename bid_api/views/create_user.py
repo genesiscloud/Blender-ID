@@ -32,8 +32,6 @@ class CreateUserView(AbstractAPIView):
     @method_decorator(protected_resource(scopes=['usercreate']))
     @transaction.atomic()
     def post(self, request) -> HttpResponse:
-        self.log.debug('POST received: %s', request.POST)
-        self.log.debug('Headers: %s', request.META)
         cuf = CreateUserForm(request.POST)
         if not cuf.is_valid():
             errors = cuf.errors.as_json()
