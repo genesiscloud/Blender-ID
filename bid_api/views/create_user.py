@@ -1,6 +1,6 @@
 import logging
 
-from django.db import transaction
+from django.db import transaction, IntegrityError
 from django.contrib.auth import get_user_model
 from django.contrib.admin.models import LogEntry, ADDITION
 from django.contrib.contenttypes.models import ContentType
@@ -45,10 +45,23 @@ class CreateUserView(AbstractAPIView):
             return HttpResponse(errors, content_type='application/json', status=status)
 
         self.log.info('Creating user %r on behalf of %s', request.POST['email'], request.user)
-        db_user = UserModel.objects.create_user(
-            cuf.cleaned_data['email'],
-            cuf.cleaned_data['password'],
-            full_name=cuf.cleaned_data['full_name'])
+        try:
+            db_user = UserModel.objects.create_user(
+                cuf.cleaned_data['email'],
+                cuf.cleaned_data['password'],
+                full_name=cuf.cleaned_data['full_name'])
+        except IntegrityError as ex:
+            # Even though the user didn't exist when we validated the form,
+            # it can exist now due to race conditions.
+            if 'email' not in str(ex):
+                self.log.error('Error creating user %r on behalf of %s: %s',
+                               request.POST['email'], request.user, ex)
+                errors = {'database': str(ex)}
+                status = 500
+            else:
+                errors = {'email': 'a user with this email address already exists'}
+                status = 409
+            return JsonResponse(errors, content_type='application/json', status=status)
 
         LogEntry.objects.log_action(
             user_id=request.user.id,
