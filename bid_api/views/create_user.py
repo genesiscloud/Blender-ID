@@ -35,7 +35,7 @@ class CreateUserView(AbstractAPIView):
         cuf = CreateUserForm(request.POST)
         if not cuf.is_valid():
             errors = cuf.errors.as_json()
-            self.log.warning('invalid form received: %s', errors)
+            self.log.info('invalid form received: %s', errors)
             if cuf.has_error('email', 'unique'):
                 status = 409
             else:
