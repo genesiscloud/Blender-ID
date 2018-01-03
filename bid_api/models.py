@@ -94,6 +94,10 @@ class Webhook(models.Model):
             now = timezone.now()
 
         oldest = self.queue.order_by('created').first()
+        if oldest is None:
+            # Last item got flushed since we checked the queue size.
+            return None
+
         age = now - oldest.created
         for agelimit, delay in WEBHOOK_FLUSH_INTERVALS:
             if age >= agelimit:
