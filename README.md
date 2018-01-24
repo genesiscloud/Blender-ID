@@ -138,6 +138,15 @@ Assuming deployment on FreeBSD with uWSGI, take care to:
 - Add the `uwsgi` user to the `www` group, or graceful restarts won't work due to permission
   problems. uWSGI tries to change ownership of `/tmp/uwsgi.sock` to `uwsgi:www`, and not being in
   the `www` group this would fail.
+- Create a Git clone of the `production` branch at `/data/www/vhosts/www.blender.org/blender-id/`
+- Create the VirtualEnv:
+
+      cd /data/www/vhosts/www.blender.org
+      python3.6 -m venv venv-bid
+      . ./venv-bid/bin/activate
+      cd blender-id
+      pip3 install -r requirements.txt
+
 - Use the following file in `/usr/local/etc/uwsgi/uwsgi.ini`:
 
       [uwsgi]
