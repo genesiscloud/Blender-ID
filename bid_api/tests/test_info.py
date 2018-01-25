@@ -18,13 +18,24 @@ class UserInfoTest(AbstractAPITest):
             full_name='मूंगफली मक्खन प्रेमी',
         )
 
-    def get(self, user_id: str, *, access_token='') -> HttpResponse:
+    def get(self, user_id: str, *, access_token='', token_on_url=False) -> HttpResponse:
         url_path = reverse('bid_api:user-info-by-id', kwargs={'user_id': user_id})
-        response = self.authed_get(url_path, access_token=access_token)
+        response = self.authed_get(url_path, access_token=access_token, token_on_url=token_on_url)
         return response
 
     def test_user_info_happy(self):
         response = self.get(str(self.target_user.id))
+        self.assertEqual(200, response.status_code, f'response: {response}')
+        self.assertEqual('application/json', response.get('content-type'))
+
+        payload = json.loads(response.content)
+        self.assertEqual({'id': self.target_user.id,
+                          'full_name': self.target_user.get_full_name(),
+                          'email': self.target_user.email,
+                          'roles': {}}, payload)
+
+    def test_user_info_access_token_on_url(self):
+        response = self.get(str(self.target_user.id), token_on_url=True)
         self.assertEqual(200, response.status_code, f'response: {response}')
         self.assertEqual('application/json', response.get('content-type'))
 
@@ -83,12 +94,22 @@ class UserInfoTest(AbstractAPITest):
         )
         normal_token.save()
 
-        url_path = reverse('bid_api:user')
-        response = self.authed_get(url_path, access_token=normal_token.token)
-        self.assertEqual(200, response.status_code)
+        def assert_payload_ok(response):
+            self.assertEqual(200, response.status_code)
+            payload = json.loads(response.content)
+            self.assertEqual({'id': self.target_user.id,
+                              'full_name': self.target_user.get_full_name(),
+                              'email': self.target_user.email,
+                              'roles': {}}, payload)
 
-        payload = json.loads(response.content)
-        self.assertEqual({'id': self.target_user.id,
-                          'full_name': self.target_user.get_full_name(),
-                          'email': self.target_user.email,
-                          'roles': {}}, payload)
+        url_path = reverse('bid_api:user')
+        resp = self.authed_get(url_path, access_token=normal_token.token)
+        assert_payload_ok(resp)
+
+        # Enable this code once https://github.com/evonove/django-oauth-toolkit/issues/547 is fixed.
+        # resp = self.authed_get(url_path, access_token=normal_token.token, token_on_url=True)
+        # assert_payload_ok(resp)
+
+    def test_own_user_info_anonymous(self):
+        response = self.client.get(reverse('bid_api:user'))
+        self.assertEqual(403, response.status_code)
