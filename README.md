@@ -29,22 +29,25 @@ After cloning the Git repo, perform these steps to create a working dev server:
 
 1. Copy `blenderid/__settings.py` to `blenderid/settings.py` and adjust for your needs.
 2. Run `git submodule init` and `git submodule update`
-3. Run `./manage.py migrate` to migrate your database to the latest version.
-4. In production, set up a cron job that calls the
+3. Create a virtual environment (with Python 3.6) and run `pip install -r requirements-dev.txt`
+   (if you get an error when installing the `mysqlclient` package on macOS, 
+   [change your mysql_config](https://github.com/PyMySQL/mysqlclient-python#note-about-bug-of-mysql-connectorc-on-macos))
+4. Run `./manage.py migrate` to migrate your database to the latest version.
+5. In production, set up a cron job that calls the
    [cleartokens](https://django-oauth-toolkit.readthedocs.io/en/latest/management_commands.html#cleartokens)
    management command regularly.
-5. In production, set up a cron job that calls the `flush_webhooks --flush -v 0` management command
+6. In production, set up a cron job that calls the `flush_webhooks --flush -v 0` management command
    regularly.
-6. Run `./manage.py createsuperuser` to create super user
-7. Load any fixtures you want to use.
+7. Run `./manage.py createsuperuser` to create super user
+8. Load any fixtures you want to use.
    - list fixtures  `ls */fixtures/*`
    - `./manage.py loaddata default_site`
    - `./manage.py loaddata default_roles`
    - `./manage.py loaddata blender_cloud_devserver`
    - `./manage.py loaddata blender_cloud_dev_webhook`
-8. Run ./gulp  to compile javascript
-9. Add to /etc/hosts  127.0.0.1 blender-id
-10. ./manage.py runserver
+9. Run `./gulp`  to compile javascript
+10. Add to /etc/hosts  127.0.0.1 blender-id
+11. Run `./manage.py runserver`
 
 
 ## Setting up the Blender Store (and other `bid_api` users)
