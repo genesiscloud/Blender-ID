@@ -24,6 +24,7 @@ urlpatterns = [
 
     url(r'^password_reset/$',
         auth_views.PasswordResetView.as_view(
+            form_class=forms.PasswordResetForm,
             success_url=reverse_lazy('bid_main:password_reset_done')),
         name='password_reset'),
     url(r'^password_reset/done/$',

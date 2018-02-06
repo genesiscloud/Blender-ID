@@ -72,6 +72,13 @@ class PasswordChangeForm(BootstrapModelFormMixin, auth_forms.PasswordChangeForm)
     """Password change form with Bootstrap CSS classes."""
 
 
+class PasswordResetForm(BootstrapModelFormMixin, auth_forms.PasswordResetForm):
+    """Password reset form with Bootstrap CSS classes."""
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['email'].widget.attrs['placeholder'] = 'Your email address'
+
+
 class AppRevokeTokensForm(forms.Form):
     """Form for revoking OAuth tokens for a specific application."""
 
