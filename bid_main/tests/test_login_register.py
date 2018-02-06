@@ -1,14 +1,6 @@
-from datetime import timedelta
-import json
-
-from django.http import HttpResponse
-from django.contrib.admin.models import LogEntry
 from django.core.urlresolvers import reverse
-from django.utils import timezone
-from django.http import HttpResponse
 from django.contrib.auth import get_user_model
 from django.test import TestCase
-from django.utils import timezone
 
 import oauth2_provider.models as oa2_models
 
