@@ -40,7 +40,7 @@
 
 	.bid-cta
 		| {% if not user.confirmed_at %}
-		a.btn.btn-warning-filled(href="-- url_for_security('send_confirmation') --")
+		a.btn.btn-warning-filled(href="{% url 'bid_main:confirm-email' %}")
 			i.fa.fa-envelope
 			| Please confirm your email address
 		hr

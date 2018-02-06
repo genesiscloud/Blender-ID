@@ -1,0 +1,12 @@
+Hi {{ user.full_name|default:user.email }}!
+
+This email is just to check that {{ user.email }} is your e-mail address.
+Follow this link to continue:
+
+{{ url }}
+
+Note that this link will be valid for only 12 hours.
+
+Kind regards,
+
+The Blender Web Team

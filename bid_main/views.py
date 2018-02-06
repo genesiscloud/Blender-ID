@@ -9,6 +9,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseRedirect
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
+from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import never_cache
 from django.views.generic import CreateView, TemplateView, FormView
@@ -17,7 +18,7 @@ from django.views.generic.edit import UpdateView
 import oauth2_provider.models as oauth2_models
 import loginas.utils
 
-from . import forms
+from . import forms, email
 from .models import User
 
 
@@ -133,6 +134,53 @@ class RegistrationView(CreateView):
         return redirect('bid_main:register-done')
 
 
+class ConfirmEmailView(LoginRequiredMixin, TemplateView):
+    template_name = 'bid_main/confirm_email/start.html'
+    log = logging.getLogger(f'{__name__}.ConfirmEmailView')
+
+    def post(self, request, *args, **kwargs):
+        self.log.info('Starting email confirmation flow for user %s', request.user)
+        email.send_verify_address(request.user, request.scheme)
+        return redirect('bid_main:confirm-email-sent')
+
+
+class ConfirmEmailSentView(LoginRequiredMixin, TemplateView):
+    template_name = 'bid_main/confirm_email_sent.html'
+
+
+class ConfirmEmailVerifiedView(LoginRequiredMixin, TemplateView):
+    template_name = 'bid_main/confirm_email/verified-happy.html'
+    log = logging.getLogger(f'{__name__}.ConfirmEmailVerifiedView')
+
+    def get(self, request, *args, **kwargs):
+        b64payload = kwargs.get('info', '')
+        hmac = kwargs.get('hmac', '')
+        result = email.check_verification_payload(b64payload, hmac, request.user.email)
+
+        status_code = 200  # OK
+        if result == email.VerificationResult.INVALID:
+            self.template_name = 'bid_main/confirm_email/verified-invalid.html'
+            status_code = 400  # Bad Request
+        elif result == email.VerificationResult.EXPIRED:
+            self.template_name = 'bid_main/confirm_email/verified-expired.html'
+        elif result == email.VerificationResult.OK:
+            self.confirm_email_address(request.user)
+        else:
+            self.log.error('unknown validation result %r', result)
+            raise ValueError('unknown validation result')
+
+        resp = super().get(request, *args, **kwargs)
+        resp.status_code = status_code
+        return resp
+
+    def confirm_email_address(self, user):
+        """Update the user to set their email address as confirmed."""
+
+        user.confirmed_email_at = timezone.now()
+        user.save()
+        self.log.info('Confirmed email of %s via explicit email confirmation.', user.email)
+
+
 class ProfileView(LoginRequiredMixin, UpdateView):
     form_class = forms.UserProfileForm
     model = User
@@ -149,13 +197,22 @@ class SwitchUserView(LoginRequiredMixin, auth_views.LoginView):
     success_url_allowed_hosts = settings.NEXT_REDIR_AFTER_LOGIN_ALLOWED_HOSTS
 
 
-def test_email_changed_mail(request):
+def test_mail_email_changed(request):
     """View for designing the email without having to send it all the time."""
     from django.http import HttpResponse
     from .email import construct_email_changed_mail
 
     email_body_html, *_ = construct_email_changed_mail(request.user, 'old@email.nl')
 
+    return HttpResponse(email_body_html)
+
+
+def test_mail_verify_address(request):
+    """View for designing the email without having to send it all the time."""
+    from django.http import HttpResponse
+    from .email import construct_verify_address
+
+    email_body_html, *_ = construct_verify_address(request.user, request.scheme)
     return HttpResponse(email_body_html)
 
 

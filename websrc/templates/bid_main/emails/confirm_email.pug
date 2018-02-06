@@ -1,0 +1,17 @@
+| {% extends "email_layout.html" %}
+| {% block body %}
+h1 Confirm your Blender ID e-mail
+
+p Hi {{ user.full_name|default:user.email }}!
+
+p.
+	This email is just to check that {{ user.email }} is your e-mail address.
+	Click the button below to continue.
+
+p
+	a.button(href='{{ url }}') Confirm
+
+p.
+	Note that this link will be valid for only 12 hours.
+
+| {% endblock %}

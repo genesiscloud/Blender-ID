@@ -1,0 +1,19 @@
+| {% extends 'bid_main/confirm_email/base.html' %}
+
+| {% block confirm_email_body %}
+|     {% block confirm_email_above_form %}{% endblock %}
+
+p.text-primary.
+	Is your address {{ user.email }}?
+
+form(action="{% url 'bid_main:confirm-email' %}", method='POST')
+	| {% csrf_token %}
+	.bid-cta
+		a.btn(href="{% url 'bid_main:profile' %}")
+			i.fa.fa-edit
+			| Change e-mail address
+		button.btn.btn-success(type='submit')
+			i.fa.fa-check
+			| Yes that is correct
+
+| {% endblock %}

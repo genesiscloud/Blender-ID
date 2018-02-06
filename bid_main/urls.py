@@ -55,11 +55,18 @@ urlpatterns = [
     url(r'^register/complete/$', auth_views.password_reset_complete, {
         'template_name': 'registration/registration_complete.html',
     }, name='register-complete'),
+
+    url(r'^confirm-email/start$', views.ConfirmEmailView.as_view(), name='confirm-email'),
+    url(r'^confirm-email/sent$', views.ConfirmEmailSentView.as_view(), name='confirm-email-sent'),
+    url(r'^confirm-email/verified/(?P<info>[^/]+)/(?P<hmac>[^/]+)$',
+        views.ConfirmEmailVerifiedView.as_view(),
+        name='confirm-email-verified'),
 ]
 
 # Only enable this on a dev server:
 if settings.DEBUG:
     urlpatterns += [
-        url(r'^debug/email-changed$', views.test_email_changed_mail),
+        url(r'^debug/email-changed$', views.test_mail_email_changed),
+        url(r'^debug/email-verify$', views.test_mail_verify_address),
         url(r'^error/(?P<code>\d+)$', views.test_error),
     ]
