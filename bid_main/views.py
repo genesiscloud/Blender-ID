@@ -47,7 +47,8 @@ class IndexView(LoginRequiredMixin, PageIdMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
-        role_names = self.request.user.role_names
+        user = self.request.user
+        role_names = user.role_names
 
         # Figure out which Blender ID 'apps' the user has access to.
         # Currently this is just based on a hard-coded set of roles.
@@ -57,7 +58,7 @@ class IndexView(LoginRequiredMixin, PageIdMixin, TemplateView):
 
         ctx['cloud_needs_renewal'] = ('cloud_has_subscription' in role_names and
                                       'cloud_subscriber' not in role_names)
-
+        ctx['show_confirm_address'] = not user.has_confirmed_email
         return ctx
 
 
