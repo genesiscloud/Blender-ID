@@ -6,5 +6,6 @@ class BidMainConfig(AppConfig):
     verbose_name = 'Blender-ID'
 
     def ready(self):
+        # Import for side-effects.
         # noinspection PyUnresolvedReferences
-        from . import signals
+        from . import signals, email

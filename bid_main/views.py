@@ -152,7 +152,7 @@ class SwitchUserView(LoginRequiredMixin, auth_views.LoginView):
 def test_email_changed_mail(request):
     """View for designing the email without having to send it all the time."""
     from django.http import HttpResponse
-    from .signals import construct_email_changed_mail
+    from .email import construct_email_changed_mail
 
     email_body_html, *_ = construct_email_changed_mail(request.user, 'old@email.nl')
 
