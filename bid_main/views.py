@@ -140,7 +140,12 @@ class ConfirmEmailView(LoginRequiredMixin, TemplateView):
 
     def post(self, request, *args, **kwargs):
         self.log.info('Starting email confirmation flow for user %s', request.user)
-        email.send_verify_address(request.user, request.scheme)
+        try:
+            email.send_verify_address(request.user, request.scheme)
+        except (OSError, IOError):
+            self.log.exception('unable to send address verification email to %s', request.user)
+            self.template_name = 'bid_main/confirm_email/smtp_error.html'
+            return self.render_to_response({})
         return redirect('bid_main:confirm-email-sent')
 
 
