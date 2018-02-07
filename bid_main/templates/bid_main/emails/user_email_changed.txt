@@ -1,3 +1,4 @@
+{% autoescape off %}
 Hi {{ user.full_name|default:user.email }}!
 
 
@@ -23,3 +24,4 @@ Check your dashboard at {{ blender_id }} for more information.
 Kind regards,
 
 The Blender Web Team
+{% endautoescape %}

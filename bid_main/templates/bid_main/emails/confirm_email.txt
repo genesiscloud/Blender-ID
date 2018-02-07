@@ -1,3 +1,4 @@
+{% autoescape off %}
 Hi {{ user.full_name|default:user.email_to_confirm }}!
 
 You have received this message because your email address
@@ -12,3 +13,4 @@ Note that this link will be valid for only 12 hours.
 Kind regards,
 
 The Blender Web Team
+{% endautoescape %}
