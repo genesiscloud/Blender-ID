@@ -166,7 +166,7 @@ class ConfirmEmailView(LoginRequiredMixin, FormView):
 
 
 class ConfirmEmailSentView(LoginRequiredMixin, TemplateView):
-    template_name = 'bid_main/confirm_email_sent.html'
+    template_name = 'bid_main/confirm_email/sent.html'
 
 
 class ConfirmEmailVerifiedView(LoginRequiredMixin, TemplateView):
