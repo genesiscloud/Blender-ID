@@ -13,7 +13,11 @@ form(action="{% url 'bid_main:confirm-email' %}", method='POST')
 	.bid-cta
 		a.btn(href="javascript:cancel()")
 			i.fa.fa-times
-			| Cancel
+			| {% if user.email_change_preconfirm %}
+			| Cancel Email Change
+			| {% else %}
+			| Edit address
+			| {% endif %}
 		button.btn.btn-success(type='submit')
 			i.fa.fa-check
 			| Yes that is correct
