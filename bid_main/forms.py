@@ -88,5 +88,5 @@ class AppRevokeTokensForm(forms.Form):
 class ConfirmEmailStartForm(forms.Form):
     """Hidden fields for the email confirmation process."""
 
-    next_url = forms.CharField(max_length=1024, widget=forms.HiddenInput)
-    next_name = forms.CharField(max_length=1024, widget=forms.HiddenInput)
+    next_url = forms.CharField(max_length=1024, widget=forms.HiddenInput, required=False)
+    next_name = forms.CharField(max_length=1024, widget=forms.HiddenInput, required=False)
