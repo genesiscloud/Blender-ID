@@ -34,6 +34,9 @@ script.
 			// This is a frequent poll and the email address confirmation system works
 			// fine without it, so let's not bother the user with error messages.
 			if (console) console.log('Error: ', err);
+
+			// Try again after a while.
+			window.setTimeout(poll, 4000);
 		});
 	}
 	// Do a quick test first, then slow down a little bit.
