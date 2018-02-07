@@ -11,11 +11,24 @@ form(action="{% url 'bid_main:confirm-email' %}", method='POST')
 	| {{ form.next_url }}
 	| {{ form.next_name }}
 	.bid-cta
-		a.btn(href="{% url 'bid_main:profile' %}")
-			i.fa.fa-edit
-			| Change email address
+		a.btn(href="javascript:cancel()")
+			i.fa.fa-times
+			| Cancel
 		button.btn.btn-success(type='submit')
 			i.fa.fa-check
 			| Yes that is correct
 
+form#cancel_email_change(action="{% url 'bid_main:cancel-email-change' %}", method='POST')
+	| {% csrf_token %}
+| {% endblock %}
+
+| {% block footer_scripts %}
+script.
+	function cancel() {
+		{% if user.email_change_preconfirm %}
+		$('#cancel_email_change').submit();
+		{% else %}
+		window.location = "{% url 'bid_main:index' %}";
+		{% endif %}
+	}
 | {% endblock %}

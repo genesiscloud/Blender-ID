@@ -59,6 +59,8 @@ urlpatterns = [
     url(r'^confirm-email/start$', views.ConfirmEmailView.as_view(), name='confirm-email'),
     url(r'^confirm-email/start-change$', views.ConfirmEmailView.as_view(
         template_name='bid_main/confirm_email/change.html'), name='confirm-email-change'),
+    url(r'^confirm-email/cancel-change$', views.CancelEmailChangeView.as_view(),
+        name='cancel-email-change'),
     url(r'^confirm-email/sent$', views.ConfirmEmailSentView.as_view(), name='confirm-email-sent'),
     url(r'^confirm-email/verified/(?P<info>[^/]+)/(?P<hmac>[^/]+)$',
         views.ConfirmEmailVerifiedView.as_view(),

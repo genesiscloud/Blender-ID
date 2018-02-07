@@ -171,6 +171,18 @@ class ConfirmEmailView(LoginRequiredMixin, FormView):
         return redirect('bid_main:confirm-email-sent')
 
 
+class CancelEmailChangeView(LoginRequiredMixin, View):
+    """Cancel the user's email change and redirect to the profile page."""
+    log = logging.getLogger(f'{__name__}.CancelEmailChangeView')
+
+    def post(self, request, *args, **kwargs):
+        user = request.user
+        self.log.info('User %s cancelled email change to %s', user, user.email_change_preconfirm)
+        user.email_change_preconfirm = ''
+        user.save()
+        return redirect('bid_main:profile')
+
+
 class ConfirmEmailSentView(LoginRequiredMixin, TemplateView):
     template_name = 'bid_main/confirm_email/sent.html'
 

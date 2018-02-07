@@ -27,9 +27,20 @@
 							// Email display
 							label.control-label Email
 							.input-group
+								| {% if user.email_change_preconfirm %}
+								p Unable to change your email address, a change from {{ user.email }} to {{ user.email_change_preconfirm }} is already pending.
+								.bid-cta
+									a.btn(href="javascript:$('#cancel_email_change').submit()")
+										i.fa.fa-times
+										| Cancel Email Change
+									a.btn(href="{% url 'bid_main:confirm-email-change' %}")
+										i.fa.fa-envelope
+										| Re-send Confirmation
+								| {% else %}
 								span.input-group-addon
 									i.fa.fa-envelope-o
 								| {{ form.email }}
+								| {% endif %}
 							| {{ form.errors }}
 
 						.col-md-3
@@ -52,6 +63,9 @@
 							| Discard
 						a.btn(href="{% url 'bid_main:password_change' %}").
 							#[i.fa.fa-shield] Change Password
+
+			form#cancel_email_change(action="{% url 'bid_main:cancel-email-change' %}", method='POST')
+				| {% csrf_token %}
 
 			| {% if user.is_staff %}
 			hr

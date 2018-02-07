@@ -73,6 +73,10 @@ class UserProfileForm(BootstrapModelFormMixin, forms.ModelForm):
 
         super().__init__(*args, **kwargs)
 
+        # Refuse to edit the email address while another change is still pending.
+        if instance.email_change_preconfirm:
+            del self.fields['email']
+
     def clean_full_name(self):
         full_name = self.cleaned_data['full_name'].strip()
         if not full_name:
