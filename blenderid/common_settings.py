@@ -47,6 +47,8 @@ INSTALLED_APPS = [
     'bid_api',
     'bid_addon_support',
 ]
+WITH_FLATPAGES = True  # set to False when you remove 'django.contrib.flatpages' from INSTALLED_APPS
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

@@ -15,7 +15,6 @@ Including another URLconf
 """
 from django.conf.urls import url, include
 from django.contrib import admin
-from django.contrib.flatpages import views as fp_views
 from django.conf import settings
 import django.contrib.staticfiles.views
 
@@ -44,6 +43,8 @@ if settings.DEBUG:
         url(r'^static/(?P<path>.*)$', django.contrib.staticfiles.views.serve),
     ]
 
-urlpatterns += [
-    url(r'^(?P<url>.*/?)', fp_views.flatpage),
-]
+if settings.WITH_FLATPAGES:
+    from django.contrib.flatpages import views as fp_views
+    urlpatterns += [
+        url(r'^(?P<url>.*/?)', fp_views.flatpage),
+    ]
