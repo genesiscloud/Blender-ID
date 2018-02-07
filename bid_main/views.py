@@ -6,13 +6,13 @@ from django.conf import settings
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.forms import PasswordResetForm
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.http import HttpResponseRedirect, HttpResponseBadRequest
+from django.http import HttpResponseRedirect, HttpResponseBadRequest, JsonResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import never_cache
-from django.views.generic import CreateView, TemplateView, FormView
+from django.views.generic import CreateView, TemplateView, FormView, View
 from django.views.generic.edit import UpdateView
 
 import oauth2_provider.models as oauth2_models
@@ -167,6 +167,20 @@ class ConfirmEmailView(LoginRequiredMixin, FormView):
 
 class ConfirmEmailSentView(LoginRequiredMixin, TemplateView):
     template_name = 'bid_main/confirm_email/sent.html'
+
+
+class ConfirmEmailPollView(LoginRequiredMixin, View):
+    """Returns JSON indicating when the email address has last been confirmed.
+
+    The timestamp is returned as ISO 8601 to allow future periodic checks
+    (like a check every 6 months); in such a case a simple boolean wouldn't
+    be enough.
+
+    The timestamp is null if the user has not yet confirmed their email.
+    """
+
+    def get(self, request, *args, **kwargs):
+        return JsonResponse({'confirmed': request.user.confirmed_email_at})
 
 
 class ConfirmEmailVerifiedView(LoginRequiredMixin, TemplateView):

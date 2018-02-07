@@ -6,4 +6,36 @@ h1 Confirm your e-mail address
 p.
 	We have sent an email to {{ user.email }}. Please check your inbox and spam folder, and
 	click on the confirmation link.
+
+#poll_ok.text-success.bg-success(style='display: none')
+	p.
+		Your email address has been confirmed. You can close this window or go to
+		#[a(href="{% url 'bid_main:index' %}") the Dashboard].
 | {% endblock %}
+
+| {% block footer_scripts %}
+| {{ super }}
+script.
+	var poll_url = '{% url 'bid_main:confirm-email-poll' %}';
+	var $result = $('#poll_result');
+
+	function poll() {
+		$.get(poll_url)
+		.done(function(data) {
+			if (typeof(data.confirmed) === 'undefined' || data.confirmed == null) {
+				// Not yet confirmed, wait longer
+				window.setTimeout(poll, 2500);
+				return;
+			}
+			// Confirmation has been confirmed!
+			$('#poll_ok').show();
+		})
+		.fail(function(err) {
+			// This is a frequent poll and the email address confirmation system works
+			// fine without it, so let's not bother the user with error messages.
+			if (console) console.log('Error: ', err);
+		});
+	}
+	// Do a quick test first, then slow down a little bit.
+	window.setTimeout(poll, 250);
+| {% endblock footer_scripts %}

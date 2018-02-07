@@ -61,6 +61,7 @@ urlpatterns = [
     url(r'^confirm-email/verified/(?P<info>[^/]+)/(?P<hmac>[^/]+)$',
         views.ConfirmEmailVerifiedView.as_view(),
         name='confirm-email-verified'),
+    url(r'^confirm-email/poll$', views.ConfirmEmailPollView.as_view(), name='confirm-email-poll'),
 ]
 
 # Only enable this on a dev server:
