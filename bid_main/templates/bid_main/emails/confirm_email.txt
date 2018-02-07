@@ -2,7 +2,7 @@
 Hi {{ user.full_name|default:user.email_to_confirm }}!
 
 You have received this message because your email address
-{{ user.email_to_confirm }}] has been registered on Blender ID.
+{{ user.email_to_confirm }} has been registered on Blender ID.
 
 Follow this link to confirm it was really you:
 
