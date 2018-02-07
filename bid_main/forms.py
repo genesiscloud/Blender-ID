@@ -46,7 +46,7 @@ class AuthenticationForm(BootstrapModelFormMixin, auth_forms.AuthenticationForm)
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.fields['username'].widget.attrs['placeholder'] = 'Your e-mail address'
+        self.fields['username'].widget.attrs['placeholder'] = 'Your email address'
         self.fields['password'].widget.attrs['placeholder'] = 'Your password'
 
 

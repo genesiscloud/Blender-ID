@@ -94,7 +94,7 @@ def _email_verification_hmac(payload: bytes) -> hmac.HMAC:
 
 
 def construct_verify_address(user, scheme: str, extra: dict=None) -> (str, str, str):
-    """Construct the mail to verify an e-mail address.
+    """Construct the mail to verify an email address.
 
     :param user: the user object whose email needs verification
     :param scheme: either 'http' or 'https', for link generation.
