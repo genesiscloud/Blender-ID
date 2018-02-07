@@ -2,7 +2,7 @@
 Hi {{ user.full_name|default:user.email }}!
 
 
-Somebody, maybe it was you, changed your email address on Blender
+Somebody, probably you, changed your email address on Blender
 ID, from {{ old_email }} to {{ user.email }}.
 
 This notification is sent to both your old and your new email
