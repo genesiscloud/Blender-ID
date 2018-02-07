@@ -64,14 +64,15 @@ def construct_email_changed_mail(user, old_email) -> (str, str, str):
     return email_body_html, email_body_txt, context['subject']
 
 
-def send_verify_address(user, scheme: str):
+def send_verify_address(user, scheme: str, extra: dict=None):
     """Send out an email with address verification link.
 
     :param user: the user object whose email needs verification
     :param scheme: either 'http' or 'https', for link generation.
+    :param extra: extra payload to store in the link JSON.
     """
 
-    email_body_html, email_body_txt, subject = construct_verify_address(user, scheme)
+    email_body_html, email_body_txt, subject = construct_verify_address(user, scheme, extra)
 
     try:
         send_mail(
@@ -92,11 +93,12 @@ def _email_verification_hmac(payload: bytes) -> hmac.HMAC:
     return hmac.new(settings.SECRET_KEY.encode(), payload, hashlib.sha1)
 
 
-def construct_verify_address(user, scheme: str) -> (str, str, str):
+def construct_verify_address(user, scheme: str, extra: dict=None) -> (str, str, str):
     """Construct the mail to verify an e-mail address.
 
     :param user: the user object whose email needs verification
     :param scheme: either 'http' or 'https', for link generation.
+    :param extra: extra payload to store in the link JSON.
     :returns: a tuple (html, text, subject) with the email contents.
     """
     # Construct the link to Blender ID dynamically, to prevent hard-coding it in the email.
@@ -110,6 +112,7 @@ def construct_verify_address(user, scheme: str) -> (str, str, str):
     verification_payload = {
         'e': user.email,
         'x': expire.isoformat(timespec='minutes'),
+        **(extra or {})
     }
     info = json.dumps(verification_payload).encode()
     b64info = base64.urlsafe_b64encode(info)
@@ -140,8 +143,12 @@ class VerificationResult(enum.Enum):
 
 
 def check_verification_payload(info_b64: str, expected_hmac: str,
-                               expected_email: str) -> VerificationResult:
-    """Check the HMAC and decode the info to check for expiry."""
+                               expected_email: str) -> (VerificationResult, dict):
+    """Check the HMAC and decode the info to check for expiry.
+
+    :returns: the verification result and the info that was JSON+b64 encoded.
+        The latter is just an empty dict when INVALID is returned.
+    """
 
     my_log = log.getChild(f'check_verification_payload.{expected_email}')
 
@@ -150,30 +157,30 @@ def check_verification_payload(info_b64: str, expected_hmac: str,
     if not hmac.compare_digest(actual_hmac, expected_hmac):
         my_log.warning('invalid HMAC, payload=%r, expected HMAC=%r, got %r',
                        info_b64, expected_hmac, actual_hmac)
-        return VerificationResult.INVALID
+        return VerificationResult.INVALID, {}
 
     try:
         info = base64.urlsafe_b64decode(info_b64)
     except (binascii.Error, ValueError):
         my_log.warning('invalid Base64: %r', info_b64)
-        return VerificationResult.INVALID
+        return VerificationResult.INVALID, {}
 
     try:
         payload = json.loads(info)
     except (TypeError, ValueError, UnicodeDecodeError):
         my_log.warning('invalid JSON, payload=%r', info, exc_info=True)
-        return VerificationResult.INVALID
+        return VerificationResult.INVALID, {}
 
     email = payload.get('e', '')
     if email != expected_email:
         my_log.warning('email does not match payload %r', email)
-        return VerificationResult.INVALID
+        return VerificationResult.INVALID, {}
 
     now = timezone.now()
     expiry = dateutil.parser.parse(payload.get('x', '')).replace(tzinfo=timezone.utc)
     if expiry < now:
         my_log.warning('link expired at %s', expiry)
-        return VerificationResult.EXPIRED
+        return VerificationResult.EXPIRED, payload
 
     log.debug('verification OK')
-    return VerificationResult.OK
+    return VerificationResult.OK, payload

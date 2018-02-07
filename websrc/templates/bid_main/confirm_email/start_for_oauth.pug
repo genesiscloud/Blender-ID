@@ -1,0 +1,15 @@
+| {% extends 'bid_main/confirm_email/form.html' %}
+
+| {% block confirm_email_above_form %}
+h1 Confirm your e-mail address
+
+p.
+	To protect your account it's important that your email address registered at Blender ID is
+	correct. Your address is used to regain access to your account when you forget your
+	password.
+
+p.
+	Before you can log in at #[strong {{ next_name }}] with your Blender ID, we have to verify your
+	e-mail address. This ensures that your account actually belongs to you, and prevents hijacking.
+
+| {% endblock %}

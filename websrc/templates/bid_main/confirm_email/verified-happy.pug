@@ -4,4 +4,9 @@
 h1 Address Confirmed
 
 p Congratulations, you have successfully confirmed your e-mail address.
+
+p
+    a.btn.btn-success(href="{{ next_url }}")
+        i.fa.fa-arrow-right
+        | Go to {{ next_name }}
 | {% endblock %}

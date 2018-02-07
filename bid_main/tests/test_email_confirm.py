@@ -22,7 +22,7 @@ class LinkHMACTest(TestCase):
 
         b64, mac = self._encode({'e': 'test@here.nl', 'x': '2130-03-01T12:34'})
         with self.settings(SECRET_KEY=self.secret):
-            result = email.check_verification_payload(b64.decode(), mac, 'test@here.nl')
+            result, _ = email.check_verification_payload(b64.decode(), mac, 'test@here.nl')
         self.assertEqual(email.VerificationResult.OK, result)
 
     def test_expired(self):
@@ -31,7 +31,7 @@ class LinkHMACTest(TestCase):
         b64, mac = self._encode({'e': 'test@here.nl', 'x': '2000-03-01T12:34'})
 
         with self.settings(SECRET_KEY=self.secret):
-            result = email.check_verification_payload(b64.decode(), mac, 'test@here.nl')
+            result, _ = email.check_verification_payload(b64.decode(), mac, 'test@here.nl')
         self.assertEqual(email.VerificationResult.EXPIRED, result)
 
     def test_other_user(self):
@@ -40,7 +40,7 @@ class LinkHMACTest(TestCase):
         b64, mac = self._encode({'e': 'test@here.nl', 'x': '2000-03-01T12:34'})
 
         with self.settings(SECRET_KEY=self.secret):
-            result = email.check_verification_payload(b64.decode(), mac, 'je@moeder.nl')
+            result, _ = email.check_verification_payload(b64.decode(), mac, 'je@moeder.nl')
         self.assertEqual(email.VerificationResult.INVALID, result)
 
     def test_bad_hmac(self):
@@ -49,8 +49,8 @@ class LinkHMACTest(TestCase):
         b64, mac = self._encode({'e': 'test@here.nl', 'x': '2000-03-01T12:34'})
 
         with self.settings(SECRET_KEY=self.secret):
-            result = email.check_verification_payload(b64.decode(), 'well well well',
-                                                      'test@here.nl')
+            result, _ = email.check_verification_payload(b64.decode(), 'well well well',
+                                                         'test@here.nl')
         self.assertEqual(email.VerificationResult.INVALID, result)
 
     def test_bad_json(self):
@@ -61,7 +61,7 @@ class LinkHMACTest(TestCase):
         mac = hmac.new(self.secret.encode(), b64, hashlib.sha1).hexdigest()
 
         with self.settings(SECRET_KEY=self.secret):
-            result = email.check_verification_payload(b64.decode(), mac, 'test@here.nl')
+            result, _ = email.check_verification_payload(b64.decode(), mac, 'test@here.nl')
         self.assertEqual(email.VerificationResult.INVALID, result)
 
     def test_bad_b64(self):
@@ -71,5 +71,18 @@ class LinkHMACTest(TestCase):
         mac = hmac.new(self.secret.encode(), b64, hashlib.sha1).hexdigest()
 
         with self.settings(SECRET_KEY=self.secret):
-            result = email.check_verification_payload(b64.decode(), mac, 'test@here.nl')
+            result, _ = email.check_verification_payload(b64.decode(), mac, 'test@here.nl')
         self.assertEqual(email.VerificationResult.INVALID, result)
+
+    def test_extra_payload(self):
+        from bid_main import email
+
+        payload = {'e': 'test@here.nl',
+                   'x': '2130-03-01T12:34',
+                   'key': 'value',
+                   'Myanmar': 'မြန်မာဘာသာ'}
+        b64, mac = self._encode(payload)
+        with self.settings(SECRET_KEY=self.secret):
+            result, returned = email.check_verification_payload(b64.decode(), mac, 'test@here.nl')
+        self.assertEqual(email.VerificationResult.OK, result)
+        self.assertEqual(payload, returned)

@@ -6,8 +6,8 @@ from django.conf import settings
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.forms import PasswordResetForm
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.http import HttpResponseRedirect
-from django.shortcuts import redirect
+from django.http import HttpResponseRedirect, HttpResponseBadRequest
+from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 from django.utils import timezone
 from django.utils.decorators import method_decorator
@@ -135,14 +135,29 @@ class RegistrationView(CreateView):
         return redirect('bid_main:register-done')
 
 
-class ConfirmEmailView(LoginRequiredMixin, TemplateView):
+class ConfirmEmailView(LoginRequiredMixin, FormView):
     template_name = 'bid_main/confirm_email/start.html'
+    form_class = forms.ConfirmEmailStartForm
     log = logging.getLogger(f'{__name__}.ConfirmEmailView')
 
     def post(self, request, *args, **kwargs):
         self.log.info('Starting email confirmation flow for user %s', request.user)
+
+        form = self.get_form()
+        if not form.is_valid():
+            self.log.warning('posted form is invalid: %s', form.errors.as_json())
+            return HttpResponseBadRequest('Invalid data received')
+
+        if form.cleaned_data['next_url'] and form.cleaned_data['next_name']:
+            extra = {
+                'n_url': form.cleaned_data['next_url'],
+                'n_name': form.cleaned_data['next_name'],
+            }
+        else:
+            extra = {}
+
         try:
-            email.send_verify_address(request.user, request.scheme)
+            email.send_verify_address(request.user, request.scheme, extra)
         except (OSError, IOError):
             self.log.exception('unable to send address verification email to %s', request.user)
             self.template_name = 'bid_main/confirm_email/smtp_error.html'
@@ -161,23 +176,30 @@ class ConfirmEmailVerifiedView(LoginRequiredMixin, TemplateView):
     def get(self, request, *args, **kwargs):
         b64payload = kwargs.get('info', '')
         hmac = kwargs.get('hmac', '')
-        result = email.check_verification_payload(b64payload, hmac, request.user.email)
+        result, payload = email.check_verification_payload(b64payload, hmac, request.user.email)
 
-        status_code = 200  # OK
         if result == email.VerificationResult.INVALID:
-            self.template_name = 'bid_main/confirm_email/verified-invalid.html'
-            status_code = 400  # Bad Request
+            return render(request, 'bid_main/confirm_email/verified-invalid.html', status=400)
         elif result == email.VerificationResult.EXPIRED:
-            self.template_name = 'bid_main/confirm_email/verified-expired.html'
-        elif result == email.VerificationResult.OK:
-            self.confirm_email_address(request.user)
-        else:
+            return render(request, 'bid_main/confirm_email/verified-expired.html')
+        elif result != email.VerificationResult.OK:
             self.log.error('unknown validation result %r', result)
             raise ValueError('unknown validation result')
 
-        resp = super().get(request, *args, **kwargs)
-        resp.status_code = status_code
-        return resp
+        self.confirm_email_address(request.user)
+
+        # Refuse to give a name if there is no URL and vice versa.
+        # We should either have both or none.
+        next_url = payload.get('n_url', '')
+        next_name = payload.get('n_name', '')
+        if not (next_url and next_name):
+            next_url = next_name = ''
+
+        ctx = {
+            'next_url': next_url or reverse_lazy('bid_main:index'),
+            'next_name': next_name or 'Blender ID Dashboard',
+        }
+        return render(request, self.template_name, ctx)
 
     def confirm_email_address(self, user):
         """Update the user to set their email address as confirmed."""

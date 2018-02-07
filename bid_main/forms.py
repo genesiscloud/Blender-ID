@@ -83,3 +83,10 @@ class AppRevokeTokensForm(forms.Form):
     """Form for revoking OAuth tokens for a specific application."""
 
     app_id = forms.IntegerField(widget=forms.HiddenInput)
+
+
+class ConfirmEmailStartForm(forms.Form):
+    """Hidden fields for the email confirmation process."""
+
+    next_url = forms.CharField(max_length=1024, widget=forms.HiddenInput)
+    next_name = forms.CharField(max_length=1024, widget=forms.HiddenInput)

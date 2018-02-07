@@ -8,6 +8,8 @@ p.text-primary.
 
 form(action="{% url 'bid_main:confirm-email' %}", method='POST')
 	| {% csrf_token %}
+	| {{ form.next_url }}
+	| {{ form.next_name }}
 	.bid-cta
 		a.btn(href="{% url 'bid_main:profile' %}")
 			i.fa.fa-edit
