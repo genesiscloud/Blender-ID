@@ -24,10 +24,21 @@
 				title='Profile Picture',
 				alt="Profile Picture")
 		.bid-user-info
-			a(href="{% url 'bid_main:profile' %}")
-				h3 {{ user.full_name }}
-			//- TODO(sybren, fsiddi): word this better, add link to re-send confirmation mail, etc.
-			p {{ user.email }} {% if user.email_change_preconfirm %} → {{ user.email_change_preconfirm }}{% endif %}
+			h3 {{ user.full_name }}
+			| {% if user.email_change_preconfirm %}
+			p.bg-warning A change from {{ user.email }} to {{ user.email_change_preconfirm }} is pending.
+				br
+				a(href="javascript:$('#cancel_email_change').submit()") Cancel this change
+				=' or '
+				a(href="{% url 'bid_main:confirm-email-change' %}") re-send confirmation email
+				='.'
+			| {% else %}
+			p {{ user.email }}
+			| {% endif %}
+			| {% if show_confirm_address %}
+			p.bg-warning #[a(href="{% url 'bid_main:confirm-email' %}") Confirm your email address] to unleash the full power of Blender ID.
+			hr
+			| {% endif %}
 		| {% else %}
 		a.bid-user-missing(href="{% url 'bid_main:profile' %}")
 			i.fa.fa-exclamation
@@ -40,13 +51,6 @@
 
 
 	.bid-cta
-		| {% if show_confirm_address %}
-		a.btn.btn-warning-filled(href="{% url 'bid_main:confirm-email' %}")
-			i.fa.fa-envelope
-			| Please confirm your email address
-		hr
-		| {% endif %}
-
 		a.btn(href="{% url 'bid_main:profile' %}").
 			#[i.fa.fa-edit] Edit Profile
 
