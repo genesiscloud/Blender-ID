@@ -74,19 +74,20 @@ def send_verify_address(user, scheme: str, extra: dict=None):
 
     email_body_html, email_body_txt, subject = construct_verify_address(user, scheme, extra)
 
+    email = user.email_to_confirm
     try:
         send_mail(
             subject,
             message=email_body_txt,
             html_message=email_body_html,
             from_email=None,  # just use the configured default From-address.
-            recipient_list=[user.email],
+            recipient_list=[email],
             fail_silently=False,
         )
     except smtplib.SMTPException:
-        log.exception('error sending address verification mail to %s', user.email)
+        log.exception('error sending address verification mail to %s', email)
     else:
-        log.info('sent address verification mail to %s', user.email)
+        log.info('sent address verification mail to %s', email)
 
 
 def _email_verification_hmac(payload: bytes) -> hmac.HMAC:
@@ -110,7 +111,7 @@ def construct_verify_address(user, scheme: str, extra: dict=None) -> (str, str, 
     # the database.
     expire = timezone.now() + datetime.timedelta(hours=13)
     verification_payload = {
-        'e': user.email,
+        'e': user.email_to_confirm,
         'x': expire.isoformat(timespec='minutes'),
         **(extra or {})
     }

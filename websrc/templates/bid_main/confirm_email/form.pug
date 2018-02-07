@@ -4,7 +4,7 @@
 |     {% block confirm_email_above_form %}{% endblock %}
 
 p.text-primary.
-	Is your address {{ user.email }}?
+	Is your address {{ user.email_to_confirm }}?
 
 form(action="{% url 'bid_main:confirm-email' %}", method='POST')
 	| {% csrf_token %}

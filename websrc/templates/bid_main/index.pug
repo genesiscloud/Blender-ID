@@ -26,7 +26,8 @@
 		.bid-user-info
 			a(href="{% url 'bid_main:profile' %}")
 				h3 {{ user.full_name }}
-			p {{ user.email }}
+			//- TODO(sybren, fsiddi): word this better, add link to re-send confirmation mail, etc.
+			p {{ user.email }} {% if user.email_change_preconfirm %} → {{ user.email_change_preconfirm }}{% endif %}
 		| {% else %}
 		a.bid-user-missing(href="{% url 'bid_main:profile' %}")
 			i.fa.fa-exclamation

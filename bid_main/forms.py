@@ -51,11 +51,27 @@ class AuthenticationForm(BootstrapModelFormMixin, auth_forms.AuthenticationForm)
 
 
 class UserProfileForm(BootstrapModelFormMixin, forms.ModelForm):
+    """Edits full name and email address.
+
+    Works with the 'email' field directly, for validation, error messages, etc.
+    but saves the actual changed email to the 'email_change_preconfirm' model
+    field.
+    """
     log = log.getChild('UserProfileForm')
 
     class Meta:
         model = User
         fields = ['full_name', 'email']
+
+    def __init__(self, *args, **kwargs):
+        instance = kwargs.get('instance')
+        if instance is None:
+            raise ValueError('This form can only be used for existing users.')
+        # Store the current email address before _post_clean() overwrites it
+        # with the email address from the form.
+        self._original_email = instance.email
+
+        super().__init__(*args, **kwargs)
 
     def clean_full_name(self):
         full_name = self.cleaned_data['full_name'].strip()
@@ -63,9 +79,18 @@ class UserProfileForm(BootstrapModelFormMixin, forms.ModelForm):
             raise forms.ValidationError(_('Full Name is a required field'))
         return full_name
 
-    def save(self, *args, **kwargs):
-        self.log.debug('%s updated their profile', self.cleaned_data['email'])
-        return super().save(*args, **kwargs)
+    def clean_email(self):
+        """Don't allow direct changes to the email address, only to the preconfirm one."""
+        form_email = self.cleaned_data['email']
+
+        if self._original_email == form_email:
+            self.log.debug('%s updated their profile', form_email)
+            return form_email
+
+        self.log.info('User %s wants to change their email to %s', self._original_email, form_email)
+        self.instance.email = self._original_email
+        self.instance.email_change_preconfirm = form_email
+        return self._original_email
 
 
 class PasswordChangeForm(BootstrapModelFormMixin, auth_forms.PasswordChangeForm):

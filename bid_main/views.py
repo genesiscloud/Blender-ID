@@ -141,7 +141,12 @@ class ConfirmEmailView(LoginRequiredMixin, FormView):
     log = logging.getLogger(f'{__name__}.ConfirmEmailView')
 
     def post(self, request, *args, **kwargs):
-        self.log.info('Starting email confirmation flow for user %s', request.user)
+        user = request.user
+        if user.email_change_preconfirm:
+            self.log.info('Starting email change confirmation flow for user %s → %s',
+                          user.email, user.email_change_preconfirm)
+        else:
+            self.log.info('Starting email confirmation flow for user %s', user.email)
 
         form = self.get_form()
         if not form.is_valid():
@@ -157,9 +162,10 @@ class ConfirmEmailView(LoginRequiredMixin, FormView):
             extra = {}
 
         try:
-            email.send_verify_address(request.user, request.scheme, extra)
+            email.send_verify_address(user, request.scheme, extra)
         except (OSError, IOError):
-            self.log.exception('unable to send address verification email to %s', request.user)
+            self.log.exception('unable to send address verification email to %s',
+                               user.email_to_confirm)
             self.template_name = 'bid_main/confirm_email/smtp_error.html'
             return self.render_to_response({})
         return redirect('bid_main:confirm-email-sent')
@@ -176,11 +182,18 @@ class ConfirmEmailPollView(LoginRequiredMixin, View):
     (like a check every 6 months); in such a case a simple boolean wouldn't
     be enough.
 
-    The timestamp is null if the user has not yet confirmed their email.
+    The timestamp is null if the user has not yet confirmed their email, or
+    if they are confirming an email change. In the latter case there is a
+    'confirmed_email_at' field that's already set, but irrelevant to this
+    confirmation flow.
     """
 
     def get(self, request, *args, **kwargs):
-        return JsonResponse({'confirmed': request.user.confirmed_email_at})
+        if request.user.email_change_preconfirm:
+            timestamp = None
+        else:
+            timestamp = request.user.confirmed_email_at
+        return JsonResponse({'confirmed': timestamp})
 
 
 class ConfirmEmailVerifiedView(LoginRequiredMixin, TemplateView):
@@ -190,7 +203,8 @@ class ConfirmEmailVerifiedView(LoginRequiredMixin, TemplateView):
     def get(self, request, *args, **kwargs):
         b64payload = kwargs.get('info', '')
         hmac = kwargs.get('hmac', '')
-        result, payload = email.check_verification_payload(b64payload, hmac, request.user.email)
+        user = request.user
+        result, payload = email.check_verification_payload(b64payload, hmac, user.email_to_confirm)
 
         if result == email.VerificationResult.INVALID:
             return render(request, 'bid_main/confirm_email/verified-invalid.html', status=400)
@@ -200,7 +214,7 @@ class ConfirmEmailVerifiedView(LoginRequiredMixin, TemplateView):
             self.log.error('unknown validation result %r', result)
             raise ValueError('unknown validation result')
 
-        self.confirm_email_address(request.user)
+        self.confirm_email_address(user)
 
         # Refuse to give a name if there is no URL and vice versa.
         # We should either have both or none.
@@ -218,6 +232,10 @@ class ConfirmEmailVerifiedView(LoginRequiredMixin, TemplateView):
     def confirm_email_address(self, user):
         """Update the user to set their email address as confirmed."""
 
+        if user.email_change_preconfirm:
+            user.email = user.email_change_preconfirm
+            user.email_change_preconfirm = ''
+
         user.confirmed_email_at = timezone.now()
         user.save()
         self.log.info('Confirmed email of %s via explicit email confirmation.', user.email)
@@ -228,9 +246,17 @@ class ProfileView(LoginRequiredMixin, UpdateView):
     model = User
     template_name = 'bid_main/profile.html'
     success_url = reverse_lazy('bid_main:index')
+    confirm_url = reverse_lazy('bid_main:confirm-email-change')
 
     def get_object(self, queryset=None):
         return self.request.user
+
+    def form_valid(self, form):
+        """Redirect to success URL or to the confirm-email flow."""
+        success_resp = super().form_valid(form)  # this also saves form.instance
+        if form.instance.email_change_preconfirm:
+            return HttpResponseRedirect(self.confirm_url)
+        return success_resp
 
 
 class SwitchUserView(LoginRequiredMixin, auth_views.LoginView):

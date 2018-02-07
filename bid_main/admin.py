@@ -41,7 +41,7 @@ class UserAdmin(BaseUserAdmin):
     inlines = (UserSettingInline, UserNotesInline)
 
     fieldsets = (
-        (None, {'fields': ('email', 'password', 'full_name', 'roles')}),
+        (None, {'fields': ('email', 'email_change_preconfirm', 'password', 'full_name', 'roles')}),
         (_('Permissions'), {
             'fields': ('is_active', 'is_staff', 'is_superuser',
                        'groups', 'user_permissions'),

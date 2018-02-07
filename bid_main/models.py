@@ -102,6 +102,13 @@ class User(AbstractBaseUser, PermissionsMixin):
     date_joined = models.DateTimeField(_('date joined'), default=timezone.now)
     last_update = models.DateTimeField(_('last update'), default=timezone.now)
 
+    email_change_preconfirm = models.EmailField(
+        _('email address to change to'),
+        blank=True,
+        max_length=64,
+        help_text=_('New address for the user, set while in the confirmation flow.'),
+    )
+
     objects = UserManager()
 
     USERNAME_FIELD = 'email'
@@ -149,6 +156,11 @@ class User(AbstractBaseUser, PermissionsMixin):
     @property
     def has_confirmed_email(self):
         return self.confirmed_email_at is not None
+
+    @property
+    def email_to_confirm(self):
+        """The email to confirm, either 'email_change_preconfirm' when set, or 'email'."""
+        return self.email_change_preconfirm or self.email
 
     @property
     def role_names(self) -> typing.Set[str]:

@@ -2,11 +2,11 @@
 | {% block body %}
 h1 Confirm your Blender ID email
 
-p Hi {{ user.full_name|default:user.email }}!
+p Hi {{ user.full_name|default:user.email_to_confirm }}!
 
 p.
 	You have received this message because your email address
-	#[strong {{ user.email }}] has been registered on Blender ID.
+	#[strong {{ user.email_to_confirm }}] has been registered on Blender ID.
 	Click the button below to confirm it was really you.
 
 p
