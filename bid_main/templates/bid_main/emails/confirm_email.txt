@@ -1,7 +1,9 @@
 Hi {{ user.full_name|default:user.email }}!
 
-This email is just to check that {{ user.email }} is your e-mail address.
-Follow this link to continue:
+You have received this message because your email address
+{{ user.email }}] has been registered on Blender ID.
+
+Follow this link to confirm it was really you:
 
 {{ url }}
 

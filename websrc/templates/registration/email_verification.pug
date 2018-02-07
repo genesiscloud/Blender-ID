@@ -9,7 +9,9 @@ p
 	a(href="{{ protocol }}://{{ domain }}{% url 'bid_main:register-confirm' uidb64=uid token=token %}")
 		| {{ protocol }}://{{ domain }}{% url 'bid_main:register-confirm' uidb64=uid token=token %}
 
-p Use this email address ({{ user.email }}) to log in to any Blender ID enabled website (such as Blender Cloud, Blender BFCT, Blender Store, etc).
+p.
+	Use this email address ({{ user.email }}) to log in to any Blender ID enabled website
+	such as Blender Cloud, Blender Network, Blender Store, etc.
 
 p Check your dashboard at
 	=' '

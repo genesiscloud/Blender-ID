@@ -1,15 +1,26 @@
 | {% extends "email_layout.html" %}
 | {% block body %}
-h1 Confirm your Blender ID e-mail
+h1 Confirm your Blender ID email
 
 p Hi {{ user.full_name|default:user.email }}!
 
 p.
-	This email is just to check that {{ user.email }} is your e-mail address.
-	Click the button below to continue.
+	You have received this message because your email address
+	#[strong {{ user.email }}] has been registered on Blender ID.
+	Click the button below to confirm it was really you.
 
 p
-	a.button(href='{{ url }}') Confirm
+	a(href='{{ url }}', style='background-color: #fff;' +
+	'border-radius: 3px;' +
+	'box-shadow: #48b936 0px 0px 0px 2px inset;' +
+	'color: #48b936;' +
+	'display: block;' +
+	'margin-left: auto;' +
+	'margin-right: auto;' +
+	'max-width: 200px;' +
+	'padding: 7px 20px;' +
+	'text-align: center;' +
+	'text-decoration: none;') Confirm Email
 
 p.
 	Note that this link will be valid for only 12 hours.
