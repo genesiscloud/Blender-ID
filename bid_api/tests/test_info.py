@@ -113,3 +113,25 @@ class UserInfoTest(AbstractAPITest):
     def test_own_user_info_anonymous(self):
         response = self.client.get(reverse('bid_api:user'))
         self.assertEqual(403, response.status_code)
+
+
+class UserStatsTest(AbstractAPITest):
+
+    def test_stats(self):
+        create_user = UserModel.objects.create_user
+        create_user('target1@user.com', '123456', confirmed_email_at=timezone.now())
+        create_user('target2@user.com', '123456', full_name='मूंगफली मक्खन प्रेमी')
+        create_user('target3@user.com', '123456', confirmed_email_at=timezone.now())
+
+        response = self.client.get(reverse('bid_api:stats'))
+        self.assertEqual(200, response.status_code, f'response: {response}')
+        self.assertEqual('application/json', response.get('content-type'))
+        payload = json.loads(response.content)
+
+        self.assertEqual({
+            'users': {
+                'unconfirmed': 2,
+                'confirmed': 2,
+                'total': 4,
+            }
+        }, payload)

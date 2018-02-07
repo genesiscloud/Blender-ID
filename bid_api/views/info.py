@@ -50,3 +50,24 @@ class UserInfoView(AbstractAPIView):
             return HttpResponseNotFound('user not found')
 
         return user_info_response(user)
+
+
+class StatsView(AbstractAPIView):
+    """Returns aggregate statistics.
+
+    This does require the OAuth token to have userstats scope.
+    """
+
+    def get(self, request):
+        log.debug('Fetching aggregate user stats on behalf of API user %s', request.user)
+
+        obs = UserModel.objects
+        stats = {
+            'users': {
+                'unconfirmed': obs.filter(confirmed_email_at__isnull=True).count(),
+                'confirmed': obs.filter(confirmed_email_at__isnull=False).count(),
+                'total': obs.count(),
+            }
+        }
+
+        return JsonResponse(stats)
