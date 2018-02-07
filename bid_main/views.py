@@ -143,7 +143,7 @@ class ConfirmEmailView(LoginRequiredMixin, FormView):
     def post(self, request, *args, **kwargs):
         user = request.user
         if user.email_change_preconfirm:
-            self.log.info('Starting email change confirmation flow for user %s → %s',
+            self.log.info('Starting email change confirmation flow for user %s to %s',
                           user.email, user.email_change_preconfirm)
         else:
             self.log.info('Starting email confirmation flow for user %s', user.email)
