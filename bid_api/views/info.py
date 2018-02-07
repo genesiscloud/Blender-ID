@@ -59,8 +59,6 @@ class StatsView(AbstractAPIView):
     """
 
     def get(self, request):
-        log.debug('Fetching aggregate user stats on behalf of API user %s', request.user)
-
         obs = UserModel.objects
         stats = {
             'users': {
