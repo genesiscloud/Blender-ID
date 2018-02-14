@@ -79,9 +79,9 @@ def send_confirm_mails(modeladmin, request, queryset):
         ok = send_verify_address(user, request.scheme)
         mailed[ok].add(user.email)
         if ok:
-            _add_change_log(queryset, request, "Sent 'confirm email address' mail")
+            _add_change_log((user, ), request, "Sent 'confirm email address' mail")
         else:
-            _add_change_log(queryset, request,
+            _add_change_log((user, ), request,
                             "Tried to send 'confirm email address' mail, which failed")
 
     mailed_ok = ', '.join(sorted(mailed[True])) or 'nobody'
