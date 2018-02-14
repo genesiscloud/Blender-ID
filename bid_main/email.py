@@ -64,12 +64,14 @@ def construct_email_changed_mail(user, old_email) -> (str, str, str):
     return email_body_html, email_body_txt, context['subject']
 
 
-def send_verify_address(user, scheme: str, extra: dict=None):
+def send_verify_address(user, scheme: str, extra: dict=None) -> bool:
     """Send out an email with address verification link.
 
     :param user: the user object whose email needs verification
     :param scheme: either 'http' or 'https', for link generation.
     :param extra: extra payload to store in the link JSON.
+    :returns: True when mail was sent successfully, False otherwise.
+        The actual error (if any) is logged.
     """
 
     email_body_html, email_body_txt, subject = construct_verify_address(user, scheme, extra)
@@ -84,10 +86,11 @@ def send_verify_address(user, scheme: str, extra: dict=None):
             recipient_list=[email],
             fail_silently=False,
         )
-    except smtplib.SMTPException:
+    except (smtplib.SMTPException, OSError):
         log.exception('error sending address verification mail to %s', email)
-    else:
-        log.info('sent address verification mail to %s', email)
+        return False
+    log.info('sent address verification mail to %s', email)
+    return True
 
 
 def _email_verification_hmac(payload: bytes) -> hmac.HMAC:

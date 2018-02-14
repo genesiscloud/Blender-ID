@@ -36,6 +36,31 @@ def unmake_staff(modeladmin, request, queryset):
     queryset.update(is_staff=False)
 
 
+@short_description('Send address confirmation mails to selected users')
+def send_confirm_mails(modeladmin, request, queryset):
+    from django.contrib import messages
+    from .email import send_verify_address
+
+    mailed = {
+        True: set(),
+        False: set(),
+    }
+    for user in queryset:
+        ok = send_verify_address(user, request.scheme)
+        mailed[ok].add(user.email)
+
+    mailed_ok = ', '.join(sorted(mailed[True])) or 'nobody'
+    mailed_fail = ', '.join(sorted(mailed[False]))
+
+    if mailed[False]:
+        level = messages.WARNING
+        msg = f'Sent mail to {mailed_ok}; mail to {mailed_fail} failed.'
+    else:
+        level = messages.INFO
+        msg = f'Sent mail to {mailed_ok}.'
+    modeladmin.message_user(request, msg, level=level)
+
+
 @admin.register(models.User)
 class UserAdmin(BaseUserAdmin):
     inlines = (UserSettingInline, UserNotesInline)
@@ -72,7 +97,7 @@ class UserAdmin(BaseUserAdmin):
     search_fields = ('email', 'full_name')
     ordering = ('-last_update',)
 
-    actions = [make_staff, unmake_staff]
+    actions = [make_staff, unmake_staff, send_confirm_mails]
 
     def role_names(self, user):
         """Lists role names of the user.
