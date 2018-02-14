@@ -1,0 +1,12 @@
+| {% extends 'bid_main/confirm_email/base.html' %}
+
+| {% block confirm_email_body %}
+h1.text-danger For another account
+
+p.
+	You are now logged in as {{ user.email }}, but the confirmation link was for {{ payload.e }}.
+
+p.
+	You may want to #[a(href="{% url 'bid_main:switch_user' payload.e %}?next={{ request.path|urlencode:'' }}") switch to another account].
+
+| {% endblock %}

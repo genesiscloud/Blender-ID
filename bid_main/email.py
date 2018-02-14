@@ -140,7 +140,8 @@ def construct_verify_address(user, scheme: str, extra: dict=None) -> (str, str, 
 class VerificationResult(enum.Enum):
     OK = 0
     EXPIRED = 1
-    INVALID = 2  # invalid Base64, HMAC, JSON, or email address
+    INVALID = 2  # invalid Base64, HMAC, JSON
+    OTHER_ACCOUNT = 3  # for another email address
 
 
 def check_verification_payload(info_b64: str, expected_hmac: str,
@@ -175,7 +176,7 @@ def check_verification_payload(info_b64: str, expected_hmac: str,
     email = payload.get('e', '')
     if email != expected_email:
         my_log.warning('email does not match payload %r', email)
-        return VerificationResult.INVALID, {}
+        return VerificationResult.OTHER_ACCOUNT, payload
 
     now = timezone.now()
     expiry = dateutil.parser.parse(payload.get('x', '')).replace(tzinfo=timezone.utc)

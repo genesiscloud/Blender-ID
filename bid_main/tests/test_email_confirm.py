@@ -40,8 +40,9 @@ class LinkHMACTest(TestCase):
         b64, mac = self._encode({'e': 'test@here.nl', 'x': '2000-03-01T12:34'})
 
         with self.settings(SECRET_KEY=self.secret):
-            result, _ = email.check_verification_payload(b64.decode(), mac, 'je@moeder.nl')
-        self.assertEqual(email.VerificationResult.INVALID, result)
+            result, payload = email.check_verification_payload(b64.decode(), mac, 'je@moeder.nl')
+        self.assertEqual(email.VerificationResult.OTHER_ACCOUNT, result)
+        self.assertEqual('test@here.nl', payload['e'])
 
     def test_bad_hmac(self):
         from bid_main import email

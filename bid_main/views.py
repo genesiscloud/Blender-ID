@@ -272,6 +272,10 @@ class ConfirmEmailVerifiedView(LoginRequiredMixin, TemplateView):
 
         if result == email.VerificationResult.INVALID:
             return render(request, 'bid_main/confirm_email/verified-invalid.html', status=400)
+        elif result == email.VerificationResult.OTHER_ACCOUNT:
+            return render(request, 'bid_main/confirm_email/verified-other-account.html', {
+                'payload': payload,
+            })
         elif result == email.VerificationResult.EXPIRED:
             return render(request, 'bid_main/confirm_email/verified-expired.html')
         elif result != email.VerificationResult.OK:
@@ -343,6 +347,14 @@ class SwitchUserView(LoginRequiredMixin, auth_views.LoginView):
     template_name = 'bid_main/switch_user.html'
     form_class = forms.AuthenticationForm
     success_url_allowed_hosts = settings.NEXT_REDIR_AFTER_LOGIN_ALLOWED_HOSTS
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        switch_to = self.kwargs.get('switch_to')
+        if switch_to:
+            kwargs['initial'] = {**kwargs.get('initial', {}),
+                                 'username': switch_to}
+        return kwargs
 
 
 def test_mail_email_changed(request):
