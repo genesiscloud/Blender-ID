@@ -13,3 +13,10 @@ li
 	a(href="https://cloud.blender.org/u/#q={{ original.email|urlencode }}&page=1",target='_blank')
 		| {% trans "Find in Cloud" %}</a>
 | {% endblock %}
+
+
+| {% block after_field_sets %}
+fieldset.module.aligned
+	h2 Access Tokens
+	p View this user's #[a(href="{% url 'admin:bid_main_oauth2accesstoken_changelist' %}?user={{ original.id }}") access tokens]
+| {% endblock %}
