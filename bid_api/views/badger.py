@@ -4,6 +4,7 @@ Badger service functionality.
 
 import logging
 
+from django.db import transaction, IntegrityError
 from django.http import HttpResponse, HttpResponseForbidden, JsonResponse
 from django.contrib.admin.models import LogEntry, ADDITION, DELETION
 from django.contrib.auth import get_user_model
@@ -26,6 +27,7 @@ class BadgerView(AbstractAPIView):
     def post(self, request, badge: str, email: str) -> HttpResponse:
         return self.do_badger(request, badge, email)
 
+    @transaction.atomic()
     def do_badger(self, request, badge: str, email: str) -> HttpResponse:
         """Performs the actual badger service, can be called without OAuth token
 
@@ -68,7 +70,14 @@ class BadgerView(AbstractAPIView):
             if role in target_user.roles.all():
                 log.debug('User %s already has role %r', email, badge)
                 return JsonResponse({'result': 'no-op'})
-            target_user.roles.add(role)
+            try:
+                target_user.roles.add(role)
+            except IntegrityError:
+                # This generally means that the uniqueness constraint was
+                # invalidated, which means that the role was already granted.
+                log.exception('Integrity error granting role %r to user %s, skipping this role',
+                              role, target_user)
+                return JsonResponse({'result': 'no-op'})
             change_message = f'Granted role {badge}.'
         elif action == 'revoke':
             log.info('User %s revokes role %r from user %s', user, badge, email)
