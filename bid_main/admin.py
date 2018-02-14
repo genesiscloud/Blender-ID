@@ -1,4 +1,6 @@
 from django.contrib import admin
+from django.contrib.admin.models import LogEntry, CHANGE
+from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.utils.translation import ugettext_lazy as _
 
@@ -26,24 +28,42 @@ class UserNotesInline(admin.TabularInline):
     fields = ('creator', 'created', 'note')
 
 
+def _add_change_log(queryset, request, change_message: str):
+    cur_user_id = request.user.id
+    content_type_id = ContentType.objects.get_for_model(models.User).pk
+
+    for target_user in queryset:
+        LogEntry.objects.log_action(
+            user_id=cur_user_id,
+            content_type_id=content_type_id,
+            object_id=target_user.id,
+            object_repr=str(target_user),
+            action_flag=CHANGE,
+            change_message=change_message)
+
+
 @short_description('Make selected users staff')
 def make_staff(modeladmin, request, queryset):
     queryset.update(is_staff=True)
+    _add_change_log(queryset, request, 'Granted staff status')
 
 
 @short_description('Make selected users non-staff')
 def unmake_staff(modeladmin, request, queryset):
     queryset.update(is_staff=False)
+    _add_change_log(queryset, request, 'Revoked staff status')
 
 
 @short_description('Activate selected users')
 def activate(modeladmin, request, queryset):
     queryset.update(is_active=True)
+    _add_change_log(queryset, request, 'Activated user')
 
 
 @short_description('Deactivate selected users')
 def deactivate(modeladmin, request, queryset):
     queryset.update(is_active=False)
+    _add_change_log(queryset, request, 'Deactivated user')
 
 
 @short_description('Send address confirmation mails to selected users')
@@ -58,6 +78,11 @@ def send_confirm_mails(modeladmin, request, queryset):
     for user in queryset:
         ok = send_verify_address(user, request.scheme)
         mailed[ok].add(user.email)
+        if ok:
+            _add_change_log(queryset, request, "Sent 'confirm email address' mail")
+        else:
+            _add_change_log(queryset, request,
+                            "Tried to send 'confirm email address' mail, which failed")
 
     mailed_ok = ', '.join(sorted(mailed[True])) or 'nobody'
     mailed_fail = ', '.join(sorted(mailed[False]))
