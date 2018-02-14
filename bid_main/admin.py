@@ -36,6 +36,16 @@ def unmake_staff(modeladmin, request, queryset):
     queryset.update(is_staff=False)
 
 
+@short_description('Activate selected users')
+def activate(modeladmin, request, queryset):
+    queryset.update(is_active=True)
+
+
+@short_description('Deactivate selected users')
+def deactivate(modeladmin, request, queryset):
+    queryset.update(is_active=False)
+
+
 @short_description('Send address confirmation mails to selected users')
 def send_confirm_mails(modeladmin, request, queryset):
     from django.contrib import messages
@@ -97,7 +107,7 @@ class UserAdmin(BaseUserAdmin):
     search_fields = ('email', 'full_name')
     ordering = ('-last_update',)
 
-    actions = [make_staff, unmake_staff, send_confirm_mails]
+    actions = [activate, deactivate, make_staff, unmake_staff, send_confirm_mails]
 
     def role_names(self, user):
         """Lists role names of the user.
