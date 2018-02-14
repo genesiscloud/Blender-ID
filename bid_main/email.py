@@ -37,7 +37,7 @@ def user_email_changed(sender, signal, *, user, old_email, **kwargs):
             recipient_list=[user.email, old_email],
             fail_silently=False,
         )
-    except smtplib.SMTPException:
+    except (smtplib.SMTPException, OSError):
         log.exception('error sending email-changed notification to %s and %s',
                       user.email, old_email)
     else:
