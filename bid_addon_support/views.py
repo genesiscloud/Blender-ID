@@ -157,8 +157,11 @@ class DeleteTokenView(SpecialSnowflakeMixin, CsrfExemptMixin, View):
 
     @method_decorator(sensitive_post_parameters('token'))
     def post(self, request):
-        user_id = int(request.POST['user_id'])
-        token_string = request.POST['token']
+        try:
+            user_id = int(request.POST['user_id'])
+            token_string = request.POST['token']
+        except (ValueError, KeyError) as ex:
+            return HttpResponseBadRequest(f'Invalid request: {ex}')
         subclient = request.POST.get('subclient_id', '')
 
         token = self.validate_oauth_token(user_id, token_string, subclient)

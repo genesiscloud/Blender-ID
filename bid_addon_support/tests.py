@@ -119,6 +119,17 @@ class BlenderIdAddonSupportTest(TestCase):
         self.assertEquals(200, resp.status_code)
         self.assert_no_tokens()
 
+    def test_delete_token_invalid_form(self):
+        dbtoken = self.test_verify_identity_happy()
+
+        url = reverse('addon_support:delete_token')
+        resp = self.client.post(url, {
+            'user_id': 'garçon',
+            'token': dbtoken.token,
+        })
+        self.assertEquals(400, resp.status_code)
+        self.assertEqual(1, AccessToken.objects.count())
+
     def test_delete_other_token(self):
         # First make sure there is a token, but owned by someone else.
         self._create_user(email='other@user.nl')
