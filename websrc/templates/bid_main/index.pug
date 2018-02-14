@@ -49,6 +49,8 @@
 			p {{ user.email }}
 		| {% endif %}
 
+		form#cancel_email_change(action="{% url 'bid_main:cancel-email-change' %}", method='POST')
+			| {% csrf_token %}
 
 	.bid-cta
 		a.btn(href="{% url 'bid_main:profile' %}").

@@ -231,7 +231,7 @@ class CancelEmailChangeView(LoginRequiredMixin, View):
         self.log.info('User %s cancelled email change to %s', user, user.email_change_preconfirm)
         user.email_change_preconfirm = ''
         user.save()
-        return redirect('bid_main:profile')
+        return redirect('bid_main:index')
 
 
 class ConfirmEmailSentView(LoginRequiredMixin, TemplateView):
