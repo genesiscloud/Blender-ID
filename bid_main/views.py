@@ -1,6 +1,7 @@
 import logging
 
-from django.db import transaction
+from django.core.exceptions import ValidationError
+from django.db import transaction, IntegrityError
 from django.db.models import Count
 from django.conf import settings
 from django.contrib.auth import views as auth_views
@@ -11,6 +12,7 @@ from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 from django.utils import timezone
 from django.utils.decorators import method_decorator
+from django.utils.translation import gettext as _
 from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.debug import sensitive_post_parameters
@@ -22,6 +24,8 @@ import loginas.utils
 
 from . import forms, email
 from .models import User
+
+log = logging.getLogger(__name__)
 
 
 class PageIdMixin:
@@ -124,31 +128,60 @@ class RegistrationView(CreateView):
     form_class = forms.UserRegistrationForm
     model = User
     template_name_suffix = '_register_form'
+    log = log.getChild('RegistrationForm')
 
     @transaction.atomic
     def post(self, request, *args, **kwargs):
         return super().post(request, *args, **kwargs)
 
-    def form_valid(self, form):
-        obj = form.save(commit=False)
-        obj.set_password(User.objects.make_random_password())
-        obj.save()
+    def form_valid(self, form: forms.UserRegistrationForm):
+        try:
+            with transaction.atomic():
+                self.object = form.save(commit=False)
+                self.object.set_password(User.objects.make_random_password())
+                self.object.save()  # this actually saves the object and can raise an IntegrityError
 
-        # This form only requires the "email" field, so will validate.
-        reset_form = PasswordResetForm(self.request.POST)
-        reset_form.is_valid()  # Must trigger validation
+                # This form only requires the "email" field, so will validate.
+                reset_form = PasswordResetForm(self.request.POST)
+                reset_form.is_valid()  # Must trigger validation
 
-        # Copied from django/contrib/auth/views.py : password_reset
-        opts = {
-            'use_https': self.request.is_secure(),
-            'email_template_name': 'registration/email_verification.txt',
-            'html_email_template_name': 'registration/email_verification.html',
-            'subject_template_name': 'registration/email_verification_subject.txt',
-            'request': self.request,
-            # 'html_email_template_name': provide an HTML content template if you desire.
-        }
-        # This form sends the email on save()
-        reset_form.save(**opts)
+                # Copied from django/contrib/auth/views.py : password_reset
+                opts = {
+                    'use_https': self.request.is_secure(),
+                    'email_template_name': 'registration/email_verification.txt',
+                    'html_email_template_name': 'registration/email_verification.html',
+                    'subject_template_name': 'registration/email_verification_subject.txt',
+                    'request': self.request,
+                    # 'html_email_template_name': provide an HTML content template if you desire.
+                }
+                # This form sends the email on save() and can raise a subclass of OSError.
+                reset_form.save(**opts)
+
+        except IntegrityError as ex:
+            err = ValidationError(
+                _('There was an error registering your account: %(ex)s. '
+                  'This probably means you were already registered. If this is not the case, '
+                  'and the error remains, contact us at cloudsupport@blender.org. Otherwise '
+                  'just log in on your account.'),
+                params={'ex': str(ex)},
+                code='register-integrity-error'
+            )
+            form.add_error('email', err)
+            log.warning('Integrity error trying to save user %s: %s', self.object, ex)
+            return self.render_to_response(self.get_context_data(form=form))
+
+        except OSError as ex:
+            log.exception('Error sending registration email')
+            err = ValidationError(
+                _('There was an error sending your registration email (%(ex)s). '
+                  'Your registration has been aborted and this error was logged. '
+                  'Please try again later. If the error remains, contact us at '
+                  'cloudsupport@blender.org'),
+                params={'ex': str(ex)},
+                code='mail-error'
+            )
+            form.add_error(None, err)
+            return self.render_to_response(self.get_context_data(form=form))
 
         return redirect('bid_main:register-done')
 
