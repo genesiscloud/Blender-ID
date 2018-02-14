@@ -1,0 +1,27 @@
+| {% extends 'bid_main/confirm_email/base.html' %}
+
+| {% block confirm_email_body %}
+h1.text-danger Error confirming your email
+
+p.
+	There was a database error while we tried to save your confirmed email address: {{ error }}
+
+p.
+	This could mean you tried to change your email address, but someone else already registered
+	that address in the mean time. Please contact us at
+	#[a(href="mailto:cloudsupport@blender.org") cloudsupport@blender.org] if this error persist.
+
+p.
+	If you want you can try again to see if that helps.
+
+form(action="{% url 'bid_main:confirm-email' %}", method='POST')
+	| {% csrf_token %}
+	.bid-cta
+		a.btn(href="{% url 'bid_main:index' %}")
+			i.fa.fa-arrow-left
+			| Back to the dashboard
+		button.btn.btn-success(type='submit')
+			i.fa.fa-envelope
+			| Try again
+
+| {% endblock %}

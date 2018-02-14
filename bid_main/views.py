@@ -261,7 +261,8 @@ class ConfirmEmailPollView(LoginRequiredMixin, View):
 
 class ConfirmEmailVerifiedView(LoginRequiredMixin, TemplateView):
     template_name = 'bid_main/confirm_email/verified-happy.html'
-    log = logging.getLogger(f'{__name__}.ConfirmEmailVerifiedView')
+    integrity_error_template_name = 'bid_main/confirm_email/integrity-error.html'
+    log = log.getChild('ConfirmEmailVerifiedView')
 
     def get(self, request, *args, **kwargs):
         b64payload = kwargs.get('info', '')
@@ -277,8 +278,6 @@ class ConfirmEmailVerifiedView(LoginRequiredMixin, TemplateView):
             self.log.error('unknown validation result %r', result)
             raise ValueError('unknown validation result')
 
-        self.confirm_email_address(user)
-
         # Refuse to give a name if there is no URL and vice versa.
         # We should either have both or none.
         next_url = payload.get('n_url', '')
@@ -290,17 +289,35 @@ class ConfirmEmailVerifiedView(LoginRequiredMixin, TemplateView):
             'next_url': next_url or reverse_lazy('bid_main:index'),
             'next_name': next_name or 'Blender ID Dashboard',
         }
+
+        try:
+            self.confirm_email_address(user)
+        except IntegrityError as ex:
+            ctx['error'] = str(ex)
+            return render(request, self.integrity_error_template_name, ctx)
+
         return render(request, self.template_name, ctx)
 
     def confirm_email_address(self, user):
         """Update the user to set their email address as confirmed."""
 
+        old_email = user.email
         if user.email_change_preconfirm:
             user.email = user.email_change_preconfirm
             user.email_change_preconfirm = ''
 
         user.confirmed_email_at = timezone.now()
-        user.save()
+        try:
+            user.save()
+        except IntegrityError:
+            if user.email == old_email:
+                self.log.exception('IntegrityError while saving user confirmed email is %s',
+                                   user.email)
+            else:
+                self.log.exception('IntegrityError while confirming email change from %s to %s',
+                                   old_email, user.email)
+            raise
+
         self.log.info('Confirmed email of %s via explicit email confirmation.', user.email)
 
 
