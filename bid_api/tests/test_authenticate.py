@@ -89,3 +89,17 @@ class AuthenticateTest(AbstractAPITest):
             'password': self.test_password,
         }, access_token=wrong_token.token)
         self.assertEqual(403, response.status_code, f'response: {response}')
+
+    def test_authenticate_disabled_account(self):
+        self.auth_user.is_active = False
+        self.auth_user.save()
+
+        response = self.post({
+            'email': self.auth_user.email,
+            'password': self.test_password,
+        })
+        self.assertEqual(403, response.status_code, f'response: {response}')
+        self.assertEqual('application/json', response.get('content-type'))
+
+        payload = json.loads(response.content)
+        self.assertEqual({'error': 'bad-pw'}, payload)
