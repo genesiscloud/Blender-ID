@@ -192,6 +192,10 @@ class ValidateTokenView(SpecialSnowflakeMixin, CsrfExemptMixin, View):
         the subclient is present, a subclient token is verified.
         """
 
+        # The token should be limited to the given client ID. This allows, for example,
+        # Blender Cloud to check that a given token is really for Blender Cloud, and not
+        # for another OAuth Client.
+        client_id = request.POST.get('client_id') or settings.BLENDER_ID_ADDON_CLIENT_ID
         subclient = request.POST.get('subclient_id')
         user_id = request.POST.get('user_id')
         if user_id:
@@ -204,6 +208,18 @@ class ValidateTokenView(SpecialSnowflakeMixin, CsrfExemptMixin, View):
 
         token = self.validate_oauth_token(user_id, access_token, subclient)
         if not token or not token.is_valid():
+            success = False  # regular failure, no need to log about this.
+        elif token.application.client_id != client_id:
+            # This is a special case, as it could indicate a break-in attempt,
+            # or it could mean someone didn't upgrade their software to
+            # include the client ID.
+            self.log.warning('User %s tries to validate token for client %s, but token is for %s',
+                             token.user_id, client_id, token.application.client_id)
+            success = False
+        else:
+            success = True
+
+        if not success:
             return JsonResponse({'status': 'fail',
                                  'token': 'Token is invalid'},
                                 status=403)

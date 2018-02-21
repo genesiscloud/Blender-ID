@@ -134,3 +134,25 @@ class OAuthFlowTest(AbstractBlenderIDTest):
         # This token shouldn't work any more now.
         # Old Blender ID returns 401, this one returns 403.
         self.get('api/user', token=self.access_token, expected_status={401, 403})
+
+    def test_validate_token_happy(self):
+        r = self.get('api/user', token=self.access_token)
+        my_info = r.json()
+
+        r = self.post('u/validate_token', data={'token': self.access_token,
+                                                'client_id': self.oauth_client_id})
+        validation = r.json()
+
+        self.assertIn('token_expires', validation)
+        del validation['token_expires']
+
+        self.assertEqual({'status': 'success',
+                          'user': {'id': my_info['id'],
+                                   'email': my_info['email'],
+                                   'full_name': my_info['full_name']},
+                          }, validation)
+
+    def test_validate_token_wrong_client_id(self):
+        self.post('u/validate_token', data={'token': self.access_token,
+                                            'client_id': 'THIS-OTHER-APP'},
+                  expected_status=403)

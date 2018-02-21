@@ -217,3 +217,8 @@ class AddonBehaviourTest(AbstractBlenderIDTest):
         # Let's check that the subclient token works now.
         self.get(urljoin(self.cloud_api, 'users/me'),
                  auth=(subtoken_info['token'], SUBCLIENT))
+
+        # The token shouldn't work as regular token
+        self.get(urljoin(self.cloud_api, 'users/me'),
+                 token=subtoken_info['token'],
+                 expected_status=403)
