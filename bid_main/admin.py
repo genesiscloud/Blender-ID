@@ -129,7 +129,7 @@ class UserAdmin(BaseUserAdmin):
     list_filter = ('roles', 'is_active', 'groups',
                    'confirmed_email_at', 'is_staff', 'is_superuser')
     list_per_page = 12
-    search_fields = ('email', 'full_name')
+    search_fields = ('email', 'full_name', 'email_change_preconfirm')
     ordering = ('-last_update',)
 
     actions = [activate, deactivate, make_staff, unmake_staff, send_confirm_mails]
