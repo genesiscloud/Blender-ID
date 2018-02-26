@@ -124,10 +124,11 @@ class UserAdmin(BaseUserAdmin):
     )
 
     list_display = ('email', 'full_name', 'is_active', 'is_staff', 'role_names', 'last_update',
-                    'confirmed_email_at')
+                    'confirmed_email_at', 'date_joined')
     list_display_links = ('email', 'full_name')
     list_filter = ('roles', 'is_active', 'groups',
-                   'confirmed_email_at', 'is_staff', 'is_superuser')
+                   'confirmed_email_at', 'is_staff', 'is_superuser',
+                   'date_joined')
     list_per_page = 12
     search_fields = ('email', 'full_name', 'email_change_preconfirm')
     ordering = ('-last_update',)
