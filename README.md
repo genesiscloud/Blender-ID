@@ -159,7 +159,7 @@ Assuming deployment on FreeBSD with uWSGI, take care to:
       virtualenv = /data/www/vhosts/www.blender.org/venv-bid/
       chdir = /data/www/vhosts/www.blender.org/blender-id/
       wsgi-file = /data/www/vhosts/www.blender.org/blender-id/blenderid/wsgi.py
-      touch-reload = /data/www/vhosts/www.blender.org/blender-id/blenderid/wsgi.py
+      buffer-size = 32768
 
 - Enable the following Apache modules:
 
