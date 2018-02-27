@@ -212,11 +212,8 @@ class ConfirmEmailView(LoginRequiredMixin, FormView):
         else:
             extra = {}
 
-        try:
-            email.send_verify_address(user, request.scheme, extra)
-        except (OSError, IOError):
-            self.log.exception('unable to send address verification email to %s',
-                               user.email_to_confirm)
+        ok = email.send_verify_address(user, request.scheme, extra)
+        if not ok:
             self.template_name = 'bid_main/confirm_email/smtp_error.html'
             return self.render_to_response({})
         return redirect('bid_main:confirm-email-sent')
