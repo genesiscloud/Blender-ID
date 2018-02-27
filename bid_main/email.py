@@ -184,7 +184,7 @@ def check_verification_payload(info_b64: str, expected_hmac: str,
     now = timezone.now()
     expiry = dateutil.parser.parse(payload.get('x', '')).replace(tzinfo=timezone.utc)
     if expiry < now:
-        my_log.warning('link expired at %s', expiry)
+        my_log.info('link expired at %s', expiry)
         return VerificationResult.EXPIRED, payload
 
     log.debug('verification OK')
