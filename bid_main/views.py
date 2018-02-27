@@ -257,15 +257,25 @@ class ConfirmEmailPollView(LoginRequiredMixin, View):
 
 
 class ConfirmEmailVerifiedView(LoginRequiredMixin, TemplateView):
+    """Render explanation on GET, handle confirmation on POST.
+
+    We only perform the actual database change on a POST, since that protects
+    from browsers that pre-fetch the page. The POST is done with some JS, I
+    hope that isn't triggered on a pre-fetch.
+    """
     template_name = 'bid_main/confirm_email/verified-happy.html'
     integrity_error_template_name = 'bid_main/confirm_email/integrity-error.html'
     log = log.getChild('ConfirmEmailVerifiedView')
 
-    def get(self, request, *args, **kwargs):
+    def _verify_request(self, request, kwargs):
         b64payload = kwargs.get('info', '')
         hmac = kwargs.get('hmac', '')
         user = request.user
         result, payload = email.check_verification_payload(b64payload, hmac, user.email_to_confirm)
+        return result, payload
+
+    def get(self, request, *args, **kwargs):
+        result, payload = self._verify_request(request, kwargs)
 
         if result == email.VerificationResult.INVALID:
             return render(request, 'bid_main/confirm_email/verified-invalid.html', status=400)
@@ -291,13 +301,20 @@ class ConfirmEmailVerifiedView(LoginRequiredMixin, TemplateView):
             'next_name': next_name or 'Blender ID Dashboard',
         }
 
-        try:
-            self.confirm_email_address(user)
-        except IntegrityError as ex:
-            ctx['error'] = str(ex)
-            return render(request, self.integrity_error_template_name, ctx)
-
         return render(request, self.template_name, ctx)
+
+    def post(self, request, *args, **kwargs):
+        result, payload = self._verify_request(request, kwargs)
+        if result != email.VerificationResult.OK:
+            # Just let the JS reload the page to get the actual error message.
+            return JsonResponse({'_message': 'Validation error, reload the page',
+                                 'reload': True}, status=422)
+
+        try:
+            self.confirm_email_address(request.user)
+        except IntegrityError as ex:
+            return JsonResponse({'_message': str(ex)}, status=500)
+        return JsonResponse({'_message': 'OK!'})
 
     def confirm_email_address(self, user):
         """Update the user to set their email address as confirmed."""

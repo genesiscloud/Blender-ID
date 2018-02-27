@@ -61,7 +61,7 @@ gulp.task('scripts', function() {
         .pipe(rename({suffix: '.min'}))
         .pipe(gulpif(enabled.maps, sourcemaps.write(".")))
         .pipe(chmod(644))
-        .pipe(gulp.dest('webstatic/assets/js/generated/'))
+        .pipe(gulp.dest('webstatic/assets/js/'))
         .pipe(gulpif(enabled.liveReload, livereload()));
 });
 
@@ -76,7 +76,7 @@ gulp.task('scripts_tutti', function() {
         .pipe(gulpif(enabled.uglify, uglify()))
         .pipe(gulpif(enabled.maps, sourcemaps.write(".")))
         .pipe(chmod(644))
-        .pipe(gulp.dest('webstatic/assets/js/generated/'))
+        .pipe(gulp.dest('webstatic/assets/js/'))
         .pipe(gulpif(enabled.liveReload, livereload()));
 });
 
