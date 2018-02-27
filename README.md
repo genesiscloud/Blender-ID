@@ -30,7 +30,7 @@ After cloning the Git repo, perform these steps to create a working dev server:
 1. Copy `blenderid/__settings.py` to `blenderid/settings.py` and adjust for your needs.
 2. Run `git submodule init` and `git submodule update`
 3. Create a virtual environment (with Python 3.6) and run `pip install -r requirements-dev.txt`
-   (if you get an error when installing the `mysqlclient` package on macOS, 
+   (if you get an error when installing the `mysqlclient` package on macOS,
    [change your mysql_config](https://github.com/PyMySQL/mysqlclient-python#note-about-bug-of-mysql-connectorc-on-macos))
 4. Run `./manage.py migrate` to migrate your database to the latest version.
 5. In production, set up a cron job that calls the
