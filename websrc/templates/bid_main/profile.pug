@@ -38,7 +38,14 @@
 								a(href="{% url 'bid_main:confirm-email-change' %}") re-send confirmation email
 								='.'
 							| {% endif %}
-							| {{ form.errors }}
+							// Nickname input
+							label.control-label Nickname
+							.input-group
+								span.input-group-addon
+									i.fa.fa-user
+								| {{ form.nickname }}
+							| {{ form.nickname.errors }}
+							| {{ form.non_field_errors }}
 
 						.col-md-3
 							.bid-user.profile

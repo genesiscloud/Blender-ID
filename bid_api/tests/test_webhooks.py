@@ -277,7 +277,8 @@ class WebhookTest(WebhookBaseTest):
 
         # Update three users, causing three failed webhook calls.
         for domain in ('user1.com', 'user2.com', 'user3.com'):
-            user = UserModel.objects.create_user(f'test@{domain}', '123456')
+            user = UserModel.objects.create_user(f'test@{domain}', '123456',
+                                                 nickname=f'test123-{domain}')
             user.email = f'new@{domain}'
             user.save(update_fields={'email'})
         self.assertEqual(3, models.WebhookQueuedCall.objects.count())

@@ -60,4 +60,5 @@ class AuthenticateView(AbstractAPIView):
             'user_id': db_user.id,
             'email': db_user.email,
             'full_name': db_user.full_name,
+            'nickname': db_user.nickname,
         }, status=200)

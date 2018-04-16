@@ -35,6 +35,14 @@
 						| {{ form.email }}
 					| {{ form.email.errors }}
 
+					// Nickname input
+					label.control-label(for="{{ form.nickname.id_for_label }}") Nickname
+					.input-group
+						span.input-group-addon
+							i.fa.fa-user-circle
+						| {{ form.nickname }}
+					| {{ form.nickname.errors }}
+
 					p We will send you an email with instructions to set a password.
 
 					| {{ form.non_field_errors }}

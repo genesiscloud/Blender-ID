@@ -25,6 +25,7 @@
 				alt="Profile Picture")
 		.bid-user-info
 			h3 {{ user.full_name }}
+			p {{ user.nickname }}
 			| {% if user.email_change_preconfirm %}
 			p.bg-warning A change from {{ user.email }} to {{ user.email_change_preconfirm }} is pending.
 				br

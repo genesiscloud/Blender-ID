@@ -2,10 +2,12 @@ import typing
 
 from django.db import models
 from django.conf import settings
+from django.core import validators
 from django.core.mail import send_mail
 from django.contrib.auth.models import PermissionsMixin
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.utils import timezone
+from django.utils.deconstruct import deconstructible
 from django.utils.translation import ugettext_lazy as _
 
 import oauth2_provider.models as oa2_models
@@ -45,6 +47,15 @@ class UserManager(BaseUserManager):
         return self._create_user(email, password, **extra_fields)
 
 
+@deconstructible
+class UnicodeNicknameValidator(validators.RegexValidator):
+    regex = r'^[\w.+-]+$'
+    message = _(
+        'Enter a valid nickname. This value may contain only letters, '
+        'numbers, and ./+/-/_ characters.'
+    )
+
+
 class User(AbstractBaseUser, PermissionsMixin):
     """
     User class for BlenderID, implementing a fully featured User model with
@@ -52,7 +63,6 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     Email and password are required. Other fields are optional.
     """
-
     email = models.EmailField(
         _('email address'),
         max_length=64,
@@ -64,6 +74,26 @@ class User(AbstractBaseUser, PermissionsMixin):
         db_index=True,
     )
     full_name = models.CharField(_('full name'), max_length=80, blank=True, db_index=True)
+
+    # Named 'nickname' and not 'username', because the latter already is a
+    # 'thing' in Django. Not having one, and identifying users by their email
+    # address, was our own customisation.
+    # Bringing back a field 'username' with different semantics would be
+    # confusing. For example, there still is a field 'username' in the default
+    # Django auth form that is used for 'the thing used to log in', which is
+    # the email address in our case.
+    nickname = models.CharField(
+        'nickname',
+        max_length=80,
+        unique=True,
+        help_text=_('A short (one-word) name that can be used to address you. '
+                    '80 characters or fewer. Letters, digits, and ./+/-/_ only.'),
+        validators=[UnicodeNicknameValidator()],
+        error_messages={
+            'unique': _("That name is already used by someone else."),
+        },
+    )
+
     roles = models.ManyToManyField('Role', related_name='users', blank=True)
     public_roles_as_string = models.CharField(
         'Public roles as string',
@@ -117,6 +147,9 @@ class User(AbstractBaseUser, PermissionsMixin):
     class Meta:
         verbose_name = _('user')
         verbose_name_plural = _('users')
+
+    def __repr__(self) -> str:
+        return f'<User id={self.id} email={self.email!r}>'
 
     def save(self, *args, **kwargs):
         self.last_update = timezone.now()

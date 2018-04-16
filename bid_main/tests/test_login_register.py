@@ -29,6 +29,7 @@ class RegisterTest(TestCase):
             {
                 'full_name': 'Šuper Ũseŕ',
                 'email': 'super@hero.com',
+                'nickname': 'Apenút',
             })
         self.assertEqual(302, response.status_code, f'response: {response}')
         redirect_url = reverse('bid_main:register-done')
@@ -45,6 +46,7 @@ class RegisterTest(TestCase):
             {
                 'full_name': 'Šuper Ũseŕ',
                 'email': self.user.email,
+                'nickname': 'Apenút',
             })
         # This should render a template just fine; it shouldn't cause an internal error.
         self.assertEqual(200, response.status_code, f'respose: {response}')

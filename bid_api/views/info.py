@@ -27,6 +27,7 @@ def user_info_response(user: UserModel) -> JsonResponse:
     return JsonResponse({'id': user.id,
                          'full_name': user.get_full_name(),
                          'email': user.email,
+                         'nickname': user.nickname,
                          'roles': public_roles})
 
 

@@ -16,6 +16,7 @@ class UserInfoTest(AbstractAPITest):
         self.target_user = UserModel.objects.create_user(
             'target@user.com', '123456',
             full_name='मूंगफली मक्खन प्रेमी',
+            nickname='मूँगफली',
         )
 
     def get(self, user_id: str, *, access_token='', token_on_url=False) -> HttpResponse:
@@ -32,6 +33,7 @@ class UserInfoTest(AbstractAPITest):
         self.assertEqual({'id': self.target_user.id,
                           'full_name': self.target_user.get_full_name(),
                           'email': self.target_user.email,
+                          'nickname': self.target_user.nickname,
                           'roles': {}}, payload)
 
     def test_user_info_access_token_on_url(self):
@@ -43,6 +45,7 @@ class UserInfoTest(AbstractAPITest):
         self.assertEqual({'id': self.target_user.id,
                           'full_name': self.target_user.get_full_name(),
                           'email': self.target_user.email,
+                          'nickname': self.target_user.nickname,
                           'roles': {}}, payload)
 
     def test_user_info_not_found(self):
@@ -70,6 +73,7 @@ class UserInfoTest(AbstractAPITest):
         self.assertEqual({'id': self.target_user.id,
                           'full_name': self.target_user.get_full_name(),
                           'email': self.target_user.email,
+                          'nickname': self.target_user.nickname,
                           'roles': {'cloud_admin': True}}, payload)
 
     def test_bad_token_scope(self):
@@ -100,6 +104,7 @@ class UserInfoTest(AbstractAPITest):
             self.assertEqual({'id': self.target_user.id,
                               'full_name': self.target_user.get_full_name(),
                               'email': self.target_user.email,
+                              'nickname': self.target_user.nickname,
                               'roles': {}}, payload)
 
         url_path = reverse('bid_api:user')
@@ -119,9 +124,9 @@ class UserStatsTest(AbstractAPITest):
 
     def test_stats(self):
         create_user = UserModel.objects.create_user
-        create_user('target1@user.com', '123456', confirmed_email_at=timezone.now())
-        create_user('target2@user.com', '123456', full_name='मूंगफली मक्खन प्रेमी')
-        create_user('target3@user.com', '123456', confirmed_email_at=timezone.now())
+        create_user('target1@user.com', '123456', confirmed_email_at=timezone.now(), nickname='1')
+        create_user('target2@user.com', '123456', full_name='मूंगफली मक्खन प्रेमी', nickname='2')
+        create_user('target3@user.com', '123456', confirmed_email_at=timezone.now(), nickname='3')
 
         response = self.client.get(reverse('bid_api:stats'))
         self.assertEqual(200, response.status_code, f'response: {response}')

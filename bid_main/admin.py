@@ -101,7 +101,12 @@ class UserAdmin(BaseUserAdmin):
     inlines = (UserSettingInline, UserNotesInline)
 
     fieldsets = (
-        (None, {'fields': ('email', 'email_change_preconfirm', 'password', 'full_name', 'roles')}),
+        (None, {'fields': ('email',
+                           'nickname',
+                           'email_change_preconfirm',
+                           'password',
+                           'full_name',
+                           'roles')}),
         (_('Permissions'), {
             'fields': ('is_active', 'is_staff', 'is_superuser',
                        'groups', 'user_permissions'),
@@ -130,7 +135,7 @@ class UserAdmin(BaseUserAdmin):
                    'confirmed_email_at', 'is_staff', 'is_superuser',
                    'date_joined')
     list_per_page = 12
-    search_fields = ('email', 'full_name', 'email_change_preconfirm')
+    search_fields = ('email', 'full_name', 'email_change_preconfirm', 'nickname')
     ordering = ('-last_update',)
 
     actions = [activate, deactivate, make_staff, unmake_staff, send_confirm_mails]

@@ -2,7 +2,6 @@ from datetime import timedelta
 import json
 
 from django.http import HttpResponse
-from django.contrib.admin.models import LogEntry
 from django.core.urlresolvers import reverse
 from django.utils import timezone
 
@@ -21,6 +20,7 @@ class AuthenticateTest(AbstractAPITest):
             cls.test_password,
             id=640509,
             full_name='Fuuull Ñame',
+            nickname='ñičkname',
         )
 
     def post(self, data: dict, *, access_token='') -> HttpResponse:
@@ -41,6 +41,7 @@ class AuthenticateTest(AbstractAPITest):
             'user_id': self.auth_user.id,
             'full_name': self.auth_user.full_name,
             'email': self.auth_user.email,
+            'nickname': self.auth_user.nickname,
         }, payload)
 
     def test_authenticate_empty(self):
@@ -51,6 +52,7 @@ class AuthenticateTest(AbstractAPITest):
         self.assertNotIn(str(self.auth_user.id), content)
         self.assertNotIn(self.auth_user.full_name, content)
         self.assertNotIn(self.auth_user.email, content)
+        self.assertNotIn(self.auth_user.nickname, content)
 
     def test_authenticate_bad_password(self):
         response = self.post({

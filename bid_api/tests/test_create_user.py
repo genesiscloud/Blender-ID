@@ -41,6 +41,7 @@ class CreateUserTest(AbstractAPITest):
         self.assertEqual('Ünicode Ǉepper', db_user.full_name)
         self.assertNotEqual('blenderid$the-real-password', db_user.password)
         self.assertEqual(test_email, db_user.email)
+        self.assertEqual('Ünicode-Ǉepper', db_user.nickname)
 
         payload = json.loads(response.content)
         self.assertEqual({'user_id': db_user.id}, payload)
@@ -97,6 +98,7 @@ class CreateUserTest(AbstractAPITest):
 
         db_user: UserModel = UserModel.objects.get(email='test@email.com')
         self.assertEqual('', db_user.full_name)
+        self.assertEqual('test', db_user.nickname)
 
     def test_missing_password(self):
         response = self.post({

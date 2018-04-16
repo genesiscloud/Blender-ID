@@ -44,7 +44,8 @@ class BadgerApiGrantTest(BadgerBaseTest):
         self.user.roles = [self.role_badger]
         self.user.save()
 
-        self.target_user = UserModel.objects.create_user('target@user.com', '123456')
+        self.target_user = UserModel.objects.create_user('target@user.com', '123456',
+                                                         nickname='hey')
 
     def test_grant_unknown_badge(self):
         response = self.post('bid_api:badger_grant', 'unknown-badge', self.target_user.email)
@@ -126,7 +127,8 @@ class BadgerApiRevokeTest(BadgerBaseTest):
 
         # Incorrectly assign many roles, so that we can test what happens when they are
         # actually there and then revoked.
-        self.target_user = UserModel.objects.create_user('target@user.com', '123456')
+        self.target_user = UserModel.objects.create_user('target@user.com', '123456',
+                                                         nickname='there')
         self.assigned_roles = {self.role_notallowed, self.role_notabadge, self.role_inactivebadge,
                                self.role_badge1}
         self.target_user.roles = list(self.assigned_roles)

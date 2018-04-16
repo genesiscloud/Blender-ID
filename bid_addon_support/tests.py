@@ -79,10 +79,12 @@ class BlenderIdAddonSupportTest(TestCase):
     def _create_user(self,
                      email='sybren@example.com',
                      password='jemoeder',
-                     full_name='Sybren Stüvel') -> User:
+                     full_name='Sybren Stüvel',
+                     nickname='dr.Sybren') -> User:
         user = User.objects.create_user(email=email,
                                         password=password,
-                                        full_name=full_name)
+                                        full_name=full_name,
+                                        nickname=nickname)
         user.save()
         return user
 
@@ -132,7 +134,7 @@ class BlenderIdAddonSupportTest(TestCase):
 
     def test_delete_other_token(self):
         # First make sure there is a token, but owned by someone else.
-        self._create_user(email='other@user.nl')
+        self._create_user(email='other@user.nl', nickname='dr.Other')
         other_token = self.test_verify_identity_happy(email='other@user.nl')
         my_token = self.test_verify_identity_happy()
 

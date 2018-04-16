@@ -25,7 +25,7 @@ class UserRegistrationForm(BootstrapModelFormMixin, forms.ModelForm):
     # This class uses 'bid_main/user_register_form.html' to render
     class Meta:
         model = User
-        fields = ['full_name', 'email', ]
+        fields = ['full_name', 'email', 'nickname']
 
 
 class SetInitialPasswordForm(BootstrapModelFormMixin, auth_forms.SetPasswordForm):
@@ -61,7 +61,7 @@ class UserProfileForm(BootstrapModelFormMixin, forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ['full_name', 'email']
+        fields = ['full_name', 'email', 'nickname']
 
     def __init__(self, *args, **kwargs):
         instance = kwargs.get('instance')
@@ -95,6 +95,12 @@ class UserProfileForm(BootstrapModelFormMixin, forms.ModelForm):
         self.instance.email = self._original_email
         self.instance.email_change_preconfirm = form_email
         return self._original_email
+
+    def clean_nickname(self):
+        nickname = self.cleaned_data['nickname'].strip()
+        if not nickname:
+            raise forms.ValidationError(_('Nickname is a required field'))
+        return nickname
 
 
 class PasswordChangeForm(BootstrapModelFormMixin, auth_forms.PasswordChangeForm):
