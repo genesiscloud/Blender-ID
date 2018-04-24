@@ -16,7 +16,7 @@ class Migration(migrations.Migration):
             model_name='user',
             name='nickname',
             field=models.CharField(
-                error_messages={'unique': 'That nickname is already used by someone else.'},
+                error_messages={'unique': 'That name is already used by someone else.'},
                 help_text='A short (one-word) name that can be used to address you. '
                           '80 characters or fewer. Letters, digits, and ./+/-/_ only.',
                 max_length=80,
