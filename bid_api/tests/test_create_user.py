@@ -53,6 +53,40 @@ class CreateUserTest(AbstractAPITest):
         # We should be able to authenticate with the password.
         self.assert_can_auth(test_email, 'the-real-password', db_user.id)
 
+    def test_existing_username(self):
+        test_email = 'test.complex+address-yay@user.nl'
+        response = self.post({
+            'email': 'other@example.com',
+            'full_name': 'Ünicode Ǉepper',
+            'password': 'the-real-password',
+        })
+        self.assertEqual(201, response.status_code, f'response: {response}')
+        self.assertEqual('application/json', response.get('content-type'))
+
+        # Test with same name, but different email. Name-based nick should clash.
+        response = self.post({
+            'email': test_email,
+            'full_name': 'Ünicode Ǉepper',
+            'password': 'the-real-password',
+        })
+        self.assertEqual(201, response.status_code, f'response: {response}')
+
+        db_user: UserModel = UserModel.objects.get(email=test_email)
+        self.assertEqual('Ünicode Ǉepper', db_user.full_name)
+        self.assertNotEqual('blenderid$the-real-password', db_user.password)
+        self.assertEqual(test_email, db_user.email)
+        self.assertRegex(db_user.nickname, '^Ünicode-Ǉepper-[0-9]$')
+
+        payload = json.loads(response.content)
+        self.assertEqual({'user_id': db_user.id}, payload)
+
+        # There should be a log entry describing the creation.
+        entries = list(LogEntry.objects.filter(object_id=db_user.id))
+        self.assertEqual(1, len(entries))
+
+        # We should be able to authenticate with the password.
+        self.assert_can_auth(test_email, 'the-real-password', db_user.id)
+
     def test_create_user_exists(self):
         response = self.post({
             'email': 'test@user.nl',

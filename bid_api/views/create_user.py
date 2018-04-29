@@ -1,3 +1,4 @@
+import itertools
 import logging
 
 from django.db import transaction, IntegrityError
@@ -70,7 +71,7 @@ class CreateUserView(AbstractAPIView):
             return base
 
         # Try increasingly larger random numbers as a suffix.
-        for num in random_nums()[:1000]:
+        for num in itertools.islice(random_nums(), 1000):
             nickname = f'{base}-{num}'
             if acceptable_nickname(nickname):
                 return nickname
