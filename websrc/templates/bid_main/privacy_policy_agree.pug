@@ -1,0 +1,51 @@
+| {% extends 'layout.html' %}
+| {% block page_title %}Privacy Policy{% endblock %}
+//- Prevent the 'you must agree' banner from showing on this page.
+| {% block privacy_policy_banner %}{% endblock %}
+
+| {% block body %}
+.bid.box(style='text-align: left')
+	.bid-header
+		ul.bid-icons
+			li
+				i.bf-blender
+		h1 Privacy Policy
+
+	p
+		| Before you continue to use our service, please read and agree
+		| to #[a(href='/privacy-policy', target='_blank') our Privacy Policy]
+		| (the link opens in a new tab).
+
+	.row
+		.col-md-8.col-md-offset-2
+			form(role='login', action='', method='POST')
+				| {% csrf_token %}
+				| {{ form.next_url }}
+				fieldset
+					| {{ form.agree }}
+					label(style='display: inline', for='{{ form.agree.id_for_label }}')
+						| I have read and agree to the privacy policy as linked above.
+
+					.bid-cta
+						button.btn-success(type='submit') Submit &amp; Continue
+						| {% if may_skip and form.next_url.value %}
+						a.button.btn-warning(style='margin-left: 1em', href='{{ form.next_url.value }}') » Skip for now
+						| {% endif %}
+
+	h2(style='margin-top: 2em') Our policy in three points
+
+	ul
+		li
+			| We value your privacy.
+		li
+			| We only ask for personal information needed to run this service,
+			| namely your full name, email address, and nickname.
+		li
+			| We will not share your personal information with third parties,
+			| unless you use Blender ID to log in at a third-party website.
+
+	p.note
+		| Note that these three points do not consistute a legally binding text. For that,
+		| read our #[a(href='/privacy-policy', target='_blank') Privacy Policy].
+
+| {% endblock %}

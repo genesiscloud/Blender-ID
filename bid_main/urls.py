@@ -14,6 +14,8 @@ urlpatterns = [
     url(r'^switch/?$', views.SwitchUserView.as_view(), name='switch_user'),
     url(r'^switch/(?P<switch_to>.+)$', views.SwitchUserView.as_view(), name='switch_user'),
     url(r'^applications', views.ApplicationTokenView.as_view(), name='auth_tokens'),
+    url(r'^privacy-policy/agree$', views.PrivacyPolicyAgreeView.as_view(),
+        name='privacy_policy_agree'),
 
     url('^change$',
         auth_views.PasswordChangeView.as_view(

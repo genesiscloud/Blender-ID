@@ -1,6 +1,7 @@
 import logging
 
 from django.db.models import F
+from django.conf import settings
 from django.core.signals import got_request_exception
 from django.contrib.auth.signals import user_logged_in
 from django.db.models.signals import m2m_changed

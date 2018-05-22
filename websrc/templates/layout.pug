@@ -59,7 +59,6 @@ html(lang="en")
 				.container
 					.featured-content
 						h1 Blender ID
-
 					| {% if user.is_authenticated %}
 					header.navbar.navbar-default.navbar-secondary(role="navigation")
 						.container
@@ -89,6 +88,15 @@ html(lang="en")
 					| {% block nav_thirdlevel %}{% endblock %}
 
 				.featured-overlay
+
+			| {% if user and user.must_pp_agree %}
+			| {% block privacy_policy_banner %}
+			.privacy-policy-must-agree.bid.box
+				h1 Our Privacy Policy Changed
+				p
+					| In order to continue using Blender ID, please accept #[a(href="{% url 'bid_main:privacy_policy_agree' %}") our new privacy policy].
+			| {% endblock %}
+			| {% endif %}
 
 			| {% block body %}{% endblock %}
 

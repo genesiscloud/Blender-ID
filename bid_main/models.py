@@ -131,6 +131,9 @@ class User(AbstractBaseUser, PermissionsMixin):
     )
     date_joined = models.DateTimeField(_('date joined'), default=timezone.now)
     last_update = models.DateTimeField(_('last update'), default=timezone.now)
+    privacy_policy_agreed = models.DateTimeField(
+        _('privacy policy agreed'), null=True,
+        help_text=_('Date when this user agreed to our privacy policy.'))
 
     email_change_preconfirm = models.EmailField(
         _('email address to change to'),
@@ -198,6 +201,11 @@ class User(AbstractBaseUser, PermissionsMixin):
     @property
     def role_names(self) -> typing.Set[str]:
         return {role.name for role in self.roles.all()}
+
+    @property
+    def must_pp_agree(self) -> bool:
+        """Return True when user needs to agree to new privacy policy."""
+        return self.privacy_policy_agreed is None or self.privacy_policy_agreed < settings.PPDATE
 
 
 class SettingValueField(models.CharField):

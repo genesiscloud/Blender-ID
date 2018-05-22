@@ -10,7 +10,9 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.9/ref/settings/
 """
 
+import datetime
 import pathlib
+import pytz
 from django.core.urlresolvers import reverse_lazy
 
 BASE_DIR = pathlib.Path(__file__).absolute().parent.parent
@@ -48,7 +50,6 @@ INSTALLED_APPS = [
     'bid_addon_support',
 ]
 WITH_FLATPAGES = True  # set to False when you remove 'django.contrib.flatpages' from INSTALLED_APPS
-
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -192,3 +193,9 @@ NEXT_REDIR_AFTER_LOGIN_ALLOWED_HOSTS = {
 }
 
 CSRF_FAILURE_VIEW = 'bid_main.views.csrf_failure'
+
+
+# Privacy Policy date; anyone who agreed to the privacy policy before this date
+# (or never) will be presented with an agreement prompt and has to agree before
+# being able to use the website.
+PPDATE = datetime.datetime(2018, 5, 18, 0, 0, 0, tzinfo=pytz.utc)

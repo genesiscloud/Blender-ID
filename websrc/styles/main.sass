@@ -385,8 +385,20 @@ section.admin-links
 	color: $color-danger
 	font-weight: bold
 
-form .help-text
+form .help-text, p.note
 	color: $color-text-dark-primary
 	font-size: 90%
+
+form .help-text
 	text-align: left
 	margin: 0 !important
+
+input[type=checkbox], input[type=radio]
+	flex: none !important
+
+.privacy-policy-must-agree
+	color: $color-text-dark
+	padding: 0.5em
+	border: 1px solid $color-warning
+	border-radius: 3px
+	background-color: #fcf8e3

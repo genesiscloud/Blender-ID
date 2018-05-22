@@ -100,3 +100,9 @@ INTERNAL_IPS = ['127.0.0.1']
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 # Alternatively, run python3 -m smtpd -n -c DebuggingServer -d '0.0.0.0:2525' and set
 # EMAIL_PORT = 2525
+
+# Hosts that we allow redirecting to with a next=xxx parameter on the /login and /switch
+# endpoints; this is an addition to the defaults, for development purposes.
+# NEXT_REDIR_AFTER_LOGIN_ALLOWED_HOSTS.update({
+#     'cloud.local:5000', 'cloud.local:5001', 'cloud.local',
+# })

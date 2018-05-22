@@ -45,6 +45,7 @@ After cloning the Git repo, perform these steps to create a working dev server:
    - `./manage.py loaddata default_roles`
    - `./manage.py loaddata blender_cloud_devserver`
    - `./manage.py loaddata blender_cloud_dev_webhook`
+   - `./manage.py loaddata flatpages`
 9. Run `./gulp`  to compile javascript
 10. Add to /etc/hosts  127.0.0.1 blender-id
 11. Run `./manage.py runserver`

@@ -113,7 +113,7 @@ class UserAdmin(BaseUserAdmin):
             'classes': ('collapse',),
         }),
         (_('Important dates'), {
-            'fields': ('date_joined', 'last_update', 'confirmed_email_at'),
+            'fields': ('date_joined', 'last_update', 'confirmed_email_at', 'privacy_policy_agreed'),
             'classes': ('collapse',),
         }),
         (_('Login info'), {

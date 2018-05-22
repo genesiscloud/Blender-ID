@@ -128,3 +128,11 @@ class ConfirmEmailStartForm(forms.Form):
 
     next_url = forms.CharField(max_length=1024, widget=forms.HiddenInput, required=False)
     next_name = forms.CharField(max_length=1024, widget=forms.HiddenInput, required=False)
+
+
+class PrivacyPolicyAgreeForm(forms.Form):
+    agree = forms.BooleanField(
+        initial=False,
+        help_text='Check to agree with our privacy policy',
+    )
+    next_url = forms.CharField(max_length=1024, widget=forms.HiddenInput, required=False)

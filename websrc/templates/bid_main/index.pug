@@ -23,8 +23,17 @@
 				src='{% gravatar_url user.email 84 %}',
 				title='Profile Picture',
 				alt="Profile Picture")
+		| {% else %}
+		a.bid-user-missing(href="{% url 'bid_main:profile' %}")
+			i.fa.fa-exclamation
+		| {% endif %}
 		.bid-user-info
-			h3 {{ user.full_name }}
+			h3
+				| {{ user.full_name }}
+				| {% if not user.full_name %}
+				a.danger(href="{% url 'bid_main:profile' %}")
+					| Please specify your full name
+				| {% endif %}
 			p {{ user.nickname }}
 			| {% if user.email_change_preconfirm %}
 			p.bg-warning A change from {{ user.email }} to {{ user.email_change_preconfirm }} is pending.
@@ -40,16 +49,6 @@
 			p.bg-warning #[a(href="{% url 'bid_main:confirm-email' %}") Confirm your email address] to unleash the full power of Blender ID.
 			hr
 			| {% endif %}
-		| {% else %}
-		a.bid-user-missing(href="{% url 'bid_main:profile' %}")
-			i.fa.fa-exclamation
-		.bid-user-info
-			h3
-				a.danger(href="{% url 'bid_main:profile' %}")
-					| Please specify your full name
-			p {{ user.email }}
-		| {% endif %}
-
 		form#cancel_email_change(action="{% url 'bid_main:cancel-email-change' %}", method='POST')
 			| {% csrf_token %}
 

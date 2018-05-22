@@ -1,4 +1,5 @@
 import logging
+import urllib.parse
 
 from django.core.exceptions import ValidationError
 from django.db import transaction, IntegrityError
@@ -68,13 +69,38 @@ class IndexView(LoginRequiredMixin, PageIdMixin, TemplateView):
         return ctx
 
 
-class LoginView(PageIdMixin, auth_views.LoginView):
+class RedirectToPrivacyAgreeMixin:
+    privacy_policy_agree_url = reverse_lazy('bid_main:privacy_policy_agree')
+
+    def get_success_url(self):
+        """Return the user-originating redirect URL if it's safe."""
+
+        regular_redir_url = super().get_success_url()
+        if not self.request.user.must_pp_agree:
+            return regular_redir_url
+
+        # Skipping is allowed when the redirect URL refers to another website.
+        url_bits = urllib.parse.urlsplit(regular_redir_url)
+        may_skip = bool(url_bits.hostname or '')
+
+        # User must agree to privacy policy first before being redirected.
+        next_url_qs = urllib.parse.urlencode({
+            'next': regular_redir_url,
+            'mayskip': 'yes' if may_skip else 'no',
+        })
+        redirect_to = f'{self.privacy_policy_agree_url}?{next_url_qs}'
+        log.debug('Directing user to %s', redirect_to)
+        return redirect_to
+
+
+class LoginView(RedirectToPrivacyAgreeMixin, PageIdMixin, auth_views.LoginView):
     """Shows the login view."""
 
     page_id = 'login'
     template_name = 'bid_main/login.html'
     authentication_form = forms.AuthenticationForm
     redirect_authenticated_user = True
+    success_url_allowed_hosts = settings.NEXT_REDIR_AFTER_LOGIN_ALLOWED_HOSTS
 
     @method_decorator(sensitive_post_parameters())
     @method_decorator(csrf_exempt)
@@ -357,10 +383,15 @@ class ProfileView(LoginRequiredMixin, UpdateView):
         return success_resp
 
 
-class SwitchUserView(LoginRequiredMixin, auth_views.LoginView):
+class SwitchUserView(RedirectToPrivacyAgreeMixin, LoginRequiredMixin, auth_views.LoginView):
     template_name = 'bid_main/switch_user.html'
     form_class = forms.AuthenticationForm
     success_url_allowed_hosts = settings.NEXT_REDIR_AFTER_LOGIN_ALLOWED_HOSTS
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx['next'] = self.request.GET.get('next', '')
+        return ctx
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -462,6 +493,45 @@ class ApplicationTokenView(PageIdMixin, LoginRequiredMixin, FormView):
         gr_model.objects.filter(user=user, application=app_id).delete()
 
         return super().form_valid(form)
+
+
+class PrivacyPolicyAgreeView(PageIdMixin, LoginRequiredMixin, FormView):
+    page_id = 'privacy_policy_agree'
+    template_name = 'bid_main/privacy_policy_agree.html'
+    form_class = forms.PrivacyPolicyAgreeForm
+    default_success_url = reverse_lazy('bid_main:index')
+
+    log = logging.getLogger(f'{__name__}.ApplicationTokenView')
+
+    def get_initial(self) -> dict:
+        next_url = self.request.GET.get('next') or self.default_success_url
+        return {'next_url': next_url}
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx['may_skip'] = self.request.GET.get('mayskip', '') == 'yes'
+        return ctx
+
+    def form_valid(self, form):
+        """Save the agreement and redirect."""
+        from django.contrib.contenttypes.models import ContentType
+        from django.contrib.admin.models import LogEntry, ADDITION
+
+        now = timezone.now()
+        self.request.user.privacy_policy_agreed = now
+        log.info('User agreed to privacy policy at %s', now)
+        self.request.user.save(update_fields=('privacy_policy_agreed', ))
+
+        LogEntry.objects.log_action(
+            user_id=self.request.user.id,
+            content_type_id=ContentType.objects.get_for_model(User).pk,
+            object_id=self.request.user.id,
+            object_repr=str(self.request.user),
+            action_flag=ADDITION,
+            change_message=f'Agreed to privacy policy dated {settings.PPDATE}')
+
+        next_url = form.cleaned_data['next_url'] or self.default_success_url
+        return HttpResponseRedirect(next_url)
 
 
 def csrf_failure(request, reason=""):

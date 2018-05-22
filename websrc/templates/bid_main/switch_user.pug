@@ -42,8 +42,9 @@
 
 			br
 
-			form(role='login', action='?next={{ next|urlencode }}', method='POST', name='login_user_form')
+			form(role='login', action='', method='POST', name='login_user_form')
 				| {% csrf_token %}
+				input(type='hidden',name='next',value='{{ next }}')
 				fieldset
 					// Email input
 					.input-group
