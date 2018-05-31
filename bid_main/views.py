@@ -79,14 +79,9 @@ class RedirectToPrivacyAgreeMixin:
         if not self.request.user.must_pp_agree:
             return regular_redir_url
 
-        # Skipping is allowed when the redirect URL refers to another website.
-        url_bits = urllib.parse.urlsplit(regular_redir_url)
-        may_skip = bool(url_bits.hostname or '')
-
         # User must agree to privacy policy first before being redirected.
         next_url_qs = urllib.parse.urlencode({
             'next': regular_redir_url,
-            'mayskip': 'yes' if may_skip else 'no',
         })
         redirect_to = f'{self.privacy_policy_agree_url}?{next_url_qs}'
         log.debug('Directing user to %s', redirect_to)
