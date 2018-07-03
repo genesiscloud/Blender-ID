@@ -54,18 +54,29 @@ class UserInfoView(AbstractAPIView):
 
 
 class StatsView(AbstractAPIView):
-    """Returns aggregate statistics.
-
-    This does require the OAuth token to have userstats scope.
-    """
+    """Return aggregate statistics."""
 
     def get(self, request):
         obs = UserModel.objects
+
+        # Count how many people agreed to any privacy policy.
+        pp_agreed = obs.filter(privacy_policy_agreed__isnull=False).count()
+
+        # TODO(Sybren): update this when we introduce a new privacy policy;
+        # in that case we need to compare to a newer date.
+        pp_obsolete = 0
+
+        total = obs.count()
         stats = {
             'users': {
                 'unconfirmed': obs.filter(confirmed_email_at__isnull=True).count(),
                 'confirmed': obs.filter(confirmed_email_at__isnull=False).count(),
-                'total': obs.count(),
+                'privacy_policy_agreed': {
+                    'latest': pp_agreed,
+                    'obsolete': pp_obsolete,
+                    'never': total - pp_agreed - pp_obsolete,
+                },
+                'total': total,
             }
         }
 
