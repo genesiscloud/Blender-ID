@@ -8,7 +8,8 @@
       "is_active": true,
       "is_badge": true,
       "is_public": true,
-      "may_manage_roles": []
+      "may_manage_roles": [],
+      "label": "Cloud Invited Guest"
     }
   },
   {
@@ -20,7 +21,8 @@
       "is_active": true,
       "is_badge": true,
       "is_public": true,
-      "may_manage_roles": []
+      "may_manage_roles": [],
+      "label": "Cloud Subscriber"
     }
   },
   {

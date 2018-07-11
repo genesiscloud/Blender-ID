@@ -3,6 +3,7 @@ import typing
 from django.db import models
 from django.conf import settings
 from django.core import validators
+from django.core.exceptions import ValidationError
 from django.core.mail import send_mail
 from django.contrib.auth.models import PermissionsMixin
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
@@ -244,11 +245,29 @@ class Role(models.Model):
     description = models.CharField(max_length=255, blank=True, null=False)
     is_active = models.BooleanField(default=True, null=False)
     is_badge = models.BooleanField(default=False, null=False)
-    is_public = models.BooleanField(default=True, null=False)
+    is_public = models.BooleanField(
+        default=True, null=False,
+        help_text='When enabled, this role/badge will be readable through the userinfo API.')
 
     may_manage_roles = models.ManyToManyField(
         'Role', related_name='managers', blank=True,
-        help_text='Users with this role will be able to grant or revoke these roles to any other user.')
+        help_text='Users with this role will be able to grant or revoke these roles to '
+                  'any other user.')
+
+    # For Badges:
+    label = models.CharField(
+        max_length=255, blank=True, null=False,
+        help_text='Human-readable name for a badge. Required for badges, not for roles.')
+    badge_img = models.ImageField(
+        help_text='Visual representation of a badge.',
+        upload_to='badges',
+        height_field='badge_img_height',
+        width_field='badge_img_width',
+        null=True, blank=True)
+    badge_img_height = models.IntegerField(null=True, blank=True)
+    badge_img_width = models.IntegerField(null=True, blank=True)
+    link = models.URLField(null=True, blank=True,
+                           help_text='Clicking on a badge image will lead to this link.')
 
     class Meta:
         ordering = ['-is_active', 'name']
@@ -257,6 +276,11 @@ class Role(models.Model):
         if self.is_active:
             return self.name
         return '%s [inactive]' % self.name
+
+    def clean(self):
+        # Labels are required for badges.
+        if self.is_badge and not self.label:
+            raise ValidationError({'label': _('Badges must have a label.')})
 
 
 class OAuth2AccessToken(oa2_models.AbstractAccessToken):

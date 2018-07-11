@@ -8,7 +8,8 @@
             "is_active": true,
             "is_badge": true,
             "is_public": true,
-            "may_manage_roles": []
+            "may_manage_roles": [],
+            "label": "BFCT Board"
         }
     },
     {
@@ -20,7 +21,8 @@
             "is_active": true,
             "is_badge": true,
             "is_public": true,
-            "may_manage_roles": []
+            "may_manage_roles": [],
+            "label": "Conference Speaker"
         }
     },
     {
@@ -44,7 +46,8 @@
             "is_active": true,
             "is_badge": true,
             "is_public": true,
-            "may_manage_roles": []
+            "may_manage_roles": [],
+            "label": "BFCT Trainer"
         }
     },
     {
@@ -56,7 +59,8 @@
             "is_active": true,
             "is_badge": true,
             "is_public": true,
-            "may_manage_roles": []
+            "may_manage_roles": [],
+            "label": "Blender Network Member"
         }
     },
     {
@@ -68,7 +72,8 @@
             "is_active": true,
             "is_badge": true,
             "is_public": true,
-            "may_manage_roles": []
+            "may_manage_roles": [],
+            "label": "Core Blender Developer"
         }
     },
     {
@@ -104,7 +109,8 @@
             "is_active": true,
             "is_badge": true,
             "is_public": true,
-            "may_manage_roles": []
+            "may_manage_roles": [],
+            "label": "Cloud Subscriber"
         }
     },
     {

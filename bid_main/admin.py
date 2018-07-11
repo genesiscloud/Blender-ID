@@ -201,12 +201,19 @@ def make_inactive(modeladmin, request, queryset):
 class RoleAdmin(admin.ModelAdmin):
     model = models.Role
 
-    list_display = ('name', 'description', 'is_badge', 'is_public', 'is_active')
+    list_display = ('name', 'label', 'description', 'is_badge', 'is_public', 'is_active')
     list_filter = ('is_badge', 'is_public', 'is_active')
-    search_fields = ('name', 'description')
+    search_fields = ('name', 'description', 'label')
 
     actions = [make_badge, make_not_badge, make_active, make_inactive]
 
+    fieldsets = (
+        (None, {'fields': ('name', 'description', 'is_public', 'is_active',
+                           'may_manage_roles')}),
+        (_('Badges'), {
+            'fields': ('is_badge', 'label', 'badge_img', 'link'),
+        }),
+    )
 
 # Erase the oauth_provider admin classes so that we can register our own.
 # Butt ugly but it seems to work.
