@@ -6,7 +6,7 @@
             "hook_type": "USER_MODIFIED",
             "name": "Blender Cloud",
             "secret": "oos9wah1Zoa0Yau6ahThohleiChephoi",
-            "url": "http://blender-cloud:5001/api/webhooks/user-modified"
+            "url": "http://cloud.local:5001/api/webhooks/user-modified"
         },
         "model": "bid_api.webhook",
         "pk": 1

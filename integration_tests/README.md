@@ -8,9 +8,9 @@ or development server).
 The tests require the following environment variables:
 
 - `BLENDER_ID_ENDPOINT`: the URL of the Blender ID server under test. For example
-  http://blender-id:8000/ for a typical dev server.
+  http://id.local:8000/ for a typical dev server.
 - `BCLOUD_SERVER`: the Blender Cloud server, used for sending subclient tokens. For example
-  http://blender-cloud:5000/ for a typical dev server.
+  http://cloud.local:5001/ for a typical dev server.
 
 The following environment variables are optional and provide extra convenience:
 
