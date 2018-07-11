@@ -125,7 +125,8 @@ class UserStatsTest(AbstractAPITest):
     def test_stats(self):
         create_user = UserModel.objects.create_user
         create_user('target1@user.com', '123456', confirmed_email_at=timezone.now(), nickname='1')
-        create_user('target2@user.com', '123456', full_name='मूंगफली मक्खन प्रेमी', nickname='2')
+        create_user('target2@user.com', '123456', full_name='मूंगफली मक्खन प्रेमी', nickname='2',
+                    privacy_policy_agreed=timezone.now())
         create_user('target3@user.com', '123456', confirmed_email_at=timezone.now(), nickname='3')
 
         response = self.client.get(reverse('bid_api:stats'))
@@ -138,5 +139,6 @@ class UserStatsTest(AbstractAPITest):
                 'unconfirmed': 2,
                 'confirmed': 2,
                 'total': 4,
+                'privacy_policy_agreed': {'latest': 1, 'never': 3, 'obsolete': 0},
             }
         }, payload)
