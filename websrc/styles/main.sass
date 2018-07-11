@@ -402,3 +402,19 @@ input[type=checkbox], input[type=radio]
 	border: 1px solid $color-warning
 	border-radius: 3px
 	background-color: #fcf8e3
+
+ul.badges
+	display: grid
+	grid-template-columns: repeat(auto-fill,minmax(160px, 1fr))
+
+li.badge
+	// The padding is inside the 'a'-tag or 'span'-tag
+	padding: 0 !important
+	margin: 1em
+	text-align: center
+
+li.badge > a, li.badge > span
+	display: block
+	padding: 0.5em
+li.badge > a:link, li.badge > a:visited
+	text-decoration: none

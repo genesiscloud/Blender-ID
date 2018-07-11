@@ -1,0 +1,18 @@
+mixin badge
+    | {% if badge.badge_img %}
+    img(src='{{ badge.badge_img.url }}',
+        width='{{ badge.badge_img_width }}',
+        height='{{ badge.badge_img_height }}',
+        alt='{{ badge.description }}')
+    br
+    | {% endif %}
+    span.badge-label {{ badge.label }}
+
+li.badge(class='{{ badge.name }}', title='{{ badge.description }}')
+    | {% if badge.link %}
+    a(href='{{ badge.link }}', target='_blank')
+        +badge
+    | {% else %}
+    span
+        +badge
+    | {% endif %}

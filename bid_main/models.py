@@ -1,8 +1,9 @@
+import functools
 import typing
 
 from django.db import models
 from django.conf import settings
-from django.core import validators
+from django.core import validators, urlresolvers
 from django.core.exceptions import ValidationError
 from django.core.mail import send_mail
 from django.contrib.auth.models import PermissionsMixin
@@ -173,6 +174,10 @@ class User(AbstractBaseUser, PermissionsMixin):
         return {role.name
                 for role in self.roles.filter(is_public=True, is_active=True)}
 
+    def public_badges(self) -> models.query.QuerySet:
+        """Returns a QuerySet of public badges."""
+        return self.roles.filter(is_public=True, is_active=True, is_badge=True)
+
     def get_full_name(self):
         """
         Returns the full name.
@@ -242,7 +247,9 @@ class UserSetting(models.Model):
 
 class Role(models.Model):
     name = models.CharField(max_length=80)
-    description = models.CharField(max_length=255, blank=True, null=False)
+    description = models.CharField(
+        max_length=255, blank=True, null=False,
+        help_text="Note that this is shown for badges on users' dashboard page.")
     is_active = models.BooleanField(default=True, null=False)
     is_badge = models.BooleanField(default=False, null=False)
     is_public = models.BooleanField(
@@ -276,6 +283,11 @@ class Role(models.Model):
         if self.is_active:
             return self.name
         return '%s [inactive]' % self.name
+
+    @property
+    def admin_url(self) -> str:
+        view_name = f"admin:{self._meta.app_label}_{self._meta.model_name}_change"
+        return urlresolvers.reverse(view_name, args=(self.id,))
 
     def clean(self):
         # Labels are required for badges.
