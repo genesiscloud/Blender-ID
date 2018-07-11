@@ -47,7 +47,7 @@ After cloning the Git repo, perform these steps to create a working dev server:
    - `./manage.py loaddata blender_cloud_dev_webhook`
    - `./manage.py loaddata flatpages`
 9. Run `./gulp`  to compile javascript
-10. Add to /etc/hosts  127.0.0.1 blender-id
+10. Add to /etc/hosts  127.0.0.1 id.local
 11. Run `./manage.py runserver`
 
 
@@ -219,4 +219,4 @@ Do this:
 
     ./manage.py loaddata default_site
 
-Then access your site at http://blender-id:8000/. Add an entry to your hosts file if necessary.
+Then access your site at http://id.local:8000/. Add an entry to your hosts file if necessary.

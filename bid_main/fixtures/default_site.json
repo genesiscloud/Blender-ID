@@ -3,8 +3,8 @@
     "model": "sites.site",
     "pk": 1,
     "fields": {
-      "domain": "blender-id:8000",
-      "name": "blender-id:8000"
+      "domain": "id.local:8000",
+      "name": "id.local:8000"
     }
   }
 ]
