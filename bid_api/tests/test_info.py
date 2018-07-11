@@ -142,3 +142,135 @@ class UserStatsTest(AbstractAPITest):
                 'privacy_policy_agreed': {'latest': 1, 'never': 3, 'obsolete': 0},
             }
         }, payload)
+
+
+class UserBadgeTest(AbstractAPITest):
+    access_token_scope = 'badge'
+
+    def setUp(self):
+        self.target_user = UserModel.objects.create_user(
+            'target@user.com', '123456',
+            full_name='मूंगफली मक्खन प्रेमी',
+            nickname='मूँगफली',
+        )
+
+        # Grant a couple of roles.
+        self.badge_cloud = Role(name='⛅cloud_subscriber',
+                                is_badge=True,
+                                is_active=True,
+                                is_public=True,
+                                label='🦖 Subscriber',
+                                description='¡Awesome T-Rex!',
+                                link='https://cloud.blender.org/',
+                                badge_img='badges/t-rex.png',
+                                badge_img_width=120,
+                                badge_img_height=100)
+        self.badge_cloud.save()
+
+        self.badge_nonpublic = Role(name='nonpublic❌',
+                                    is_badge=True,
+                                    is_active=True,
+                                    is_public=False,
+                                    label='❌ NONPUB ❌')
+        self.badge_nonpublic.save()
+
+        self.role_public = Role(name='janitor',
+                                is_badge=False,
+                                is_active=True,
+                                is_public=True,
+                                label='🐩 the poodle')
+        self.role_public.save()
+
+        self.target_user.roles.add(self.badge_cloud)
+        self.target_user.roles.add(self.badge_nonpublic)
+        self.target_user.roles.add(self.role_public)
+        self.target_user.save()
+
+    def get(self, user_id: str, *, access_token='', token_on_url=False) -> HttpResponse:
+        url_path = reverse('bid_api:user-badges-by-id', kwargs={'user_id': user_id})
+        response = self.authed_get(url_path, access_token=access_token, token_on_url=token_on_url)
+        return response
+
+    def test_other_user(self):
+        response = self.get(str(self.target_user.id))
+        self.assertEqual(403, response.status_code, f'response: {response}')
+
+    def test_happy(self):
+        target_user_token = AccessToken.objects.create(
+            user=self.target_user,
+            scope='email badge',
+            expires=timezone.now() + timedelta(seconds=300),
+            token='token-with-badge-scope',
+            application=self.application
+        )
+        target_user_token.save()
+
+        def get():
+            return self.get(str(self.target_user.id), access_token=target_user_token.token)
+
+        response = get()
+        self.assertEqual(200, response.status_code, f'response: {response}')
+        self.assertEqual('application/json', response.get('content-type'))
+        payload = json.loads(response.content)
+        self.assertEqual({'user_id': self.target_user.id,
+                          'badges': {
+                              '⛅cloud_subscriber': {
+                                  'label': '🦖 Subscriber',
+                                  'description': '¡Awesome T-Rex!',
+                                  'link': 'https://cloud.blender.org/',
+                                  'image': 'http://example.com/media/badges/t-rex.png',
+                                  'image_width': 120,
+                                  'image_height': 100,
+                              }
+                          }}, payload)
+
+        # Make the Poodle a badge
+        self.role_public.is_badge = True
+        self.role_public.save()
+
+        response = get()
+        payload = json.loads(response.content)
+        self.assertEqual({'user_id': self.target_user.id,
+                          'badges': {
+                              '⛅cloud_subscriber': {
+                                  'label': '🦖 Subscriber',
+                                  'description': '¡Awesome T-Rex!',
+                                  'link': 'https://cloud.blender.org/',
+                                  'image': 'http://example.com/media/badges/t-rex.png',
+                                  'image_width': 120,
+                                  'image_height': 100,
+                              },
+                              'janitor': {
+                                  'label': '🐩 the poodle',
+                              },
+                          }}, payload)
+
+    def test_bad_token_scope(self):
+        wrong_token = AccessToken.objects.create(
+            user=self.user,
+            scope='email',
+            expires=timezone.now() + timedelta(seconds=300),
+            token='token-with-wrong-scope',
+            application=self.application
+        )
+        wrong_token.save()
+        response = self.get(self.target_user.id, access_token=wrong_token.token)
+        self.assertEqual(403, response.status_code)
+
+    def test_own_badge_bad_token_scope(self):
+        wrong_token = AccessToken.objects.create(
+            user=self.target_user,
+            scope='email',
+            expires=timezone.now() + timedelta(seconds=300),
+            token='token-with-wrong-scope',
+            application=self.application
+        )
+        wrong_token.save()
+        response = self.get(self.target_user.id, access_token=wrong_token.token)
+        self.assertEqual(403, response.status_code)
+
+    def test_nonexisting_user(self):
+        response = self.get(str(self.target_user.id + 1))
+        # Nonexisting user means that you're requesting for another user,
+        # which results in a 403 Forbidden.
+        self.assertEqual(403, response.status_code, f'response: {response}')
