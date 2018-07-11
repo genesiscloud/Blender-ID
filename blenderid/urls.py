@@ -38,8 +38,11 @@ handler500 = bid_main.views.ErrorView.as_view(template_name='errors/500.html', s
 
 if settings.DEBUG:
     import debug_toolbar
+
+    settings.STATICFILES_FINDERS.insert(0, 'bid_main.devserver_support.MediaFinder')
     urlpatterns += [
         url(r'^__debug__/', include(debug_toolbar.urls)),
+        url(rf'^media/(?P<path>.*)$', django.contrib.staticfiles.views.serve),
     ]
 
 if settings.WITH_FLATPAGES:

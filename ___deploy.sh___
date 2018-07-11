@@ -56,6 +56,9 @@ git checkout production
 # Just to make sure; this shouldn't do anything.
 sed -i~ 's/^DEBUG = .*/DEBUG = False/' blenderid/settings.py
 
+# Create the media directory if it doesn't exist yet.
+mkdir -p media
+
 pip3 install -U -r requirements.txt
 python3 manage.py migrate
 sudo service uwsgi reload

@@ -144,6 +144,11 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'webstatic']
 STATIC_ROOT = BASE_DIR / 'static'
 
+# Uploaded files
+# https://docs.djangoproject.com/en/2.0/ref/settings/#std:setting-MEDIA_ROOT
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'  # may not be inside STATIC_ROOT
+
 BLENDER_ID_ADDON_CLIENT_ID = '-secret-'
 
 # Defining one of those means you have to define them all.
