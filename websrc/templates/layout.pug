@@ -148,16 +148,16 @@ html(lang="en")
 							li
 								a(href='https://docs.blender.org/api/current/', title='Python API') Python API
 					.col-md-2.col-xs-4
-						a.sitemap-title(href='https://www.blender.org/about/website/') blender.org
+						| {% load flatpages %}
+						| {% get_flatpages as flatpages %}
+						a.sitemap-title(href='https://www.blender.org/id/about') blender.org/id
 						ul
+							| {% for page in flatpages %}
 							li
-								a(href='https://www.blender.org/news/', title='News') News
-							li
-								a(href="https://www.blender.org/jobs/", title="Jobs") Jobs #[span.new NEW]
-							li
-								a(href='https://www.blender.org/foundation/', title='Contact') Contact
-							li
-								a(href='https://www.blender.org/about/logo/', title='Logo & Trademark') Logo & Trademark
+								a(href='{{ page.url }}', title='{{ page.title }}') {{ page.title }}
+							| {% endfor %}
+							//li
+							//	a(href="https://www.blender.org/jobs/", title="Jobs") Jobs #[span.new NEW]
 					.col-md-2.col-xs-12
 						span.sitemap-title Follow Blender
 						.social-icons
