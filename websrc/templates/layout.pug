@@ -9,6 +9,7 @@ html(lang="en")
 		meta(name='author', content='Blender Foundation')
 
 		link(href="{% static 'assets/css/main.css' %}", rel='stylesheet')
+
 		link(rel="shortcut icon", href="{% static 'assets_shared/images/favicon.ico' %}")
 
 		| {% block header %}
@@ -41,9 +42,6 @@ html(lang="en")
 								li(class="{% if page_id == 'index' %}active{% endif %}")
 									a(href="{% url 'bid_main:index' %}") Dashboard
 
-								li(class="{% if page_id == 'auth_tokens' %}active{% endif %}")
-									a(href="{% url 'bid_main:auth_tokens' %}") Access
-
 								li(class="{% if page_id == 'about' %}active{% endif %}")
 									a(href="{% url 'bid_main:about' %}") About Blender ID
 
@@ -73,7 +71,45 @@ html(lang="en")
 			| {% endblock %}
 			| {% endif %}
 
-			| {% block body %}{% endblock %}
+			.container
+				.row
+					.col-md-3
+						| {% block sidebar %}
+						.sidebar-nav
+							ul
+								li(class="{% if page_id == 'index' %}active{% endif %}")
+									a(href="{% url 'bid_main:index' %}")
+										i.icon
+											svg(xmlns='http://www.w3.org/2000/svg', viewbox='0 0 576 512')
+												path(d='M488 312.7V456c0 13.3-10.7 24-24 24H348c-6.6 0-12-5.4-12-12V356c0-6.6-5.4-12-12-12h-72c-6.6 0-12 5.4-12 12v112c0 6.6-5.4 12-12 12H112c-13.3 0-24-10.7-24-24V312.7c0-3.6 1.6-7 4.4-9.3l188-154.8c4.4-3.6 10.8-3.6 15.3 0l188 154.8c2.7 2.3 4.3 5.7 4.3 9.3zm83.6-60.9L488 182.9V44.4c0-6.6-5.4-12-12-12h-56c-6.6 0-12 5.4-12 12V117l-89.5-73.7c-17.7-14.6-43.3-14.6-61 0L4.4 251.8c-5.1 4.2-5.8 11.8-1.6 16.9l25.5 31c4.2 5.1 11.8 5.8 16.9 1.6l235.2-193.7c4.4-3.6 10.8-3.6 15.3 0l235.2 193.7c5.1 4.2 12.7 3.5 16.9-1.6l25.5-31c4.2-5.2 3.4-12.7-1.7-16.9z')
+										| Home
+
+								li
+									// TODO - Badges URL
+									a(href="XXX")
+										i.icon
+											svg(xmlns='http://www.w3.org/2000/svg', viewbox='0 0 576 512')
+												path(d='M552 64H448V24c0-13.3-10.7-24-24-24H152c-13.3 0-24 10.7-24 24v40H24C10.7 64 0 74.7 0 88v56c0 35.7 22.5 72.4 61.9 100.7 31.5 22.7 69.8 37.1 110 41.7C203.3 338.5 240 360 240 360v72h-48c-35.3 0-64 20.7-64 56v12c0 6.6 5.4 12 12 12h296c6.6 0 12-5.4 12-12v-12c0-35.3-28.7-56-64-56h-48v-72s36.7-21.5 68.1-73.6c40.3-4.6 78.6-19 110-41.7 39.3-28.3 61.9-65 61.9-100.7V88c0-13.3-10.7-24-24-24zM99.3 192.8C74.9 175.2 64 155.6 64 144v-16h64.2c1 32.6 5.8 61.2 12.8 86.2-15.1-5.2-29.2-12.4-41.7-21.4zM512 144c0 16.1-17.7 36.1-35.3 48.8-12.5 9-26.7 16.2-41.8 21.4 7-25 11.8-53.6 12.8-86.2H512v16z')
+										| My Badges
+
+								li
+									// TODO - Replace hardcoded URL
+									a(href="https://mydata.blender.org")
+										i.icon
+											svg(xmlns='http://www.w3.org/2000/svg', viewbox='0 0 512 512')
+												path(d='M500 384c6.6 0 12 5.4 12 12v40c0 6.6-5.4 12-12 12H12c-6.6 0-12-5.4-12-12V76c0-6.6 5.4-12 12-12h40c6.6 0 12 5.4 12 12v308h436zm-308-44v-72c0-6.6-5.4-12-12-12h-40c-6.6 0-12 5.4-12 12v72c0 6.6 5.4 12 12 12h40c6.6 0 12-5.4 12-12zm192 0V204c0-6.6-5.4-12-12-12h-40c-6.6 0-12 5.4-12 12v136c0 6.6 5.4 12 12 12h40c6.6 0 12-5.4 12-12zm-96 0V140c0-6.6-5.4-12-12-12h-40c-6.6 0-12 5.4-12 12v200c0 6.6 5.4 12 12 12h40c6.6 0 12-5.4 12-12zm192 0V108c0-6.6-5.4-12-12-12h-40c-6.6 0-12 5.4-12 12v232c0 6.6 5.4 12 12 12h40c6.6 0 12-5.4 12-12z')
+										| My Data
+
+								li(class="{% if page_id == 'auth_tokens' %}active{% endif %}")
+									a(href="{% url 'bid_main:auth_tokens' %}")
+										i.icon
+											svg(xmlns='http://www.w3.org/2000/svg', viewbox='0 0 512 512')
+												path(d='M512 176.001C512 273.203 433.202 352 336 352c-11.22 0-22.19-1.062-32.827-3.069l-24.012 27.014A23.999 23.999 0 0 1 261.223 384H224v40c0 13.255-10.745 24-24 24h-40v40c0 13.255-10.745 24-24 24H24c-13.255 0-24-10.745-24-24v-78.059c0-6.365 2.529-12.47 7.029-16.971l161.802-161.802C163.108 213.814 160 195.271 160 176 160 78.798 238.797.001 335.999 0 433.488-.001 512 78.511 512 176.001zM336 128c0 26.51 21.49 48 48 48s48-21.49 48-48-21.49-48-48-48-48 21.49-48 48z')
+										| Authentication
+						| {% endblock sidebar %}
+
+					.col-md-9
+						| {% block body %}{% endblock %}
 
 		| {% block footer %}
 		| {% include "_footer.html" %}

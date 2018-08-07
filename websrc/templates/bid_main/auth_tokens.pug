@@ -1,6 +1,6 @@
 | {% extends 'layout.html' %}
 | {% load staticfiles %}
-| {% block page_title %}Authentication Tokens{% endblock %}
+| {% block page_title %}Applications{% endblock %}
 | {% block header %}
 script.
 	function revoke(app_id)
@@ -9,16 +9,10 @@ script.
 		$form.find("input[name='app_id']").val(app_id);
 	    $form.submit();
 	}
-style.
-	td.revoke { text-align: left; }
-	td.appname { text-align: right; }
-	a.revoke { padding: 0.5em 3em; }
-	p { text-align: justify; }
 | {% endblock header %}
 | {% block body %}
 .bid.box
-	i.backicon.fa.fa-lock
-	h1 Your Authenticated Applications
+	h2 Authenticated Applications
 
 	| {% if apps %}
 	p.
@@ -36,20 +30,22 @@ style.
 		| {% csrf_token %}
 		| {{ form.app_id }}
 		| {{ form.errors }}
-	table.table
-		tbody
-			| {% for app in apps %}
-			tr
-				td.appname
-					| {% if app.url %}
-					a(href='{{ app.url }}',target='_blank') {{ app }}
-					| {% else %}
-					| {{ app }}
-					| {% endif %}
-				td.revoke
-					a.text-danger.revoke(title='Remove tokens',href='javascript:revoke({{ app.id }})')
-						i.fa.fa-times
-			| {% endfor %}
+
+	ul.bid-tokens
+		| {% for app in apps %}
+		li
+			a.app-revoke(
+				title='Remove tokens',
+				href='javascript:revoke({{ app.id }})')
+				i.fa.fa-times
+			strong {{ app }}
+
+			| {% if app.url %}
+			| - #[a(href='{{ app.url }}',target='_blank') {{ app.url }}]
+			| {% endif %}
+		| {% endfor %}
+
+	hr
 
 	h2 Some notes
 	p.

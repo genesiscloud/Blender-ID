@@ -26,14 +26,14 @@
 				alt="Profile Picture")
 		| {% else %}
 		a.bid-user-missing(href="{% url 'bid_main:profile' %}")
-			i.fa.fa-exclamation
+			| ?
 		| {% endif %}
 		.bid-user-info
 			h3
 				| {{ user.full_name }}
 				| {% if not user.full_name %}
-				a.danger(href="{% url 'bid_main:profile' %}")
-					| Please specify your full name
+				a.name-missing(href="{% url 'bid_main:profile' %}")
+					| Please Specify Your Name
 				| {% endif %}
 			p {{ user.nickname }}
 			| {% if user.email_change_preconfirm %}
@@ -73,7 +73,7 @@
 
 //- .bid-roles.container.bid.box
 //- 	h3.text-center Your Badges
-//- 
+//-
 //- 	| {% if user.public_badges %}
 //- 	ul.badges
 //- 		| {% for badge in user.public_badges %}
