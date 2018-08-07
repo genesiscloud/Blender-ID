@@ -23,7 +23,21 @@ var enabled = {
 };
 
 
-/* CSS */
+/* Order matters. First compile templates in BWA, then the local project.
+ * If local templates have the same name as those in BWA, they will be used.
+ * e.g. `src/templates/_footer.pug` will override the one from BWA. */
+var pugs = [
+    'webstatic/assets_shared/templates/**/*.pug',
+    'websrc/templates/**/*.pug'
+];
+
+var sasses = [
+    'webstatic/assets_shared/styles/**/*.sass',
+    'websrc/styles/**/*.sass'
+];
+
+
+/* Stylesheets */
 gulp.task('styles', function() {
     gulp.src('websrc/styles/**/*.sass')
         .pipe(gulpif(enabled.failCheck, plumber()))
@@ -38,9 +52,9 @@ gulp.task('styles', function() {
 });
 
 
-/* Templates - Jade */
+/* Templates - Pug */
 gulp.task('templates', function() {
-    gulp.src('websrc/templates/**/*.pug')
+    gulp.src(pugs)
         .pipe(gulpif(enabled.failCheck, plumber()))
         .pipe(cache('templating'))
         .pipe(pug({
@@ -88,8 +102,9 @@ gulp.task('watch',function() {
         livereload.listen();
     }
 
-    gulp.watch('websrc/styles/**/*.sass',['styles']);
-    gulp.watch('websrc/templates/**/*.pug',['templates']);
+    gulp.watch(sasses,['styles']);
+    gulp.watch(pugs,['templates']);
+
     gulp.watch('websrc/scripts/*.js',['scripts']);
     gulp.watch('websrc/scripts/tutti/*.js',['scripts_tutti']);
 });
