@@ -1,7 +1,13 @@
 @import url(//fonts.googleapis.com/css?family=Roboto:300,400)
 
 @import ../../node_modules/bootstrap-sass/assets/stylesheets/bootstrap
-@import ../../node_modules/font-awesome/scss/font-awesome
+
+$font-borg-eot: '/static/assets_shared/fonts/font-borg-webfont.eot'
+$font-borg-eot-iefix: '/static/assets_shared/fonts/font-borg-webfont.eot?#iefix'
+$font-borg-woff: '/static/assets_shared/fonts/font-borg-webfont.woff'
+$font-borg-ttf: '/static/assets_shared/fonts/font-borg-webfont.ttf'
+$font-borg-svg: '/static/assets_shared/fonts/font-borg-webfont.svg#fontborgregular'
+@import ../../webstatic/assets_shared/styles/font_borg
 
 @import ../../webstatic/assets_shared/styles/reset
 @import ../../webstatic/assets_shared/styles/config
@@ -33,51 +39,54 @@ header.navbar
 	&.box
 		display: flex
 		flex-direction: column
-		margin: 15px auto
-		max-width: 680px
-		padding: 15px 15px 25px
-		text-align: center
+		padding: 15px 30px 25px
 
 		a
 			text-decoration: underline
 
 		h1
 			font-weight: lighter
-			margin-bottom: 20px
-			margin-top: 0
 
 		fieldset
 			label
 				margin-top: 20px
 
-
 	&-user // .bid-user
 		align-items: center
 		display: flex
-		justify-content: center
-		text-align: left
 
 		img
 			border-radius: 6px
 
+		.name-missing
+			background-color: $color-danger
+			color: white
+			padding: 5px 10px
+			border-radius: 3px
+			text-decoration: none !important
+
+			&:hover
+				color: white
+				text-decoration: underline !important
+
 		&.profile
 			margin-top: 30px
-			text-align: center
 
+		/* Empty square without gravatar. */
 		&-missing // .bid-user-missing
 			align-items: center
-			background-color: $color-danger
-			border-radius: 6px
+			background-color: $color-text-dark-secondary
+			border-radius: 50%
 			color: white !important
 			display: flex
 			font-size: 2em
 			justify-content: center
-			height: 64px
+			height: 84px
 			text-decoration: none !important
-			width: 64px
+			width: 84px
 
 			&:hover
-				background-color: lighten($color-danger, 10%)
+				background-color: lighten($color-text-dark-secondary, 10%)
 
 		&-info // .bid-user-info
 			padding: 15px
@@ -85,6 +94,7 @@ header.navbar
 			p
 				color: $color-text-dark-secondary
 				margin: 4px 15px
+
 				&.bg-warning
 					color: $color-text-dark
 					padding: 0.5em
@@ -129,7 +139,7 @@ header.navbar
 
 
 	&-cta // .bid-cta
-		margin: 25px auto 5px
+		margin: 25px 0
 
 		.btn
 			font-size: .9em
@@ -173,8 +183,7 @@ header.navbar
 		align-items: center
 		display: flex
 		font-size: 1.1em
-		justify-content: center
-		margin: 15px auto
+		margin: 10px
 
 		h1
 			+text-gradient(5deg, rgba($color-primary, .9), darken(cyan, 10%))
@@ -253,6 +262,24 @@ header.navbar
 				&:hover
 					color: $color-primary
 
+	&-tokens // .bid-tokens
+		li:after
+			display: none
+
+		a, a:visited
+			color: $color-text-dark-secondary
+			text-decoration: none !important
+
+			&:hover
+				text-decoration: underline !important
+
+		.app
+			&-revoke
+				color: $color-danger
+				padding: 5px 10px
+
+				&:hover
+					color: lighten($color-danger, 10%)
 
 .application_row
 	width: 2800%
