@@ -204,3 +204,5 @@ CSRF_FAILURE_VIEW = 'bid_main.views.csrf_failure'
 # (or never) will be presented with an agreement prompt and has to agree before
 # being able to use the website.
 PPDATE = datetime.datetime(2018, 5, 18, 0, 0, 0, tzinfo=pytz.utc)
+
+BLENDER_MYDATA_BASE_URL = 'https://mydata.blender.org'
