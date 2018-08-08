@@ -2,78 +2,72 @@
 | {% load gravatar %}
 | {% block page_title %}Edit Your Profile -- Blender ID{% endblock %}
 | {% block body %}
+
 .bid.box
-	.row
-		.col-md-10.col-md-offset-1
-			.bid-header
-				ul.bid-icons
-					li
-						i.fa.fa-vcard
-				h1 Edit Your Profile
+	h2 Edit Profile
 
-			form(action='', method='POST')
-				| {% csrf_token %}
-				fieldset
-					.row
-						.col-md-9
-							// Full name input
-							label.control-label Full Name
-							.input-group
-								span.input-group-addon
-									i.fa.fa-user
-								| {{ form.full_name }}
-							| {{ form.full_name.errors }}
+	form(action='', method='POST')
+		| {% csrf_token %}
+		fieldset
+			.row
+				.col-md-9
+					// Full name input
+					label.control-label Full Name
+					.input-group(class="{% if not user.full_name %}form-required{% endif %}")
+						| {{ form.full_name }}
+					| {{ form.full_name.errors }}
 
-							// Email display
-							label.control-label Email
-							.input-group
-								span.input-group-addon
-									i.fa.fa-envelope-o
-								| {{ form.email }}
-							| {% if user.email_change_preconfirm %}
-							p.help-text A change to {{ user.email_change_preconfirm }} is already pending.
-								br
-								a(href="javascript:$('#cancel_email_change').submit()") Cancel this change
-								=' or '
-								a(href="{% url 'bid_main:confirm-email-change' %}") re-send confirmation email
-								='.'
-							| {% endif %}
-							// Nickname input
-							label.control-label Nickname
-							.input-group
-								span.input-group-addon
-									i.fa.fa-user
-								| {{ form.nickname }}
-							| {{ form.nickname.errors }}
-							| {{ form.non_field_errors }}
+					// Email display
+					label.control-label Email
+					.input-group
+						| {{ form.email }}
+					| {% if user.email_change_preconfirm %}
+					p.help-text A change to {{ user.email_change_preconfirm }} is already pending.
+						br
+						a(href="javascript:$('#cancel_email_change').submit()") Cancel this change
+						=' or '
+						a(href="{% url 'bid_main:confirm-email-change' %}") re-send confirmation email
+						='.'
+					| {% endif %}
+					// Nickname input
+					label.control-label Nickname
+					.input-group
+						| {{ form.nickname }}
+					| {{ form.nickname.errors }}
+					| {{ form.non_field_errors }}
 
-						.col-md-3
-							.bid-user.profile
-								.bid-user-info
-									a(href="https://gravatar.com")
-										img(
-											src='{% gravatar_url user.email 100 %}',
-											title='Change Gravatar',
-											alt="Change Gravatar")
-									a(href="https://gravatar.com")
-										small Change Gravatar
+				.col-md-3
+					.bid-user.profile
+						.bid-user-info
+							a(href="https://gravatar.com")
+								img(
+									src='{% gravatar_url user.email 100 %}',
+									title='Change Gravatar',
+									alt="Change Gravatar")
+							a(href="https://gravatar.com")
+								small Change Gravatar
 
-					.bid-cta
-						button.btn.btn-success(type='submit')
-							i.fa.fa-check
-							| Save Changes
-						a.btn(href="{% url 'bid_main:index' %}")
-							i.fa.fa-times
-							| Discard
-						a.btn(href="{% url 'bid_main:password_change' %}").
-							#[i.fa.fa-shield] Change Password
+			.bid-cta
+				button.btn.btn-filled-success(type='submit')
+					i.icon
+						svg(xmlns='http://www.w3.org/2000/svg', viewbox='0 0 512 512')
+							path(d='M173.898 439.404l-166.4-166.4c-9.997-9.997-9.997-26.206 0-36.204l36.203-36.204c9.997-9.998 26.207-9.998 36.204 0L192 312.69 432.095 72.596c9.997-9.997 26.207-9.997 36.204 0l36.203 36.204c9.997 9.997 9.997 26.206 0 36.204l-294.4 294.401c-9.998 9.997-26.207 9.997-36.204-.001z')
+					| Save Changes
 
-			form#cancel_email_change(action="{% url 'bid_main:cancel-email-change' %}", method='POST')
-				| {% csrf_token %}
+				a.btn(href="{% url 'bid_main:index' %}")
+					| Discard
 
-			| {% if user.is_staff %}
-			hr
-			.bid-links
-				a(href="{% url 'admin:bid_main_user_change' user.id %}") Edit account in admin
-			| {% endif %}
+				a.cta-tertiary(href="{% url 'bid_main:password_change' %}")
+					i.icon
+						svg(xmlns='http://www.w3.org/2000/svg', viewbox='0 0 512 512')
+							path(d='M496 128c0 221.282-135.934 344.645-221.539 380.308a48 48 0 0 1-36.923 0C130.495 463.713 16 326.487 16 128a48 48 0 0 1 29.539-44.308l192-80a48 48 0 0 1 36.923 0l192 80A48 48 0 0 1 496 128zM256 446.313l.066.034c93.735-46.689 172.497-156.308 175.817-307.729L256 65.333v380.98z')
+					| Change Password
+
+	form#cancel_email_change(action="{% url 'bid_main:cancel-email-change' %}", method='POST')
+		| {% csrf_token %}
+
+	| {% if user.is_staff %}
+	.bid-links
+		a(href="{% url 'admin:bid_main_user_change' user.id %}") Edit account in admin
+	| {% endif %}
 | {% endblock %}

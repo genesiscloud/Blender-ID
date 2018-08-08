@@ -34,20 +34,20 @@ script.
 	ul.bid-tokens
 		| {% for app in apps %}
 		li
-			a.app-revoke(
-				title='Remove tokens',
-				href='javascript:revoke({{ app.id }})')
-				i.fa.fa-times
-			strong {{ app }}
+			.app-info
+				| {{ app }}
+				| {% if app.url %}
+				a.app-url(href='{{ app.url }}',target='_blank')
+					| {{ app.url }}
+				| {% endif %}
 
-			| {% if app.url %}
-			| - #[a(href='{{ app.url }}',target='_blank') {{ app.url }}]
-			| {% endif %}
+			a.app-revoke(
+				title='Remove {{ app }} authentication token',
+				href='javascript:revoke({{ app.id }})')
+				| Revoke Access
 		| {% endfor %}
 
-	hr
-
-	h2 Some notes
+	h2 Notes
 	p.
 		Revoking the access token may not log you out immediately. For example, for
 		performance reasons Blender Cloud only checks with Blender ID periodically.

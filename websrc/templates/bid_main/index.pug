@@ -10,13 +10,8 @@
 | Profile
 | {% endblock %}
 | {% block body %}
-.bid.box
-	.bid-header
-		ul.bid-icons
-			li
-				i.bf-blender
-		h1 Your Blender ID
 
+.bid.box
 	.bid-user
 		| {% if user.full_name %}
 		a(href="{% url 'bid_main:profile' %}")
@@ -33,7 +28,7 @@
 				| {{ user.full_name }}
 				| {% if not user.full_name %}
 				a.name-missing(href="{% url 'bid_main:profile' %}")
-					| Please Specify Your Name
+					| Please Set Your Name Here
 				| {% endif %}
 			p {{ user.nickname }}
 			| {% if user.email_change_preconfirm %}
@@ -54,21 +49,26 @@
 			| {% csrf_token %}
 
 	.bid-cta
-		a.btn(href="{% url 'bid_main:profile' %}").
-			#[i.fa.fa-edit] Edit Profile
+		a.btn(href="{% url 'bid_main:profile' %}")
+			i.icon
+				svg(xmlns='http://www.w3.org/2000/svg', viewbox='0 0 576 512')
+					path(d='M402.6 83.2l90.2 90.2c3.8 3.8 3.8 10 0 13.8L274.4 405.6l-92.8 10.3c-12.4 1.4-22.9-9.1-21.5-21.5l10.3-92.8L388.8 83.2c3.8-3.8 10-3.8 13.8 0zm162-22.9l-48.8-48.8c-15.2-15.2-39.9-15.2-55.2 0l-35.4 35.4c-3.8 3.8-3.8 10 0 13.8l90.2 90.2c3.8 3.8 10 3.8 13.8 0l35.4-35.4c15.2-15.3 15.2-40 0-55.2zM384 346.2V448H64V128h229.8c3.2 0 6.2-1.3 8.5-3.5l40-40c7.6-7.6 2.2-20.5-8.5-20.5H48C21.5 64 0 85.5 0 112v352c0 26.5 21.5 48 48 48h352c26.5 0 48-21.5 48-48V306.2c0-10.7-12.9-16-20.5-8.5l-40 40c-2.2 2.3-3.5 5.3-3.5 8.5z')
+			| Edit Profile
 
-		a.btn(href="{% url 'bid_main:password_change' %}").
-			#[i.fa.fa-shield] Change Password
-
-		| {% if user.is_staff %}
-		a.btn(href="{% url 'admin:bid_main_user_change' user.id %}").
-			#[i.fa.fa-rocket] Your Woosh
-		| {% endif %}
-	hr
+		a.cta-tertiary(href="{% url 'bid_main:password_change' %}")
+			i.icon
+				svg(xmlns='http://www.w3.org/2000/svg', viewbox='0 0 512 512')
+					path(d='M496 128c0 221.282-135.934 344.645-221.539 380.308a48 48 0 0 1-36.923 0C130.495 463.713 16 326.487 16 128a48 48 0 0 1 29.539-44.308l192-80a48 48 0 0 1 36.923 0l192 80A48 48 0 0 1 496 128zM256 446.313l.066.034c93.735-46.689 172.497-156.308 175.817-307.729L256 65.333v380.98z')
+			| Change Password
 
 	.bid-links
 		a(href="{% url 'bid_main:switch_user' %}")
 			| Not you? Log in as someone else
+
+		| {% if user.is_staff %}
+		a(href="{% url 'admin:bid_main_user_change' user.id %}", style="margin-left: auto")
+			| Your Woosh
+		| {% endif %}
 
 
 //- .bid-roles.container.bid.box
@@ -88,14 +88,14 @@
 //- 		on #[a(href='https://www.blendernetwork.org/') Blender Network].
 //- 	| {% endif %}
 
-.bid-roles.container
-	h3.text-center Your Blender ID Apps
+.bid-roles
+	h3 Your Blender ID Apps
 
 	ul
 		| {% if 'cloud' in apps %}
 		li
 			.bid-roles-role
-				.bid-roles-role-image
+				a.bid-roles-role-image(href="https://cloud.blender.org")
 					i.bf-cloud
 				.bid-roles-role-info
 					a.title(href="https://cloud.blender.org") Blender Cloud
@@ -113,8 +113,10 @@
 
 		li
 			.bid-roles-role
-				.bid-roles-role-image
-					i.fa.fa-shopping-cart(style="font-size: .8em; margin-top: 5px")
+				a.bid-roles-role-image(href="https://store.blender.org/")
+					svg(xmlns='http://www.w3.org/2000/svg', viewbox='0 0 448 512')
+						path(d='M352 160v-32C352 57.42 294.579 0 224 0 153.42 0 96 57.42 96 128v32H0v272c0 44.183 35.817 80 80 80h288c44.183 0 80-35.817 80-80V160h-96zm-192-32c0-35.29 28.71-64 64-64s64 28.71 64 64v32H160v-32zm160 120c-13.255 0-24-10.745-24-24s10.745-24 24-24 24 10.745 24 24-10.745 24-24 24zm-192 0c-13.255 0-24-10.745-24-24s10.745-24 24-24 24 10.745 24 24-10.745 24-24 24z')
+
 				.bid-roles-role-info
 					a.title(href="https://store.blender.org/") Blender Store
 					hr
@@ -143,7 +145,7 @@
 		li
 			.bid-roles-role
 				.bid-roles-role-image
-					i.fa.fa-graduation-cap(style="font-size: .8em; margin-top: 5px")
+					i.bf-network
 				.bid-roles-role-info
 					a.title(href="https://www.blendernetwork.org/certification/") Blender Foundation Certified Trainer
 					hr
