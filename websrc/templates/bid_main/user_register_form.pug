@@ -11,9 +11,6 @@
 	.row
 		.col-md-8.col-md-offset-2
 			.bid-header
-				ul.bid-icons
-					li
-						i.bf-blender
 				h1 Get Your Own Blender ID
 
 			form(role='register', action="", method='POST', name='register_user_form')
@@ -22,24 +19,18 @@
 					// Full name input
 					label.control-label(for="{{ form.full_name.id_for_label }}") Full Name
 					.input-group
-						span.input-group-addon
-							i.fa.fa-user
 						| {{ form.full_name }}
 					| {{ form.full_name.errors }}
 
 					// Email input
 					label.control-label(for="{{ form.email.id_for_label }}") Email
 					.input-group
-						span.input-group-addon
-							i.fa.fa-envelope-o
 						| {{ form.email }}
 					| {{ form.email.errors }}
 
 					// Nickname input
 					label.control-label(for="{{ form.nickname.id_for_label }}") Nickname
 					.input-group
-						span.input-group-addon
-							i.fa.fa-user-circle
 						| {{ form.nickname }}
 					| {{ form.nickname.errors }}
 
@@ -48,13 +39,15 @@
 					| {{ form.non_field_errors }}
 				.bid-cta
 					button.btn.btn-success#register
-						i.fa.fa-check
+						i.icon
+							svg(xmlns='http://www.w3.org/2000/svg', viewbox='0 0 512 512')
+								path(d='M173.898 439.404l-166.4-166.4c-9.997-9.997-9.997-26.206 0-36.204l36.203-36.204c9.997-9.998 26.207-9.998 36.204 0L192 312.69 432.095 72.596c9.997-9.997 26.207-9.997 36.204 0l36.203 36.204c9.997 9.997 9.997 26.206 0 36.204l-294.4 294.401c-9.998 9.997-26.207 9.997-36.204-.001z')
 						| Create Account
 
 				hr
 
 				.bid-links
 					a(href="{% url 'bid_main:login' %}")
-						| Already have an account
+						| Already have an account?
 
 | {% endblock %}

@@ -3,14 +3,6 @@
 | {% block page_title %}Switch Blender ID user{% endblock %}
 | {% block body %}
 .bid.box
-	ul.bid-icons
-		li
-			i.bf-cloud
-		li
-			i.bf-blender
-		li
-			i.bf-network
-
 	small You are currently logged in as
 
 	.bid-user
@@ -48,14 +40,10 @@
 				fieldset
 					// Email input
 					.input-group
-						span.input-group-addon
-							i.fa.fa-envelope-o
 						| {{ form.username }}
 
 					// Password input
 					.input-group
-						span.input-group-addon
-							i.fa.fa-unlock-alt
 						| {{ form.password }}
 
 					| {% if form.errors %}
