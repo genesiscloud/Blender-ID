@@ -3,15 +3,7 @@
 | {% block page_title %}Log in to Blender ID{% endblock %}
 
 | {% block before_about_bid %}
-.bid.box
-	ul.bid-icons
-		li
-			i.bf-cloud
-		li
-			i.bf-blender
-		li
-			i.bf-network
-
+.bid.box.text-center
 	h1 One Account, Everything Blender
 
 	.row
@@ -21,14 +13,10 @@
 				fieldset
 					// Email input
 					.input-group
-						span.input-group-addon
-							i.fa.fa-envelope-o
 						| {{ form.username }}
 
 					// Password input
 					.input-group
-						span.input-group-addon
-							i.fa.fa-unlock-alt
 						| {{ form.password }}
 
 					| {% if form.errors %}
