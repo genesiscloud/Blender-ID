@@ -3,18 +3,19 @@ from django.conf.urls import url
 from django.urls import reverse_lazy
 from django.contrib.auth import views as auth_views
 
-from . import views, forms
+from . import forms
+from .views import normal_pages, registration_email
 
 urlpatterns = [
-    url(r'^$', views.IndexView.as_view(), name='index'),
-    url(r'^settings/profile$', views.ProfileView.as_view(), name='profile'),
-    url(r'^login$', views.LoginView.as_view(), name='login'),
-    url(r'^about$', views.AboutView.as_view(), name='about'),
-    url(r'^logout$', views.LogoutView.as_view(next_page='bid_main:about'), name='logout'),
-    url(r'^switch/?$', views.SwitchUserView.as_view(), name='switch_user'),
-    url(r'^switch/(?P<switch_to>.+)$', views.SwitchUserView.as_view(), name='switch_user'),
-    url(r'^applications', views.ApplicationTokenView.as_view(), name='auth_tokens'),
-    url(r'^privacy-policy/agree$', views.PrivacyPolicyAgreeView.as_view(),
+    url(r'^$', normal_pages.IndexView.as_view(), name='index'),
+    url(r'^settings/profile$', normal_pages.ProfileView.as_view(), name='profile'),
+    url(r'^login$', normal_pages.LoginView.as_view(), name='login'),
+    url(r'^about$', normal_pages.AboutView.as_view(), name='about'),
+    url(r'^logout$', normal_pages.LogoutView.as_view(next_page='bid_main:about'), name='logout'),
+    url(r'^switch/?$', normal_pages.SwitchUserView.as_view(), name='switch_user'),
+    url(r'^switch/(?P<switch_to>.+)$', normal_pages.SwitchUserView.as_view(), name='switch_user'),
+    url(r'^applications', normal_pages.ApplicationTokenView.as_view(), name='auth_tokens'),
+    url(r'^privacy-policy/agree$', normal_pages.PrivacyPolicyAgreeView.as_view(),
         name='privacy_policy_agree'),
 
     url('^change$',
@@ -43,7 +44,7 @@ urlpatterns = [
 
     # Source of registration machinery:
     # http://musings.tinbrain.net/blog/2014/sep/21/registration-django-easy-way/
-    url(r'^register/$', views.RegistrationView.as_view(), name='register'),
+    url(r'^register/$', registration_email.RegistrationView.as_view(), name='register'),
     url(r'^register/signed-up/$',
         auth_views.PasswordResetDoneView.as_view(
             template_name='registration/initial_signed_up.html'),
@@ -59,22 +60,30 @@ urlpatterns = [
         'template_name': 'registration/registration_complete.html',
     }, name='register-complete'),
 
-    url(r'^confirm-email/start$', views.ConfirmEmailView.as_view(), name='confirm-email'),
-    url(r'^confirm-email/start-change$', views.ConfirmEmailView.as_view(
+    url(r'^confirm-email/start$',
+        registration_email.ConfirmEmailView.as_view(),
+        name='confirm-email'),
+    url(r'^confirm-email/start-change$', registration_email.ConfirmEmailView.as_view(
         template_name='bid_main/confirm_email/change.html'), name='confirm-email-change'),
-    url(r'^confirm-email/cancel-change$', views.CancelEmailChangeView.as_view(),
+    url(r'^confirm-email/cancel-change$', registration_email.CancelEmailChangeView.as_view(),
         name='cancel-email-change'),
-    url(r'^confirm-email/sent$', views.ConfirmEmailSentView.as_view(), name='confirm-email-sent'),
+    url(r'^confirm-email/sent$',
+        registration_email.ConfirmEmailSentView.as_view(),
+        name='confirm-email-sent'),
     url(r'^confirm-email/verified/(?P<info>[^/]+)/(?P<hmac>[^/]+)$',
-        views.ConfirmEmailVerifiedView.as_view(),
+        registration_email.ConfirmEmailVerifiedView.as_view(),
         name='confirm-email-verified'),
-    url(r'^confirm-email/poll$', views.ConfirmEmailPollView.as_view(), name='confirm-email-poll'),
+    url(r'^confirm-email/poll$',
+        registration_email.ConfirmEmailPollView.as_view(),
+        name='confirm-email-poll'),
 ]
 
 # Only enable this on a dev server:
 if settings.DEBUG:
+    from .views import testviews
+
     urlpatterns += [
-        url(r'^debug/email-changed$', views.test_mail_email_changed),
-        url(r'^debug/email-verify$', views.test_mail_verify_address),
-        url(r'^error/(?P<code>\d+)$', views.test_error),
+        url(r'^debug/email-changed$', testviews.test_mail_email_changed),
+        url(r'^debug/email-verify$', testviews.test_mail_verify_address),
+        url(r'^error/(?P<code>\d+)$', testviews.test_error),
     ]

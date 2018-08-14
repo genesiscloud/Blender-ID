@@ -29,11 +29,11 @@ urlpatterns = [
     url(r'', include('bid_main.urls', namespace='bid_main')),
 ]
 
-import bid_main.views
-handler400 = bid_main.views.ErrorView.as_view(template_name='errors/400.html', status=400)
-handler403 = bid_main.views.ErrorView.as_view(template_name='errors/403.html', status=403)
-handler404 = bid_main.views.ErrorView.as_view(template_name='errors/404.html', status=404)
-handler500 = bid_main.views.ErrorView.as_view(template_name='errors/500.html', status=500)
+import bid_main.views.errors as error_views
+handler400 = error_views.ErrorView.as_view(template_name='errors/400.html', status=400)
+handler403 = error_views.ErrorView.as_view(template_name='errors/403.html', status=403)
+handler404 = error_views.ErrorView.as_view(template_name='errors/404.html', status=404)
+handler500 = error_views.ErrorView.as_view(template_name='errors/500.html', status=500)
 
 
 if settings.DEBUG:

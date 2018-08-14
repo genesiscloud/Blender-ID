@@ -6,7 +6,7 @@ from django.shortcuts import render
 from oauth2_provider import views as base_views
 from oauth2_provider.models import get_application_model
 
-from . import forms
+from bid_main import forms
 
 log = logging.getLogger(__name__)
 OAuth2Application = get_application_model()
