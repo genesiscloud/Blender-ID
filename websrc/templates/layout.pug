@@ -39,11 +39,8 @@ html(lang="en")
 					header.navbar.navbar-default.navbar-secondary(role="navigation")
 						.container
 							ul.nav.navbar-nav
-								li(class="{% if page_id == 'index' %}active{% endif %}")
-									a(href="{% url 'bid_main:index' %}") Dashboard
-
 								li(class="{% if page_id == 'about' %}active{% endif %}")
-									a(href="{% url 'bid_main:about' %}") About Blender ID
+									a(href="{% url 'bid_main:about' %}") About
 
 								| {% if user.is_staff %}
 								li
