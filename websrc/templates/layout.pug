@@ -129,7 +129,7 @@ html(lang="en")
 				ul
 					| {% for page in flatpages %}
 					li
-						a(href="{{ page.url }}") {{ page.title }}
+						a(href="{{ page.get_absolute_url }}") {{ page.title }}
 					| {% endfor %}
 		| {% endif %}
 
