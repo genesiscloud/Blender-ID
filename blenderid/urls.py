@@ -19,6 +19,7 @@ from django.contrib.flatpages import views as fp_views
 from django.conf import settings
 import django.contrib.staticfiles.views
 
+import bid_main.views.errors as error_views
 
 urlpatterns = [
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
@@ -31,12 +32,10 @@ urlpatterns = [
     url(r'^(?P<url>.*/?)', fp_views.flatpage),
 ]
 
-import bid_main.views.errors as error_views
 handler400 = error_views.ErrorView.as_view(template_name='errors/400.html', status=400)
 handler403 = error_views.ErrorView.as_view(template_name='errors/403.html', status=403)
 handler404 = error_views.ErrorView.as_view(template_name='errors/404.html', status=404)
 handler500 = error_views.ErrorView.as_view(template_name='errors/500.html', status=500)
-
 
 if settings.DEBUG:
     import debug_toolbar
