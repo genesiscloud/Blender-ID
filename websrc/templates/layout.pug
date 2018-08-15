@@ -1,4 +1,5 @@
 | {% load static from staticfiles %}
+| {% load flatpages %}
 doctype
 html(lang="en")
 	head
@@ -121,7 +122,6 @@ html(lang="en")
 					.col-md-9
 						| {% block body %}{% endblock %}
 
-		| {% load flatpages %}
 		| {% get_flatpages as flatpages %}
 		| {% if flatpages %}
 		.footer-pages
