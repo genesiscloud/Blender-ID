@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 
 #########################################
 # (Re)create the Blender ID virtualenv  #
@@ -8,8 +8,11 @@
 # upgrading Python or the system.       #
 #########################################
 
+MY_DIR=$(dirname $(readlink -f $0))
+cd $MY_DIR
 
-VENV=${1:-./venv}
+export PIPENV_VENV_IN_PROJECT=1
+VENV=.venv
 
 if [ -e $VENV-DESTROYED ]; then
     echo "$VENV-DESTROYED exists; remove that one first."
@@ -24,11 +27,8 @@ fi
 read dummy
 
 [ -e $VENV ] && mv $VENV $VENV-DESTROYED
-virtualenv -p $(which python3.6) $VENV
-. $VENV/bin/activate
-pip install -U pip
-pip install -U -r requirements.txt
-deactivate
+
+pipenv install --deploy
 
 echo
 echo "Done"

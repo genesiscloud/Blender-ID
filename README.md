@@ -29,7 +29,7 @@ After cloning the Git repo, perform these steps to create a working dev server:
 
 1. Copy `blenderid/__settings.py` to `blenderid/settings.py` and adjust for your needs.
 2. Run `git submodule init` and `git submodule update`
-3. Create a virtual environment (with Python 3.6) and run `pip install -r requirements-dev.txt`
+3. Create a virtual environment (with Python 3.6) by running `pipenv install --dev`
    (if you get an error when installing the `mysqlclient` package on macOS,
    [change your mysql_config](https://github.com/PyMySQL/mysqlclient-python#note-about-bug-of-mysql-connectorc-on-macos))
 4. Run `./manage.py migrate` to migrate your database to the latest version.
@@ -48,7 +48,7 @@ After cloning the Git repo, perform these steps to create a working dev server:
    - `./manage.py loaddata flatpages`
 9. Run `./gulp`  to compile javascript
 10. Add to /etc/hosts  127.0.0.1 id.local
-11. Run `./manage.py runserver`
+11. Run `pipenv run ./manage.py runserver`
 
 
 ## Setting up the Blender Store (and other `bid_api` users)
@@ -129,7 +129,7 @@ The following tables are explicitly *not* migrated:
 
 Assuming deployment on FreeBSD with uWSGI, take care to:
 
-- Install `python36`, `apache24`, `a24_mod_proxy_uwsgi`, `mysql56-server`, and
+- Install `python36`, `devel/py-pipenv`, `apache24`, `a24_mod_proxy_uwsgi`, `mysql56-server`, and
   `sysutils/daemontools`.
 - Add the following to `/etc/make.conf`. Remove the `.if` and `.endif` lines if you're fine having
   Python 3.6 as a global default.
@@ -145,11 +145,9 @@ Assuming deployment on FreeBSD with uWSGI, take care to:
 - Create a Git clone of the `production` branch at `/data/www/vhosts/www.blender.org/blender-id/`
 - Create the VirtualEnv:
 
-      cd /data/www/vhosts/www.blender.org
-      python3.6 -m venv venv-bid
-      . ./venv-bid/bin/activate
-      cd blender-id
-      pip3 install -r requirements.txt
+      cd /data/www/vhosts/www.blender.org/blender-id
+      export PIPENV_VENV_IN_PROJECT=1
+      pipenv install --deploy
 
 - Use the following file in `/usr/local/etc/uwsgi/uwsgi.ini`:
 
@@ -157,7 +155,7 @@ Assuming deployment on FreeBSD with uWSGI, take care to:
       master = true
       enable-threads = true
       processes = 2
-      virtualenv = /data/www/vhosts/www.blender.org/venv-bid/
+      virtualenv = /data/www/vhosts/www.blender.org/blender-id/.venv/
       chdir = /data/www/vhosts/www.blender.org/blender-id/
       wsgi-file = /data/www/vhosts/www.blender.org/blender-id/blenderid/wsgi.py
       buffer-size = 32768
@@ -201,14 +199,14 @@ Assuming deployment on FreeBSD with uWSGI, take care to:
       BASE=/data/www/vhosts/www.blender.org
       exec su borg -c bash -ex <<EOT
       cd $BASE/blender-id
-      exec $BASE/venv-bid/bin/python manage.py flush_webhooks -m -v 0
+      exec ./.venv/bin/python3 manage.py flush_webhooks -m -v 0
       EOT
 
 - Start the daemon supervisor with `sudo service svscan start` if necessary.
 
 - Set up the following cron job:
 
-      47  *  *   *   *  cd /data/www/vhosts/www.blender.org/blender-id && ../venv-bid/bin/python3 manage.py cleartokens
+      47  *  *   *   *  cd /data/www/vhosts/www.blender.org/blender-id && ./.venv/bin/python3 manage.py cleartokens
 
 
 ## Troubleshooting
@@ -217,6 +215,6 @@ Assuming deployment on FreeBSD with uWSGI, take care to:
 
 Do this:
 
-    ./manage.py loaddata default_site
+    pipenv run ./manage.py loaddata default_site
 
 Then access your site at http://id.local:8000/. Add an entry to your hosts file if necessary.

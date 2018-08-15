@@ -45,7 +45,8 @@ rsync -va static/ $DEPLOYHOST:$DEPLOYPATH/static/ --delete-after || exit 5
 rsync -va templates/ $DEPLOYHOST:$DEPLOYPATH/templates/ --delete-after || exit 6
 
 $SSH -TA << EOT
-. $VENVPATH/bin/activate
+# This creates the Virtualenv inside {project}/.venv
+export PIPENV_VENV_IN_PROJECT=1
 set -ex
 
 cd $DEPLOYPATH
@@ -59,7 +60,8 @@ sed -i~ 's/^DEBUG = .*/DEBUG = False/' blenderid/settings.py
 # Create the media directory if it doesn't exist yet.
 mkdir -p media
 
-pip3 install -U -r requirements.txt
-python3 manage.py migrate
+pipenv install --deploy
+pipenv run python3 manage.py migrate
+
 sudo service uwsgi reload
 EOT
