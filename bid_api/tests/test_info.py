@@ -159,7 +159,7 @@ class UserBadgeTest(AbstractAPITest):
                                 is_badge=True,
                                 is_active=True,
                                 is_public=True,
-                                label='🦖 Subscriber',
+                                label='⛅ Subscriber',
                                 description='¡Awesome T-Rex!',
                                 link='https://cloud.blender.org/',
                                 badge_img='badges/t-rex.png',
@@ -178,7 +178,7 @@ class UserBadgeTest(AbstractAPITest):
                                 is_badge=False,
                                 is_active=True,
                                 is_public=True,
-                                label='🐩 the poodle')
+                                label='the poodle')
         self.role_public.save()
 
         self.target_user.roles.add(self.badge_cloud)
@@ -215,7 +215,7 @@ class UserBadgeTest(AbstractAPITest):
         self.assertEqual({'user_id': self.target_user.id,
                           'badges': {
                               '⛅cloud_subscriber': {
-                                  'label': '🦖 Subscriber',
+                                  'label': '⛅ Subscriber',
                                   'description': '¡Awesome T-Rex!',
                                   'link': 'https://cloud.blender.org/',
                                   'image': 'http://example.com/media/badges/t-rex.png',
@@ -233,7 +233,7 @@ class UserBadgeTest(AbstractAPITest):
         self.assertEqual({'user_id': self.target_user.id,
                           'badges': {
                               '⛅cloud_subscriber': {
-                                  'label': '🦖 Subscriber',
+                                  'label': '⛅ Subscriber',
                                   'description': '¡Awesome T-Rex!',
                                   'link': 'https://cloud.blender.org/',
                                   'image': 'http://example.com/media/badges/t-rex.png',
@@ -241,7 +241,7 @@ class UserBadgeTest(AbstractAPITest):
                                   'image_height': 100,
                               },
                               'janitor': {
-                                  'label': '🐩 the poodle',
+                                  'label': 'the poodle',
                               },
                           }}, payload)
 
