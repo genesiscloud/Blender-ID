@@ -18,13 +18,13 @@ bcrypt = "*"
 requests = "*"
 Markdown = "*"
 Pillow = "*"
+docutils = "*"
 
 [dev-packages]
 pytest = "*"
 pytest-cov = "*"
 pytest-django = "*"
 responses = "*"
-docutils = "*"
 
 [requires]
 python_version = "3.6"
