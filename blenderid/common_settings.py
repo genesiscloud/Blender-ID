@@ -196,7 +196,7 @@ NEXT_REDIR_AFTER_LOGIN_ALLOWED_HOSTS = {
     'blender.community',
 }
 
-CSRF_FAILURE_VIEW = 'bid_main.views.csrf_failure'
+CSRF_FAILURE_VIEW = 'bid_main.views.errors.csrf_failure'
 
 
 # Privacy Policy date; anyone who agreed to the privacy policy before this date
