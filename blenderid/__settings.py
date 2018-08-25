@@ -106,3 +106,5 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 # NEXT_REDIR_AFTER_LOGIN_ALLOWED_HOSTS.update({
 #     'cloud.local:5000', 'cloud.local:5001', 'cloud.local',
 # })
+
+BLENDER_MYDATA_BASE_URL = 'http://mydata.local:8003'
