@@ -13,7 +13,7 @@ https://docs.djangoproject.com/en/1.9/ref/settings/
 import datetime
 import pathlib
 import pytz
-from django.core.urlresolvers import reverse_lazy
+from django.urls import reverse_lazy
 
 BASE_DIR = pathlib.Path(__file__).absolute().parent.parent
 

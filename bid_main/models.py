@@ -1,9 +1,10 @@
 import functools
 import typing
 
+from django import urls
 from django.db import models
 from django.conf import settings
-from django.core import validators, urlresolvers
+from django.core import validators
 from django.core.exceptions import ValidationError
 from django.core.mail import send_mail
 from django.contrib.auth.models import PermissionsMixin
@@ -287,7 +288,7 @@ class Role(models.Model):
     @property
     def admin_url(self) -> str:
         view_name = f"admin:{self._meta.app_label}_{self._meta.model_name}_change"
-        return urlresolvers.reverse(view_name, args=(self.id,))
+        return urls.reverse(view_name, args=(self.id,))
 
     def clean(self):
         # Labels are required for badges.
