@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'oauth2_provider',
     'django_gravatar',
     'sorl.thumbnail',
+    'django_admin_select2',
     'loginas',
     'bid_main',
     'bid_api',

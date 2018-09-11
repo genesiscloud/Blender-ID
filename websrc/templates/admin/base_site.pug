@@ -1,5 +1,6 @@
 | {% extends "admin/base.html" %}
 | {% load i18n %}
+| {% load staticfiles %}
 
 | {% block title %}{{ title }} | {{ site_title|default:_('Django site admin') }}{% endblock %}
 | {% block extrastyle %}
@@ -15,6 +16,13 @@ style.
 	.module h2, .module caption, .inline-group h2 {
 		background-color: #005385;
 	}
+| {% endblock %}
+
+//- Copied from the django_admin_select2 project. Since we already have our own override
+//- for Django's admin/base_site.html template, we need to merge their additions with ours.
+| {% block extrahead %}
+|     {{ block.super }}
+|     <link href="{% static 'django_admin_select2/css/select2.min.css' %}" rel="stylesheet" />
 | {% endblock %}
 
 | {% block branding %}
@@ -44,4 +52,24 @@ a(href="{% url 'bid_main:password_change' %}") {% trans 'Change password' %}
 =' / '
 | {% endif %}
 a(href="{% url 'admin:logout' %}") {% trans 'Log out' %}
+| {% endblock %}
+
+//- Copied from the django_admin_select2 project. Since we already have our own override
+//- for Django's admin/base_site.html template, we need to merge their additions with ours.
+| {% block footer %}
+|     {{ block.super }}
+|     {% if not media %}
+|         <script src="{% static 'admin/js/vendor/jquery/jquery.min.js' %}"></script>
+|         <script src="{% static 'admin/js/jquery.init.js' %}"></script>
+|     {% endif %}
+|     <script>window.jQuery = window.$ = django.jQuery;</script>
+|     <script src="{% static 'django_admin_select2/js/select2.min.js' %}"></script>
+|     <script>
+|         $(document).ready(function() {
+|             {# timeout required because filtered is added after load #}
+|             setTimeout(function() {
+|                 $('select:not(.filtered):not(.admin-autocomplete)').select2();
+|             }, 0);
+|         });
+|     </script>
 | {% endblock %}

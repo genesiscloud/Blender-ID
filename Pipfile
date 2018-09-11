@@ -20,6 +20,7 @@ Markdown = "*"
 Pillow = "*"
 docutils = "*"
 sorl-thumbnail = "*"
+"django-admin-select2" = "*"
 
 [dev-packages]
 pytest = "*"
