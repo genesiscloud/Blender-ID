@@ -16,7 +16,9 @@ li
 
 
 | {% block after_field_sets %}
+| {% if perms.change_oauth2accesstoken %}
 fieldset.module.aligned
 	h2 Access Tokens
 	p View this user's #[a(href="{% url 'admin:bid_main_oauth2accesstoken_changelist' %}?user={{ original.id }}") access tokens]
+| {% endif %}
 | {% endblock %}
