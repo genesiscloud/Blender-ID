@@ -19,6 +19,7 @@ requests = "*"
 Markdown = "*"
 Pillow = "*"
 docutils = "*"
+sorl-thumbnail = "*"
 
 [dev-packages]
 pytest = "*"

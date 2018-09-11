@@ -1,3 +1,4 @@
+import pathlib
 from datetime import timedelta
 import json
 
@@ -144,7 +145,7 @@ class UserStatsTest(AbstractAPITest):
         }, payload)
 
 
-class UserBadgeTest(AbstractAPITest):
+class AbstractBadgeTest(AbstractAPITest):
     access_token_scope = 'badge'
 
     def setUp(self):
@@ -153,6 +154,13 @@ class UserBadgeTest(AbstractAPITest):
             full_name='मूंगफली मक्खन प्रेमी',
             nickname='मूँगफली',
         )
+
+        # Fake the media root so that the badge files actually exist and can be thumbnailed.
+        my_dir = pathlib.Path(__file__).absolute().parent
+        self.settings_modifier = self.settings(
+            MEDIA_ROOT=my_dir / 'media',
+        )
+        self.settings_modifier.__enter__()
 
         # Grant a couple of roles.
         self.badge_cloud = Role(name='⛅cloud_subscriber',
@@ -185,6 +193,13 @@ class UserBadgeTest(AbstractAPITest):
         self.target_user.roles.add(self.badge_nonpublic)
         self.target_user.roles.add(self.role_public)
         self.target_user.save()
+
+    def tearDown(self):
+        self.settings_modifier.__exit__(None, None, None)
+        super().tearDown()
+
+
+class UserBadgeTest(AbstractBadgeTest):
 
     def get(self, user_id: str, *, access_token='', token_on_url=False) -> HttpResponse:
         url_path = reverse('bid_api:user-badges-by-id', kwargs={'user_id': user_id})
@@ -274,3 +289,75 @@ class UserBadgeTest(AbstractAPITest):
         # Nonexisting user means that you're requesting for another user,
         # which results in a 403 Forbidden.
         self.assertEqual(403, response.status_code, f'response: {response}')
+
+
+class UserBadgeHTMLTest(AbstractBadgeTest):
+    def setUp(self):
+        super().setUp()
+
+        target_user_token = AccessToken.objects.create(
+            user=self.target_user,
+            scope='email badge',
+            expires=timezone.now() + timedelta(seconds=300),
+            token='token-with-badge-scope',
+            application=self.application
+        )
+        target_user_token.save()
+
+    def get(self, user_id: str, size: str, *, access_token='') -> HttpResponse:
+        kwargs = {'user_id': user_id}
+        if size:
+            kwargs['size'] = size
+        url_path = reverse('bid_api:user-badges-html', kwargs=kwargs)
+        response = self.authed_get(url_path, access_token=access_token)
+        return response
+
+    def test_get_html_happy_default_size(self):
+        resp = self.get(self.target_user.id, size='', access_token='token-with-badge-scope')
+        self.assertEqual('text/html; charset=utf-8', resp['Content-Type'])
+        self.assertEqual(200, resp.status_code)
+        self.assertIn(b'width="64"', resp.content)  # default is 'small'
+        self.assertNotIn(b'nonpublic', resp.content, 'Non-public badge should be hidden')
+        self.assertNotIn(b'janitor', resp.content, 'Non-badge public role should be hidden')
+
+    def test_get_html_happy_large_size(self):
+        resp = self.get(self.target_user.id, size='l', access_token='token-with-badge-scope')
+        self.assertEqual('text/html; charset=utf-8', resp['Content-Type'])
+        self.assertEqual(200, resp.status_code)
+        self.assertIn(b'width="256"', resp.content)
+
+    def test_bad_scope(self):
+        target_user_token = AccessToken.objects.create(
+            user=self.target_user,
+            scope='email',
+            expires=timezone.now() + timedelta(seconds=300),
+            token='token-without-badge-scope',
+            application=self.application
+        )
+        target_user_token.save()
+
+        resp = self.get(self.target_user.id, size='', access_token='token-without-badge-scope')
+        self.assertEqual(403, resp.status_code)
+
+    def test_bad_user_id(self):
+        other_user = UserModel.objects.create_user(
+            'other@user.com', '123456',
+            full_name='मूंगफली मक्खन प्रेमी',
+            nickname='मूँगफली-the-2nd',
+        )
+        other_user.roles.add(self.badge_cloud)
+        other_user.roles.add(self.badge_nonpublic)
+        other_user.roles.add(self.role_public)
+        other_user.save()
+
+        other_user_token = AccessToken.objects.create(
+            user=other_user,
+            scope='email badge',
+            expires=timezone.now() + timedelta(seconds=300),
+            token='other-user-token',
+            application=self.application
+        )
+        other_user_token.save()
+
+        resp = self.get(self.target_user.id, size='', access_token='other-user-token')
+        self.assertEqual(400, resp.status_code)

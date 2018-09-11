@@ -7,6 +7,7 @@ db.sqlite3
 /static/
 /webstatic/assets/
 /blenderid/settings.py
+/bid_api/tests/media/cache/
 .cache
 .coverage
 /.venv/

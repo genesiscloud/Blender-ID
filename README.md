@@ -35,6 +35,7 @@ After cloning the Git repo, perform these steps to create a working dev server:
   Note that from now on we assume you run from a `pipenv shell` or prefix commands with
   `pipenv run`.
 - Run `./manage.py migrate` to migrate your database to the latest version.
+- Run `./manage.py createcachetable` to create the cache table in the database.
 - In production, set up a cron job that calls the
   [cleartokens](https://django-oauth-toolkit.readthedocs.io/en/latest/management_commands.html#cleartokens)
   management command regularly.
@@ -209,6 +210,7 @@ Assuming deployment on FreeBSD with uWSGI, take care to:
 - Set up the following cron job:
 
       47  *  *   *   *  cd /data/www/vhosts/www.blender.org/blender-id && ./.venv/bin/python3 manage.py cleartokens
+      57  *  *   *   *  cd /data/www/vhosts/www.blender.org/blender-id && ./.venv/bin/python3 manage.py thumbnail cleanup
 
 
 ## Troubleshooting

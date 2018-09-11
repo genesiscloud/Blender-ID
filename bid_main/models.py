@@ -1,4 +1,3 @@
-import functools
 import typing
 
 from django import urls
@@ -12,6 +11,7 @@ from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.utils import timezone
 from django.utils.deconstruct import deconstructible
 from django.utils.translation import ugettext_lazy as _
+import sorl.thumbnail
 
 import oauth2_provider.models as oa2_models
 
@@ -266,7 +266,7 @@ class Role(models.Model):
     label = models.CharField(
         max_length=255, blank=True, null=False,
         help_text='Human-readable name for a badge. Required for badges, not for roles.')
-    badge_img = models.ImageField(
+    badge_img = sorl.thumbnail.ImageField(
         help_text='Visual representation of a badge.',
         upload_to='badges',
         height_field='badge_img_height',

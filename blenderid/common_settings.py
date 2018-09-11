@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'debug_toolbar',
     'oauth2_provider',
     'django_gravatar',
+    'sorl.thumbnail',
     'loginas',
     'bid_main',
     'bid_api',
@@ -205,3 +206,14 @@ CSRF_FAILURE_VIEW = 'bid_main.views.errors.csrf_failure'
 PPDATE = datetime.datetime(2018, 5, 18, 0, 0, 0, tzinfo=pytz.utc)
 
 BLENDER_MYDATA_BASE_URL = 'https://mydata.blender.org/'
+
+# The cache is used by the thumbnailing system of sorl-thumbnail.
+# Without it, every badge will be resized on every request.
+# Using Redis or Memcached would be preferred, but requires more changes on
+# the www.blender.org server than I (Sybren) want to make now.
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+        'LOCATION': 'cache',  # The table name.
+    }
+}

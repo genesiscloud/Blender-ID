@@ -1,0 +1,18 @@
+//- Renders a single user's badges, for embedded into other sites.
+| {% load thumbnail %}
+ul.blender-id-badges
+	| {% for badge in badges %}
+	li(class='{{ badge.name }}')
+		a(href='{{ badge.link }}', target='_blank')
+			| {% if badge.badge_img %}
+			| {% thumbnail badge.badge_img size_string format="PNG" as thumb %}
+			img(alt='{{ badge.name }}',
+				title='{{ badge.label }}',
+				src='{{ thumb.url }}',
+				width='{{ thumb.width }}',
+				height='{{ thumb.height }}')
+			| {% endthumbnail %}
+			| {% else %}
+			| {{ badge.label|default:badge.name }}
+			| {% endif %}
+	| {% endfor %}

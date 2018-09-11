@@ -1,12 +1,16 @@
 import logging
+import typing
 
 from django.contrib.auth import get_user_model
 from django.http import (JsonResponse, HttpResponseBadRequest, HttpResponseNotFound,
                          HttpResponseForbidden)
+from django.shortcuts import render
 from django.utils.decorators import method_decorator
 from oauth2_provider.decorators import protected_resource
 
 from .abstract import AbstractAPIView
+from ..http import HttpResponseNoContent
+from bid_main.models import Role
 
 log = logging.getLogger(__name__)
 UserModel = get_user_model()
@@ -104,6 +108,53 @@ class UserBadgeView(AbstractAPIView):
                 'image_height': role.badge_img_height,
             })
         return as_dict
+
+
+class BadgesHTMLView(AbstractAPIView):
+    """Render HTML for a user's badges.
+
+    The user is identified by the Bearer token used in the request.
+
+    The Bearer token should have scope 'badge'.
+    """
+    sizes = {
+        's': 64,
+        'm': 128,
+        'l': 256,
+    }
+    """Mapping from 'size' parameter to a size in pixels."""
+
+    log = log.getChild('BadgesHTMLView')
+
+    @method_decorator(protected_resource(scopes=['badge']))
+    def get(self, request, user_id: str, size: str='s'):
+        """Return HTML with the user's badges.
+
+        Passing the user ID isn't strictly necessary. However, it does allow
+        for caching the result (for a short while) based on the URL alone,
+        and without having to cache the authentication token too.
+        """
+
+        if str(request.user.id) != user_id:
+            self.log.warning('Request from %s for user %s did not match auth token owner %s',
+                             request.META.get('REMOTE_ADDR', '-unknown-'), user_id, request.user.id)
+            return HttpResponseBadRequest(f'User ID {user_id} does not match auth token.')
+
+        badges: typing.Iterable[Role] = request.user.public_badges()
+        if not badges:
+            return HttpResponseNoContent()
+
+        try:
+            size_in_px = self.sizes[size]
+        except KeyError:
+            log.debug('Invalid badge size %r requested', size)
+            resp = render(request, 'bid_api/badges/error_size_invalid.html',
+                          {'requested_size': size, 'available_sizes': self.sizes})
+            return resp
+
+        return render(request, 'bid_api/badges/user_badges.html',
+                      {'badges': badges,
+                       'size_string': f'{size_in_px}x{size_in_px}'})
 
 
 class StatsView(AbstractAPIView):

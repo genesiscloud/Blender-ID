@@ -1,0 +1,9 @@
+//- Renders an error message notifying about the wrong size.
+div.blender-id-badges.error
+	p Non-existing size '{{ requested_size }}' requested.
+	p Choose from the following sizes:
+	dl
+		| {% for size_name, size_px in available_sizes.items %}
+		dt '{{ size_name }}'
+		dd {{ size_px }} pixels
+		| {% endfor %}
