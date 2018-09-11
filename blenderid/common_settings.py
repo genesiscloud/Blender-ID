@@ -160,6 +160,7 @@ OAUTH2_PROVIDER_APPLICATION_MODEL = 'bid_main.OAuth2Application'
 OAUTH2_PROVIDER = {
     'SCOPES': {
         'email': 'Default scope',
+        'badge': "Read access to the user's badges",
     },
 
     'ALLOWED_REDIRECT_URI_SCHEMES': ['https'],

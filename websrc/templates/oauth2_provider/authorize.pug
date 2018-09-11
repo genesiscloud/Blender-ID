@@ -30,11 +30,16 @@
 					p {% trans "The application would obtain your following information:" %}
 
 					.col-md-10.col-md-offset-1
-
+						| {% if 'email' in scopes %}
 						ul.text-left
 							li Full Name
 							li Email Address
-
+							li Nickname
+						| {% endif %}
+						| {% if 'badge' in scopes %}
+						ul.text-left
+							li Your Badges
+						| {% endif %}
 						//- ul.text-left
 						//- 	| {% for scope in scopes_descriptions %}
 						//- 	li {{ scope }}
