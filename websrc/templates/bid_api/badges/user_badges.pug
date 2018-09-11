@@ -1,4 +1,5 @@
 //- Renders a single user's badges, for embedded into other sites.
+| {% load absolutise %}
 | {% load thumbnail %}
 ul.blender-id-badges
 	| {% for badge in badges %}
@@ -8,7 +9,7 @@ ul.blender-id-badges
 			| {% thumbnail badge.badge_img size_string format="PNG" as thumb %}
 			img(alt='{{ badge.name }}',
 				title='{{ badge.label }}',
-				src='{{ thumb.url }}',
+				src='{{ thumb.url|absolutise:request }}',
 				width='{{ thumb.width }}',
 				height='{{ thumb.height }}')
 			| {% endthumbnail %}

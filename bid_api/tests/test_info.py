@@ -317,6 +317,8 @@ class UserBadgeHTMLTest(AbstractBadgeTest):
         self.assertEqual('text/html; charset=utf-8', resp['Content-Type'])
         self.assertEqual(200, resp.status_code)
         self.assertIn(b'width="64"', resp.content)  # default is 'small'
+        self.assertIn(b'src="http://testserver/media/cache/', resp.content,
+                      'Badge image URLs should be absolute')
         self.assertNotIn(b'nonpublic', resp.content, 'Non-public badge should be hidden')
         self.assertNotIn(b'janitor', resp.content, 'Non-badge public role should be hidden')
 
