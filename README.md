@@ -27,28 +27,30 @@ The project contains the following top-level Python modules:
 
 After cloning the Git repo, perform these steps to create a working dev server:
 
-1. Copy `blenderid/__settings.py` to `blenderid/settings.py` and adjust for your needs.
-2. Run `git submodule init` and `git submodule update`
-3. Create a virtual environment (with Python 3.6) by running `pipenv install --dev`
-   (if you get an error when installing the `mysqlclient` package on macOS,
-   [change your mysql_config](https://github.com/PyMySQL/mysqlclient-python#note-about-bug-of-mysql-connectorc-on-macos))
-4. Run `./manage.py migrate` to migrate your database to the latest version.
-5. In production, set up a cron job that calls the
-   [cleartokens](https://django-oauth-toolkit.readthedocs.io/en/latest/management_commands.html#cleartokens)
-   management command regularly.
-6. In production, set up a cron job that calls the `flush_webhooks --flush -v 0` management command
-   regularly.
-7. Run `./manage.py createsuperuser` to create super user
-8. Load any fixtures you want to use.
+- Copy `blenderid/__settings.py` to `blenderid/settings.py` and adjust for your needs.
+- Run `git submodule init` and `git submodule update`
+- Create a virtual environment (with Python 3.6) by running `pipenv install --dev`
+  (if you get an error when installing the `mysqlclient` package on macOS,
+  [change your mysql_config](https://github.com/PyMySQL/mysqlclient-python#note-about-bug-of-mysql-connectorc-on-macos)).
+  Note that from now on we assume you run from a `pipenv shell` or prefix commands with
+  `pipenv run`.
+- Run `./manage.py migrate` to migrate your database to the latest version.
+- In production, set up a cron job that calls the
+  [cleartokens](https://django-oauth-toolkit.readthedocs.io/en/latest/management_commands.html#cleartokens)
+  management command regularly.
+- In production, set up a cron job that calls the `flush_webhooks --flush -v 0` management command
+  regularly.
+- Run `./manage.py createsuperuser` to create super user
+- Load any fixtures you want to use.
    - list fixtures  `ls */fixtures/*`
    - `./manage.py loaddata default_site`
    - `./manage.py loaddata default_roles`
    - `./manage.py loaddata blender_cloud_devserver`
    - `./manage.py loaddata blender_cloud_dev_webhook`
    - `./manage.py loaddata flatpages`
-9. Run `./gulp`  to compile javascript
-10. Add to /etc/hosts  127.0.0.1 id.local
-11. Run `pipenv run ./manage.py runserver`
+- Run `./gulp`  to compile javascript
+- Add to /etc/hosts  127.0.0.1 id.local
+- Run `./manage.py runserver`
 
 
 ## Setting up the Blender Store (and other `bid_api` users)
