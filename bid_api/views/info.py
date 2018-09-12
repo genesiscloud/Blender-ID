@@ -150,6 +150,7 @@ class BadgesHTMLView(AbstractAPIView):
             log.debug('Invalid badge size %r requested', size)
             resp = render(request, 'bid_api/badges/error_size_invalid.html',
                           {'requested_size': size, 'available_sizes': self.sizes})
+            resp.status_code = 400
             return resp
 
         return render(request, 'bid_api/badges/user_badges.html',
