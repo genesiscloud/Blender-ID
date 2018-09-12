@@ -29,7 +29,6 @@ urlpatterns = [
     url(r'^oauth/', include('blenderid.oauth2_urls', namespace='oauth2_provider')),
     url(r'^api/', include('bid_api.urls', namespace='bid_api')),
     url(r'', include('bid_main.urls', namespace='bid_main')),
-    url(r'^(?P<url>.*/?)', fp_views.flatpage),
 ]
 
 handler400 = error_views.ErrorView.as_view(template_name='errors/400.html', status=400)
@@ -45,3 +44,8 @@ if settings.DEBUG:
         url(r'^__debug__/', include(debug_toolbar.urls)),
         url(rf'^media/(?P<path>.*)$', django.contrib.staticfiles.views.serve),
     ]
+
+urlpatterns += [
+    # Flatpages must be last!
+    url(r'^(?P<url>.*/?)', fp_views.flatpage),
+]
