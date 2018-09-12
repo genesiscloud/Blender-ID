@@ -12,10 +12,17 @@ class HttpResponseNoContent(HttpResponse):
         super().__init__('', *args, **kwargs)
         del self['content-type']
 
-    @HttpResponse.content.setter
+    @property
+    def content(self) -> bytes:
+        return b''
+
+    @content.setter
     def content(self, value):
         if value:
             raise AttributeError("You cannot set content to a 204 (No Content) response")
+
+    def __iter__(self):
+        return iter(())
 
 
 class HttpResponseUnprocessableEntity(HttpResponse):
