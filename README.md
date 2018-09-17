@@ -34,6 +34,7 @@ After cloning the Git repo, perform these steps to create a working dev server:
   [change your mysql_config](https://github.com/PyMySQL/mysqlclient-python#note-about-bug-of-mysql-connectorc-on-macos)).
   Note that from now on we assume you run from a `pipenv shell` or prefix commands with
   `pipenv run`.
+- Create the database with `mysqladmin create blender_id --default-character-set=utf8`.
 - Run `./manage.py migrate` to migrate your database to the latest version.
 - Run `./manage.py createcachetable` to create the cache table in the database.
 - In production, set up a cron job that calls the

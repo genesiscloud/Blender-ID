@@ -21,7 +21,7 @@ SECRET_KEY = r'''}y\[.~WGh2#~|6r|alD0R6<'WA@F#hB|4eyR\6SUyovx5H,v4TP#H~6unZGIgk~
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'blender_id_new',
+        'NAME': 'blender_id',
         'USER': 'root',
         'PASSWORD': 'root',
         'HOST': '127.0.0.1',
