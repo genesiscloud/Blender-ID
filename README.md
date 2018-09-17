@@ -37,6 +37,8 @@ After cloning the Git repo, perform these steps to create a working dev server:
 - Create the database with `mysqladmin create blender_id --default-character-set=utf8`.
 - Run `./manage.py migrate` to migrate your database to the latest version.
 - Run `./manage.py createcachetable` to create the cache table in the database.
+- Run `mkdir media` to create the directory that'll hold uploaded files
+  (such as images for the badges).
 - In production, set up a cron job that calls the
   [cleartokens](https://django-oauth-toolkit.readthedocs.io/en/latest/management_commands.html#cleartokens)
   management command regularly.
