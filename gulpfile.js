@@ -89,7 +89,7 @@ gulp.task('scripts_tutti', function() {
         .pipe(concat("tutti.min.js"))
         .pipe(gulpif(enabled.uglify, uglify()))
         .pipe(gulpif(enabled.maps, sourcemaps.write(".")))
-        .pipe(chmod(644))
+        .pipe(chmod(0o644))
         .pipe(gulp.dest('webstatic/assets/js/'))
         .pipe(gulpif(enabled.liveReload, livereload()));
 });
