@@ -29,8 +29,8 @@ def webhook_session() -> requests.Session:
     import requests.adapters
 
     sess = requests.Session()
-    sess.mount('https://', requests.adapters.HTTPAdapter(max_retries=5))
-    sess.mount('http://', requests.adapters.HTTPAdapter(max_retries=5))
+    sess.mount('https://', requests.adapters.HTTPAdapter(max_retries=WEBHOOK_RETRY_COUNT))
+    sess.mount('http://', requests.adapters.HTTPAdapter(max_retries=WEBHOOK_RETRY_COUNT))
     return sess
 
 
