@@ -12,16 +12,8 @@ UserModel = get_user_model()
 class RegisterTest(TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.user = UserModel.objects.create_user('test@user.com', '123456')
         super().setUpClass()
-
-    @classmethod
-    def tearDownClass(cls):
-        super().tearDownClass()
-        try:
-            cls.user.delete()
-        except AttributeError:
-            pass
+        cls.user = UserModel.objects.create_user('test@user.com', '123456')
 
     def test_register_happy(self):
         response = self.client.post(
