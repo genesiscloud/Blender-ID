@@ -11,6 +11,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth import views as auth_views
 from django.db.models import Count
 from django.http import HttpResponseRedirect
+from django.shortcuts import resolve_url
 from django.urls import reverse_lazy
 from django.utils import timezone
 from django.utils.decorators import method_decorator
@@ -92,6 +93,8 @@ class LogoutView(auth_views.LogoutView):
     which I don't like. I don't want to have /admin/ used by non-admin
     users.
     """
+    redirect_field_name = 'next'
+    next_page = settings.LOGIN_REDIRECT_URL
 
     @method_decorator(never_cache)
     def dispatch(self, request, *args, **kwargs):
@@ -102,6 +105,29 @@ class LogoutView(auth_views.LogoutView):
             # Redirect to this page until the session has been cleared.
             return HttpResponseRedirect(next_page)
         return super(LogoutView, self).dispatch(request, *args, **kwargs)
+
+    def get_next_page(self) -> str:
+        """Return the 'next' parameter, but only if it is the same host as the referrer.
+
+        Less strict than Django's own safety check, because that one requires
+        a whitelist of allowed hosts, which I don't want to maintain. ~~Sybren
+        """
+        from urllib.parse import urlparse
+
+        default_next = resolve_url(self.next_page)
+
+        ref_url = self.request.META.get('HTTP_REFERER', '')
+        next_url = self.request.GET.get(self.redirect_field_name, '')
+        if not ref_url or not next_url:
+            return default_next
+
+        parsed_ref_url = urlparse(ref_url)
+        parsed_next_url = urlparse(next_url)
+        if parsed_next_url.netloc != parsed_ref_url.netloc or \
+                (parsed_ref_url.scheme == 'https' and parsed_next_url.scheme != 'https'):
+            return default_next
+
+        return next_url
 
 
 class AboutView(mixins.PageIdMixin, TemplateView):

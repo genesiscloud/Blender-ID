@@ -1,4 +1,4 @@
-from django.core.urlresolvers import reverse
+from django.core.urlresolvers import reverse, reverse_lazy
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 
@@ -43,3 +43,42 @@ class RegisterTest(TestCase):
         # This should render a template just fine; it shouldn't cause an internal error.
         self.assertEqual(200, response.status_code, f'respose: {response}')
         self.assertEqual(1, len(UserModel.objects.all()))
+
+
+class TestLogout(TestCase):
+    logout_url = reverse_lazy('bid_main:logout')
+
+    def setUp(self):
+        super().setUp()
+        self.user = UserModel.objects.create_user('test@user.com', '123456')
+        self.client.force_login(self.user)
+
+    def assertDefaultRedirect(self, resp):
+        self.assertEqual(302, resp.status_code)
+        self.assertEqual(reverse('bid_main:about'), resp['Location'])
+
+    def test_no_next_no_referer(self):
+        resp = self.client.get(self.logout_url)
+        self.assertDefaultRedirect(resp)
+
+    def test_next_no_referer(self):
+        resp = self.client.get(f'{self.logout_url}?next=https://www.blender.org/')
+        self.assertDefaultRedirect(resp)
+
+    def test_next_mismatched_referer(self):
+        resp = self.client.get(f'{self.logout_url}?next=https://www.blender.org/',
+                               REFERER='https://exploding-kittens.com/')
+        self.assertDefaultRedirect(resp)
+
+    def test_next_downgrade_security(self):
+        resp = self.client.get(
+            f'{self.logout_url}?next=http://exploding-kittens.com/logout-confirm',
+            HTTP_REFERER='https://exploding-kittens.com/')
+        self.assertDefaultRedirect(resp)
+
+    def test_next_matching_referer(self):
+        resp = self.client.get(
+            f'{self.logout_url}?next=https://exploding-kittens.com/logout-confirm',
+            HTTP_REFERER='https://exploding-kittens.com/')
+        self.assertEqual(302, resp.status_code)
+        self.assertEqual('https://exploding-kittens.com/logout-confirm', resp['Location'])
