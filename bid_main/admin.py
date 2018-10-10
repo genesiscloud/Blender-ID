@@ -79,9 +79,9 @@ def send_confirm_mails(modeladmin, request, queryset):
         ok = send_verify_address(user, request.scheme)
         mailed[ok].add(user.email)
         if ok:
-            _add_change_log((user, ), request, "Sent 'confirm email address' mail")
+            _add_change_log((user,), request, "Sent 'confirm email address' mail")
         else:
-            _add_change_log((user, ), request,
+            _add_change_log((user,), request,
                             "Tried to send 'confirm email address' mail, which failed")
 
     mailed_ok = ', '.join(sorted(mailed[True])) or 'nobody'
@@ -215,6 +215,7 @@ class RoleAdmin(admin.ModelAdmin):
             'fields': ('is_badge', 'label', 'badge_img', 'link'),
         }),
     )
+
 
 # Erase the oauth_provider admin classes so that we can register our own.
 # Butt ugly but it seems to work.
