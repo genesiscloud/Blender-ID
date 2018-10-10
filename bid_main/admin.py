@@ -201,7 +201,8 @@ def make_inactive(modeladmin, request, queryset):
 class RoleAdmin(admin.ModelAdmin):
     model = models.Role
 
-    list_display = ('name', 'label', 'description', 'is_badge', 'is_public', 'is_active')
+    list_display = ('name', 'label', 'description', 'is_badge', 'is_public', 'is_active',
+                    'badge_img')
     list_filter = ('is_badge', 'is_public', 'is_active')
     search_fields = ('name', 'description', 'label')
 

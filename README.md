@@ -52,6 +52,7 @@ After cloning the Git repo, perform these steps to create a working dev server:
    - `./manage.py loaddata blender_cloud_devserver`
    - `./manage.py loaddata blender_cloud_dev_webhook`
    - `./manage.py loaddata flatpages`
+- Run `./manage.py collectmedia` to collect media from fixtures and place into the media directory.
 - Run `./gulp`  to compile javascript
 - Add to /etc/hosts  127.0.0.1 id.local
 - Run `./manage.py runserver`

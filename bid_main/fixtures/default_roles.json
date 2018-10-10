@@ -6,10 +6,14 @@
             "name": "bfct_board",
             "description": "",
             "is_active": true,
-            "is_badge": true,
+            "is_badge": false,
             "is_public": true,
-            "may_manage_roles": [],
-            "label": "BFCT Board"
+            "label": "",
+            "badge_img": "",
+            "badge_img_height": null,
+            "badge_img_width": null,
+            "link": null,
+            "may_manage_roles": []
         }
     },
     {
@@ -19,10 +23,14 @@
             "name": "conference_speaker",
             "description": "",
             "is_active": true,
-            "is_badge": true,
+            "is_badge": false,
             "is_public": true,
-            "may_manage_roles": [],
-            "label": "Conference Speaker"
+            "label": "Blender Conference Speaker",
+            "badge_img": "",
+            "badge_img_height": 47,
+            "badge_img_width": 48,
+            "link": null,
+            "may_manage_roles": []
         }
     },
     {
@@ -34,6 +42,11 @@
             "is_active": true,
             "is_badge": false,
             "is_public": true,
+            "label": "",
+            "badge_img": "",
+            "badge_img_height": null,
+            "badge_img_width": null,
+            "link": null,
             "may_manage_roles": []
         }
     },
@@ -44,10 +57,14 @@
             "name": "bfct_trainer",
             "description": "",
             "is_active": true,
-            "is_badge": true,
+            "is_badge": false,
             "is_public": true,
-            "may_manage_roles": [],
-            "label": "BFCT Trainer"
+            "label": "",
+            "badge_img": "",
+            "badge_img_height": null,
+            "badge_img_width": null,
+            "link": null,
+            "may_manage_roles": []
         }
     },
     {
@@ -59,8 +76,12 @@
             "is_active": true,
             "is_badge": true,
             "is_public": true,
-            "may_manage_roles": [],
-            "label": "Blender Network Member"
+            "label": "Blender Network Member",
+            "badge_img": "",
+            "badge_img_height": null,
+            "badge_img_width": null,
+            "link": null,
+            "may_manage_roles": []
         }
     },
     {
@@ -72,8 +93,12 @@
             "is_active": true,
             "is_badge": true,
             "is_public": true,
-            "may_manage_roles": [],
-            "label": "Core Blender Developer"
+            "label": "Core Blender Developer",
+            "badge_img": "",
+            "badge_img_height": null,
+            "badge_img_width": null,
+            "link": "https://developer.blender.org/",
+            "may_manage_roles": []
         }
     },
     {
@@ -85,8 +110,12 @@
             "is_active": true,
             "is_badge": true,
             "is_public": true,
-            "may_manage_roles": [],
-            "label": "Cloud: Invited Guest"
+            "label": "Blender Cloud",
+            "badge_img": "badges/badge_cloud.png",
+            "badge_img_height": 256,
+            "badge_img_width": 256,
+            "link": null,
+            "may_manage_roles": []
         }
     },
     {
@@ -98,6 +127,11 @@
             "is_active": true,
             "is_badge": false,
             "is_public": false,
+            "label": "",
+            "badge_img": "",
+            "badge_img_height": null,
+            "badge_img_width": null,
+            "link": null,
             "may_manage_roles": []
         }
     },
@@ -106,12 +140,16 @@
         "pk": 24,
         "fields": {
             "name": "cloud_subscriber",
-            "description": "Active Blender Cloud Subscription",
+            "description": "User has active subscription",
             "is_active": true,
             "is_badge": true,
             "is_public": true,
-            "may_manage_roles": [],
-            "label": "Cloud: Subscriber"
+            "label": "Blender Cloud",
+            "badge_img": "badges/badge_cloud.png",
+            "badge_img_height": 256,
+            "badge_img_width": 256,
+            "link": "https://cloud.blender.org/",
+            "may_manage_roles": []
         }
     },
     {
@@ -123,6 +161,11 @@
             "is_active": true,
             "is_badge": false,
             "is_public": false,
+            "label": "",
+            "badge_img": "",
+            "badge_img_height": null,
+            "badge_img_width": null,
+            "link": null,
             "may_manage_roles": [
                 22,
                 26,
@@ -139,6 +182,137 @@
             "is_active": true,
             "is_badge": false,
             "is_public": true,
+            "label": "",
+            "badge_img": "",
+            "badge_img_height": null,
+            "badge_img_width": null,
+            "link": null,
+            "may_manage_roles": []
+        }
+    },
+    {
+        "model": "bid_main.role",
+        "pk": 27,
+        "fields": {
+            "name": "devfund_badger",
+            "description": "Badge manager for Blender Development Fund",
+            "is_active": true,
+            "is_badge": false,
+            "is_public": false,
+            "label": "",
+            "badge_img": "",
+            "badge_img_height": null,
+            "badge_img_width": null,
+            "link": null,
+            "may_manage_roles": [
+                28,
+                29,
+                30,
+                31,
+                32,
+                33
+            ]
+        }
+    },
+    {
+        "model": "bid_main.role",
+        "pk": 28,
+        "fields": {
+            "name": "devfund_bronze",
+            "description": "Bronze Development Fund supporter",
+            "is_active": true,
+            "is_badge": true,
+            "is_public": true,
+            "label": "Bronze Development Fund supporter",
+            "badge_img": "badges/badge_devfund_bronze.png",
+            "badge_img_height": 256,
+            "badge_img_width": 256,
+            "link": "https://fund.blender.org/",
+            "may_manage_roles": []
+        }
+    },
+    {
+        "model": "bid_main.role",
+        "pk": 29,
+        "fields": {
+            "name": "devfund_diamond",
+            "description": "Diamond Development Fund supporter",
+            "is_active": true,
+            "is_badge": true,
+            "is_public": true,
+            "label": "Diamond Development Fund supporter",
+            "badge_img": "badges/badge_devfund_diamond.png",
+            "badge_img_height": 256,
+            "badge_img_width": 256,
+            "link": "https://fund.blender.org/",
+            "may_manage_roles": []
+        }
+    },
+    {
+        "model": "bid_main.role",
+        "pk": 30,
+        "fields": {
+            "name": "devfund_gold",
+            "description": "Gold Development Fund supporter",
+            "is_active": true,
+            "is_badge": true,
+            "is_public": true,
+            "label": "Gold Development Fund supporter",
+            "badge_img": "badges/badge_devfund_gold.png",
+            "badge_img_height": 256,
+            "badge_img_width": 256,
+            "link": "https://fund.blender.org/",
+            "may_manage_roles": []
+        }
+    },
+    {
+        "model": "bid_main.role",
+        "pk": 31,
+        "fields": {
+            "name": "devfund_platinum",
+            "description": "Platinum Development Fund supporter",
+            "is_active": true,
+            "is_badge": true,
+            "is_public": true,
+            "label": "Platinum Development Fund supporter",
+            "badge_img": "badges/badge_devfund_platinum.png",
+            "badge_img_height": 256,
+            "badge_img_width": 256,
+            "link": "https://fund.blender.org/",
+            "may_manage_roles": []
+        }
+    },
+    {
+        "model": "bid_main.role",
+        "pk": 32,
+        "fields": {
+            "name": "devfund_silver",
+            "description": "Silver Development Fund supporter",
+            "is_active": true,
+            "is_badge": true,
+            "is_public": true,
+            "label": "Silver Development Fund supporter",
+            "badge_img": "badges/badge_devfund_silver.png",
+            "badge_img_height": 256,
+            "badge_img_width": 256,
+            "link": "https://fund.blender.org/",
+            "may_manage_roles": []
+        }
+    },
+    {
+        "model": "bid_main.role",
+        "pk": 33,
+        "fields": {
+            "name": "devfund_titanium",
+            "description": "Titanium Development Fund supporter",
+            "is_active": true,
+            "is_badge": true,
+            "is_public": true,
+            "label": "Titanium Development Fund supporter",
+            "badge_img": "badges/badge_devfund_titanium.png",
+            "badge_img_height": 256,
+            "badge_img_width": 256,
+            "link": "https://fund.blender.org/",
             "may_manage_roles": []
         }
     }
