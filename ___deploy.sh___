@@ -62,6 +62,7 @@ mkdir -p media
 
 pipenv install --deploy
 pipenv run python3 manage.py migrate
+pipenv run python3 manage.py collectmedia --noinput
 
 sudo service uwsgi reload
 EOT
