@@ -65,6 +65,12 @@ class BadgerApiGrantTest(BadgerBaseTest):
         self.target_user.refresh_from_db()
         self.assertEqual(list(self.target_user.roles.all()), [])
 
+    def test_grant_notabadge(self):
+        response = self.post('bid_api:badger_grant', 'not-badge', self.target_user.email)
+        self.assertEqual(response.status_code, 200, f'response: {response}')
+        self.target_user.refresh_from_db()
+        self.assertEqual(list(self.target_user.roles.all()), [self.role_notabadge])
+
     def test_grant_happy_flow(self):
         response = self.post('bid_api:badger_grant', 'badge1', self.target_user.email)
         self.assertEqual(response.status_code, 200, f'response: {response}')
@@ -150,6 +156,13 @@ class BadgerApiRevokeTest(BadgerBaseTest):
         self.assertEqual(response.status_code, 403)
         self.target_user.refresh_from_db()
         self.assertEqual(set(self.target_user.roles.all()), self.assigned_roles)
+
+    def test_revoke_notabadge(self):
+        response = self.post('bid_api:badger_revoke', 'not-badge', self.target_user.email)
+        self.assertEqual(response.status_code, 200, f'response: {response}')
+        self.target_user.refresh_from_db()
+        self.assertEqual(set(self.target_user.roles.all()),
+                         {self.role_badge1, self.role_notallowed, self.role_inactivebadge})
 
     def test_revoke_happy_flow(self):
         response = self.post('bid_api:badger_revoke', 'badge1', self.target_user.email)
