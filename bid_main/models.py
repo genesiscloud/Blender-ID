@@ -252,7 +252,8 @@ class RoleManager(models.Manager):
 
         return self \
             .filter(is_public=True, is_active=True, is_badge=True) \
-            .exclude(badge_img__isnull=True, badge_img='')
+            .exclude(badge_img__isnull=True) \
+            .exclude(badge_img='')
 
 
 class Role(models.Model):
