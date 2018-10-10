@@ -47,4 +47,4 @@ class Command(BaseCommand):
                 if options['verbosity'] > 0:
                     relpath = file_path.absolute().relative_to(settings.BASE_DIR)
                     reldest = final_dest.absolute().relative_to(settings.BASE_DIR)
-                    self.stdout.write(self.style.SUCCESS(f'{relpath} → {reldest}'))
+                    self.stdout.write(self.style.SUCCESS(f'{relpath} -> {reldest}'))
