@@ -177,7 +177,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def public_badges(self) -> models.query.QuerySet:
         """Returns a QuerySet of public badges."""
-        return self.roles.filter(is_public=True, is_active=True, is_badge=True)
+        return self.roles.badges()
 
     def get_full_name(self):
         """
@@ -246,13 +246,25 @@ class UserSetting(models.Model):
         return 'Setting %r of %r' % (self.setting.name, self.user.email)
 
 
+class RoleManager(models.Manager):
+    def badges(self) -> models.QuerySet:
+        """Query for those roles that are considered badges."""
+
+        return self \
+            .filter(is_public=True, is_active=True, is_badge=True) \
+            .exclude(badge_img__isnull=True, badge_img='')
+
+
 class Role(models.Model):
     name = models.CharField(max_length=80)
     description = models.CharField(
         max_length=255, blank=True, null=False,
         help_text="Note that this is shown for badges on users' dashboard page.")
     is_active = models.BooleanField(default=True, null=False)
-    is_badge = models.BooleanField(default=False, null=False)
+    is_badge = models.BooleanField(
+        default=False, null=False,
+        help_text='Note that a roles is only actually used as a badge when this checkbox '
+                  'is enabled <strong>and</strong> it has a badge image.')
     is_public = models.BooleanField(
         default=True, null=False,
         help_text='When enabled, this role/badge will be readable through the userinfo API.')
@@ -267,6 +279,7 @@ class Role(models.Model):
         max_length=255, blank=True, null=False,
         help_text='Human-readable name for a badge. Required for badges, not for roles.')
     badge_img = sorl.thumbnail.ImageField(
+        verbose_name='Badge image',
         help_text='Visual representation of a badge.',
         upload_to='badges',
         height_field='badge_img_height',
@@ -276,6 +289,8 @@ class Role(models.Model):
     badge_img_width = models.IntegerField(null=True, blank=True)
     link = models.URLField(null=True, blank=True,
                            help_text='Clicking on a badge image will lead to this link.')
+
+    objects = RoleManager()
 
     class Meta:
         ordering = ['-is_active', 'name']
