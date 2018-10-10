@@ -338,9 +338,10 @@ class OAuth2Application(oa2_models.AbstractApplication):
 
 class UserNote(models.Model):
     """CRM-like note added to a user."""
+
     class Meta:
         verbose_name = 'Note'
-        ordering = ('-created', )
+        ordering = ('-created',)
 
     user = models.ForeignKey(User, related_name='notes', on_delete=models.CASCADE)
     creator = models.ForeignKey(User,
