@@ -31,10 +31,10 @@ class BlenderIdAddonSupportTest(TestCase):
             'password': password,
             'host_label': 'unittest',
         })
-        self.assertEquals(200, resp.status_code)
+        self.assertEqual(200, resp.status_code)
 
         data = resp.json()
-        self.assertEquals('success', data['status'])
+        self.assertEqual('success', data['status'])
         token_data = data['data']['oauth_token']
 
         # There must be a token with the given information
@@ -54,10 +54,10 @@ class BlenderIdAddonSupportTest(TestCase):
             'password': 'jemoeder',
             'host_label': 'unittest',
         })
-        self.assertEquals(200, resp.status_code)
+        self.assertEqual(200, resp.status_code)
 
         data = resp.json()
-        self.assertEquals('success', data['status'])
+        self.assertEqual('success', data['status'])
 
     def test_verify_identity_bad_password(self):
         """
@@ -70,10 +70,10 @@ class BlenderIdAddonSupportTest(TestCase):
             'password': 'bad password ẅïẗḧ üñïčöđë',
             'host_label': 'unittest',
         })
-        self.assertEquals(200, resp.status_code)
+        self.assertEqual(200, resp.status_code)
 
         data = resp.json()
-        self.assertEquals('fail', data['status'])
+        self.assertEqual('fail', data['status'])
         self.assert_no_tokens()
 
     def _create_user(self,
@@ -99,15 +99,15 @@ class BlenderIdAddonSupportTest(TestCase):
             'password': 'jemoeder',
             'host_label': 'unittest',
         })
-        self.assertEquals(200, resp.status_code)
+        self.assertEqual(200, resp.status_code)
 
         data = resp.json()
-        self.assertEquals('fail', data['status'])
+        self.assertEqual('fail', data['status'])
         self.assert_no_tokens()
 
     def assert_no_tokens(self):
-        self.assertEquals([], list(AccessToken.objects.all()))
-        self.assertEquals([], list(RefreshToken.objects.all()))
+        self.assertEqual([], list(AccessToken.objects.all()))
+        self.assertEqual([], list(RefreshToken.objects.all()))
 
     def test_delete_token(self):
         # First make sure there is a token.
@@ -118,7 +118,7 @@ class BlenderIdAddonSupportTest(TestCase):
             'user_id': dbtoken.user.id,
             'token': dbtoken.token,
         })
-        self.assertEquals(200, resp.status_code)
+        self.assertEqual(200, resp.status_code)
         self.assert_no_tokens()
 
     def test_delete_token_invalid_form(self):
@@ -129,7 +129,7 @@ class BlenderIdAddonSupportTest(TestCase):
             'user_id': 'garçon',
             'token': dbtoken.token,
         })
-        self.assertEquals(400, resp.status_code)
+        self.assertEqual(400, resp.status_code)
         self.assertEqual(1, AccessToken.objects.count())
 
     def test_delete_other_token(self):
@@ -143,8 +143,8 @@ class BlenderIdAddonSupportTest(TestCase):
             'user_id': my_token.user.id,
             'token': other_token.token,
         })
-        self.assertEquals(403, resp.status_code)
-        self.assertEquals(sorted([my_token.token, other_token.token]),
+        self.assertEqual(403, resp.status_code)
+        self.assertEqual(sorted([my_token.token, other_token.token]),
                           sorted(t.token for t in AccessToken.objects.all()))
 
     def test_validate_token_happy(self):
@@ -155,13 +155,13 @@ class BlenderIdAddonSupportTest(TestCase):
         resp = self.client.post(url, {
             'token': dbtoken.token,
         })
-        self.assertEquals(200, resp.status_code)
+        self.assertEqual(200, resp.status_code)
 
         data = resp.json()
-        self.assertEquals('success', data['status'])
-        self.assertEquals(dbtoken.user.id, data['user']['id'])
-        self.assertEquals('sybren@example.com', data['user']['email'])
-        self.assertEquals('Sybren Stüvel', data['user']['full_name'])
+        self.assertEqual('success', data['status'])
+        self.assertEqual(dbtoken.user.id, data['user']['id'])
+        self.assertEqual('sybren@example.com', data['user']['email'])
+        self.assertEqual('Sybren Stüvel', data['user']['full_name'])
 
     def test_create_subclient_token(self):
         dbtoken = self.test_verify_identity_happy()
