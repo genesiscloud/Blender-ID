@@ -71,22 +71,24 @@
 		| {% endif %}
 
 
-//- .bid-roles.container.bid.box
-//- 	h3.text-center Your Badges
-//-
-//- 	| {% if user.public_badges %}
-//- 	ul.badges
-//- 		| {% for badge in user.public_badges %}
-//- 		| {% render_badge badge %}
-//- 		| {% endfor %}
-//- 	p You have earned {{ user.public_badges|length }} badge{{ user.public_badges|pluralize }}.
-//- 	| {% else %}
-//- 	p.
-//- 		You don't have any badges. You can earn badges in various ways, for example by getting a
-//- 		#[a(href='https://cloud.blender.org/') Blender Cloud] subscription, by
-//- 		joining the #[a(href='https://blender.fund/') Blender Development Fund], or
-//- 		on #[a(href='https://www.blendernetwork.org/') Blender Network].
-//- 	| {% endif %}
+.bid-roles.container.bid.box
+	h3.text-center Your Badges
+
+	| {% with badges=user.public_badges %}
+	| {% if badges %}
+	ul.badges
+		| {% for badge in badges %}
+		| {% render_badge badge %}
+		| {% endfor %}
+	p You have earned {{ badges|length }} badge{{ badges|pluralize }}.
+	| {% else %}
+	p.
+		You don't have any badges. You can earn badges in various ways, for example by getting a
+		#[a(href='https://cloud.blender.org/') Blender Cloud] subscription, by
+		joining the #[a(href='https://blender.fund/') Blender Development Fund], or
+		on #[a(href='https://www.blendernetwork.org/') Blender Network].
+	| {% endif %}
+	| {% endwith %}
 
 .bid-roles
 	h3 Your Blender ID Apps
