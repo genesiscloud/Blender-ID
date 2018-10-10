@@ -228,5 +228,5 @@ except admin.site.NotRegistered:
 class AccessTokenAdmin(admin.ModelAdmin):
     list_display = ('token', 'user', 'application', 'scope', 'expires')
     list_filter = ('application', 'scope')
-    raw_id_fields = ('user',)
+    raw_id_fields = ('user', 'source_refresh_token')
     search_fields = ('scope',)
