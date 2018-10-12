@@ -241,6 +241,7 @@ class UserBadgeTest(AbstractBadgeTest):
 
         # Make the Poodle a badge
         self.role_public.is_badge = True
+        self.role_public.badge_img = 'badges/t-rex.png'
         self.role_public.save()
 
         response = get()
@@ -257,6 +258,9 @@ class UserBadgeTest(AbstractBadgeTest):
                               },
                               'janitor': {
                                   'label': 'the poodle',
+                                  'image': 'http://example.com/media/badges/t-rex.png',
+                                  'image_height': 256,
+                                  'image_width': 256,
                               },
                           }}, payload)
 
