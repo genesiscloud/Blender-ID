@@ -44,21 +44,22 @@ class IndexView(LoginRequiredMixin, mixins.PageIdMixin, TemplateView):
         'bfct': {'bfct_trainer', 'bfct_board'},
     }
 
-    def get_context_data(self, **kwargs):
-        ctx = super().get_context_data(**kwargs)
-        user = self.request.user
+    def get_context_data(self, **kwargs) -> dict:
+        user: User = self.request.user
         role_names = user.role_names
 
         # Figure out which Blender ID 'apps' the user has access to.
         # Currently this is just based on a hard-coded set of roles.
         apps = {name for name, roles in self.BID_APP_TO_ROLES.items()
                 if roles.intersection(role_names)}
-        ctx['apps'] = apps
 
-        ctx['cloud_needs_renewal'] = ('cloud_has_subscription' in role_names and
-                                      'cloud_subscriber' not in role_names)
-        ctx['show_confirm_address'] = not user.has_confirmed_email
-        return ctx
+        return {
+            **super().get_context_data(**kwargs),
+            'apps': apps,
+            'cloud_needs_renewal': ('cloud_has_subscription' in role_names and
+                                    'cloud_subscriber' not in role_names),
+            'show_confirm_address': not user.has_confirmed_email,
+        }
 
 
 class LoginView(mixins.RedirectToPrivacyAgreeMixin, mixins.PageIdMixin, auth_views.LoginView):
