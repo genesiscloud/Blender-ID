@@ -4,8 +4,11 @@
 
 | {% block before_about_bid %}
 .bid.box.text-center
+	| {% if 'next' in request.GET %}
+	h1 Please sign in to continue
+	| {% else %}
 	h1 One Account, Everything Blender
-
+	| {% endif %}
 	.row
 		.col-md-8.col-md-offset-2
 			form(role='login', action='', method='POST')
