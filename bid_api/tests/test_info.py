@@ -206,6 +206,12 @@ class UserBadgeTest(AbstractBadgeTest):
         response = self.authed_get(url_path, access_token=access_token, token_on_url=token_on_url)
         return response
 
+    def get_for_target_user(self, access_token=''):
+        if not access_token:
+            token_info: AccessToken = AccessToken.objects.filter(user=self.target_user).first()
+            access_token = token_info.token
+        return self.get(str(self.target_user.id), access_token=access_token)
+
     def test_other_user(self):
         response = self.get(str(self.target_user.id))
         self.assertEqual(403, response.status_code, f'response: {response}')
@@ -220,10 +226,7 @@ class UserBadgeTest(AbstractBadgeTest):
         )
         target_user_token.save()
 
-        def get():
-            return self.get(str(self.target_user.id), access_token=target_user_token.token)
-
-        response = get()
+        response = self.get_for_target_user()
         self.assertEqual(200, response.status_code, f'response: {response}')
         self.assertEqual('application/json', response.get('content-type'))
         payload = json.loads(response.content)
@@ -244,7 +247,7 @@ class UserBadgeTest(AbstractBadgeTest):
         self.role_public.badge_img = 'badges/t-rex.png'
         self.role_public.save()
 
-        response = get()
+        response = self.get_for_target_user()
         payload = json.loads(response.content)
         self.assertEqual({'user_id': self.target_user.id,
                           'badges': {
@@ -264,16 +267,16 @@ class UserBadgeTest(AbstractBadgeTest):
                               },
                           }}, payload)
 
-    def test_bad_token_scope(self):
+    def test_different_user(self):
         wrong_token = AccessToken.objects.create(
             user=self.user,
-            scope='email',
+            scope='email badge',
             expires=timezone.now() + timedelta(seconds=300),
             token='token-with-wrong-scope',
             application=self.application
         )
         wrong_token.save()
-        response = self.get(self.target_user.id, access_token=wrong_token.token)
+        response = self.get_for_target_user(wrong_token.token)
         self.assertEqual(403, response.status_code)
 
     def test_own_badge_bad_token_scope(self):
@@ -285,7 +288,7 @@ class UserBadgeTest(AbstractBadgeTest):
             application=self.application
         )
         wrong_token.save()
-        response = self.get(self.target_user.id, access_token=wrong_token.token)
+        response = self.get_for_target_user()
         self.assertEqual(403, response.status_code)
 
     def test_nonexisting_user(self):
@@ -293,6 +296,26 @@ class UserBadgeTest(AbstractBadgeTest):
         # Nonexisting user means that you're requesting for another user,
         # which results in a 403 Forbidden.
         self.assertEqual(403, response.status_code, f'response: {response}')
+
+    def test_hide_private_badges(self):
+        self.test_happy()
+
+        # The 'self.role_public' role was turned into a badge by test_happy()
+        self.target_user.private_badges.add(self.role_public)
+
+        response = self.get_for_target_user()
+        payload = json.loads(response.content)
+        self.assertEqual({'user_id': self.target_user.id,
+                          'badges': {
+                              '⛅cloud_subscriber': {
+                                  'label': '⛅ Subscriber',
+                                  'description': '¡Awesome T-Rex!',
+                                  'link': 'https://cloud.blender.org/',
+                                  'image': 'http://example.com/media/badges/t-rex.png',
+                                  'image_width': 120,
+                                  'image_height': 100,
+                              },
+                          }}, payload)
 
 
 class UserBadgeHTMLTest(AbstractBadgeTest):
@@ -323,6 +346,8 @@ class UserBadgeHTMLTest(AbstractBadgeTest):
         self.assertIn(b'width="64"', resp.content)  # default is 'small'
         self.assertIn(b'src="http://testserver/media/cache/', resp.content,
                       'Badge image URLs should be absolute')
+        self.assertIn(self.badge_cloud.label.encode(), resp.content,
+                      'Public badge should be included')
         self.assertNotIn(b'nonpublic', resp.content, 'Non-public badge should be hidden')
         self.assertNotIn(b'janitor', resp.content, 'Non-badge public role should be hidden')
 
@@ -367,3 +392,12 @@ class UserBadgeHTMLTest(AbstractBadgeTest):
 
         resp = self.get(self.target_user.id, size='', access_token='other-user-token')
         self.assertEqual(400, resp.status_code)
+
+    def test_hide_private_badges(self):
+        # Mark the Cloud badge as private. This should hide the user's only badge, and
+        # thus result in a 204 No Content.
+        self.target_user.private_badges.add(self.badge_cloud)
+
+        resp = self.get(self.target_user.id, size='', access_token='token-with-badge-scope')
+        self.assertEqual(204, resp.status_code)
+        self.assertEqual(b'', resp.content)

@@ -90,7 +90,7 @@ class UserBadgeView(AbstractAPIView):
 
         badges = {
             role.name: self.badge_dict(request, role)
-            for role in user.roles.badges()
+            for role in user.public_badges()
         }
         return JsonResponse({'user_id': user.id,
                              'badges': badges})

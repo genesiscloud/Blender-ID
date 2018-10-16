@@ -106,7 +106,7 @@ class UserAdmin(BaseUserAdmin):
                            'email_change_preconfirm',
                            'password',
                            'full_name',
-                           'roles')}),
+                           'roles', 'private_badges')}),
         (_('Permissions'), {
             'fields': ('is_active', 'is_staff', 'is_superuser',
                        'groups', 'user_permissions'),

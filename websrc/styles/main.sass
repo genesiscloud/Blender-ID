@@ -1,4 +1,5 @@
 @import url(//fonts.googleapis.com/css?family=Roboto:300,400)
+@import toastr.min
 
 @import ../../node_modules/bootstrap-sass/assets/stylesheets/bootstrap
 
@@ -448,12 +449,47 @@ li.badge
 	text-align: center
 	background-color: transparent
 
-li.badge > a, li.badge > span
+li.badge.private img
+	filter: grayscale(90%) contrast(50%) brightness(1.6)
+	transition: filter 1.2s
+
+li.badge > a, li.badge > span.nolink
 	display: block
 	padding: 0.5em
 li.badge > a:link, li.badge > a:visited
 	text-decoration: none
 
+li.badge span.badge-privacy-toggle
+	// display: block
+	margin-top: 2px
+	text-align: left
+li.badge span.badge-privacy-toggle
+	display: inline-block
+	color: $color-text-dark-primary
+	font-weight: normal
+	font-size: 10px
+	margin-top: 6px
+li.badge span.badge-privacy-toggle > *
+	text-align: center
+
+li.badge span.badge-privacy-toggle .toggle
+	margin-left: 2ex
+	border: thin rgba(0, 0, 0, .25) solid
 
 .form-required
 	box-shadow: 0 0 0 2px $color-danger !important
+
+
+/* Bootstrap Toggle v2.2.2 corrections for Bootstrap 4*/
+/* See https://github.com/minhur/bootstrap-toggle/issues/186 */
+li.badge .toggle-off, li.badge span.badge-privacy-toggle .btn.btn-toggle-on
+	box-shadow: inset 0 3px 5px rgba(0, 0, 0, .125)
+li.badge .toggle.off
+	border-color: rgba(0, 0, 0, .25)
+li.badge .toggle-handle
+	background-color: white
+	border: thin rgba(0, 0, 0, .25) solid
+	box-shadow: none
+li.badge .toggle-group .btn
+	padding: 1px 5px
+	font-size: 10px

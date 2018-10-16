@@ -1,6 +1,12 @@
 | {% extends 'layout.html' %}
-| {% load gravatar %}
+| {% load gravatar static %}
 | {% load badges %}
+
+| {% block header %}
+link(href="{% static 'assets_vendor/css/bootstrap-toggle.min.css' %}", rel='stylesheet')
+| {% endblock %}
+
+
 | {% block page_title %}
 | {% if user.full_name %}
 | {{user.full_name}}'s
@@ -74,13 +80,16 @@
 .bid-roles.container.bid.box
 	h3.text-center Your Badges
 
-	| {% with badges=user.public_badges %}
+	| {% with badges=user.all_badges %}
 	| {% if badges %}
 	ul.badges
 		| {% for badge in badges %}
 		| {% render_badge badge %}
 		| {% endfor %}
-	p You have earned {{ badges|length }} badge{{ badges|pluralize }}.
+	p.
+		You have earned {{ badges|length }} badge{{ badges|pluralize }}. If you do not want to show
+		those badges on connected websites, you can mark them as private.
+
 	| {% else %}
 	p.
 		You don't have any badges. You can earn badges in various ways, for example by getting a
@@ -152,4 +161,36 @@
 					| {% endif %}
 		| {% endif %}
 
+| {% endblock %}
+
+| {% block footer_scripts %}
+script(src="{% static 'assets_vendor/js/toastr.min.js' %}")
+script(src="{% static 'assets_vendor/js/bootstrap-toggle.min.js' %}")
+script(src="{% static 'assets_vendor/js/js.cookie.min.js' %}")
+script(src="{% static 'assets/js/notifications.min.js' %}")
+script.
+	function toggle_badge_privacy(event) {
+		let badge_name = event.target.dataset.badgeName;
+
+		$.post("{% url 'bid_main:badge_toggle_private'  %}", {
+			csrfmiddlewaretoken: Cookies.get('csrftoken'),
+			badge_name: badge_name,
+		})
+		.fail(function (error) {
+			toastr.error(xhrErrorResponseMessage(error), 'Unable to toggle badge privacy');
+		})
+		.done(function (response) {
+			let $badge = $('li.badge.' + badge_name);
+			if (response.is_private) {
+				$badge.addClass('private');
+			} else {
+				$badge.removeClass('private');
+			}
+		})
+		;
+	}
+	$(function() {
+		$("input[data-toggle]").bootstrapToggle();
+		$("input[type='checkbox'][data-badge-name]").change(toggle_badge_privacy);
+	})
 | {% endblock %}

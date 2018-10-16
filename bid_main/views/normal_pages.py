@@ -59,6 +59,7 @@ class IndexView(LoginRequiredMixin, mixins.PageIdMixin, TemplateView):
             'cloud_needs_renewal': ('cloud_has_subscription' in role_names and
                                     'cloud_subscriber' not in role_names),
             'show_confirm_address': not user.has_confirmed_email,
+            'private_badge_ids': {role.id for role in user.private_badges.all()}
         }
 
 

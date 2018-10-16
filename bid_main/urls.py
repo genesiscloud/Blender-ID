@@ -4,7 +4,7 @@ from django.urls import reverse_lazy
 from django.contrib.auth import views as auth_views
 
 from . import forms
-from .views import normal_pages, registration_email
+from .views import normal_pages, registration_email, json_api
 
 urlpatterns = [
     url(r'^$', normal_pages.IndexView.as_view(), name='index'),
@@ -17,6 +17,9 @@ urlpatterns = [
     url(r'^applications', normal_pages.ApplicationTokenView.as_view(), name='auth_tokens'),
     url(r'^privacy-policy/agree$', normal_pages.PrivacyPolicyAgreeView.as_view(),
         name='privacy_policy_agree'),
+
+    url(r'^badge-toggle-private', json_api.BadgeTogglePrivateView.as_view(),
+        name='badge_toggle_private'),
 
     url('^change$',
         auth_views.PasswordChangeView.as_view(

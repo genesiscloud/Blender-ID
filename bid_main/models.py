@@ -170,6 +170,10 @@ class User(AbstractBaseUser, PermissionsMixin):
         blank=True,
         default='',
         help_text=_('String representation of public roles, for comparison in webhooks'))
+    private_badges = models.ManyToManyField(
+        Role, blank=True, limit_choices_to={'is_badge': True},
+        help_text='Badges marked as "private" by the user. Can contain badges '
+                  'they do not have at the moment; this is fine.')
 
     confirmed_email_at = models.DateTimeField(
         null=True, blank=True,
@@ -242,7 +246,20 @@ class User(AbstractBaseUser, PermissionsMixin):
                 for role in self.roles.filter(is_public=True, is_active=True)}
 
     def public_badges(self) -> models.query.QuerySet:
-        """Returns a QuerySet of public badges."""
+        """Returns a QuerySet of public badges.
+
+        Public badges are those badges that are marked as public in the database
+        and not marked private by the user.
+        """
+        private_badge_ids = {role.id for role in self.private_badges.all()}
+        return self.all_badges().exclude(id__in=private_badge_ids)
+
+    def all_badges(self) -> models.query.QuerySet:
+        """Returns a QuerySet of all badges.
+
+        Returned are those badges that are marked as public in the database,
+        regardless of which ones the user marked as private.
+        """
         return self.roles.badges()
 
     def get_full_name(self):
