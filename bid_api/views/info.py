@@ -60,7 +60,7 @@ class UserInfoView(AbstractAPIView):
 
 
 class UserBadgeView(AbstractAPIView):
-    """Returns badge info for a given user ID.
+    """JSON badge info for a given user ID.
 
     It is only allowed to get the badge for the owner of the token.
 
@@ -68,22 +68,25 @@ class UserBadgeView(AbstractAPIView):
     """
 
     @method_decorator(protected_resource(scopes=['badge']))
-    def get(self, request, user_id):
+    def get(self, request, user_id) -> JsonResponse:
 
         try:
             uid = int(user_id)
         except TypeError:
             # This is unlikely to happen as the URL only matches digits.
-            return HttpResponseBadRequest('invalid user ID')
+            return JsonResponse({'message': 'invalid user ID'}, status=400)
 
         if request.user.id != uid:
-            return HttpResponseForbidden('you can only request badges for the owner of this token')
+            return JsonResponse(
+                {'message': 'you can only request badges for the owner of this token'},
+                status=403)
 
         log.debug('Fetching badges of user %d on behalf of API user %s', uid, request.user)
         try:
             user = UserModel.objects.get(id=uid)
         except UserModel.DoesNotExist:
-            return HttpResponseNotFound('user not found')
+            # This is very unlikely, as we could authenticate the user from a token.
+            return JsonResponse({'message': 'user not found'}, status=422)
 
         badges = {
             role.name: self.badge_dict(request, role)
