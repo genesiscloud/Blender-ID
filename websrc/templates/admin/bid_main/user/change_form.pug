@@ -12,6 +12,9 @@ li
 li
 	a(href="https://cloud.blender.org/u/#q={{ original.email|urlencode }}&page=1",target='_blank')
 		| {% trans "Find in Cloud" %}</a>
+li
+	a(href="https://fund.blender.org/admin/auth/user/?q={{ original.email|urlencode }}",target='_blank')
+		| {% trans "Find in Blender Fund" %}</a>
 | {% endblock %}
 
 
