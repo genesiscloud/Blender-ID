@@ -4,8 +4,9 @@
 
 | {% block before_about_bid %}
 .bid.box.text-center
-	| {% if 'next' in request.GET %}
-	h1 Please sign in to continue
+	| {% if is_oauth_flow %}
+	h1 Please sign in to continue to #[span(style='white-space: nowrap') {{ oauth_app.name }}]
+	p {{ oauth_app.name }} uses Blender ID to authenticate users.
 	| {% else %}
 	h1 One Account, Everything Blender
 	| {% endif %}

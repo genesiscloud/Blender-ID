@@ -5,6 +5,7 @@ email confirmation.
 """
 
 import logging
+import urllib.parse
 
 from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -72,6 +73,8 @@ class LoginView(mixins.RedirectToPrivacyAgreeMixin, mixins.PageIdMixin, auth_vie
     redirect_authenticated_user = True
     success_url_allowed_hosts = settings.NEXT_REDIR_AFTER_LOGIN_ALLOWED_HOSTS
 
+    authorize_url = reverse_lazy('oauth2_provider:authorize')
+
     @method_decorator(sensitive_post_parameters())
     @method_decorator(csrf_exempt)
     @method_decorator(never_cache)
@@ -86,6 +89,37 @@ class LoginView(mixins.RedirectToPrivacyAgreeMixin, mixins.PageIdMixin, auth_vie
                 )
             return HttpResponseRedirect(redirect_to)
         return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs) -> dict:
+        ctx = super().get_context_data(**kwargs)
+        self.find_oauth_flow(ctx)
+        return ctx
+
+    def find_oauth_flow(self, ctx: dict):
+        """Figure out if this is an OAuth flow, and for which OAuth Client."""
+
+        next_url = ctx.get('next')
+        ctx['is_oauth_flow'] = False
+        if not next_url:
+            return
+
+        parts = urllib.parse.urlparse(next_url)
+        if parts.path != self.authorize_url:
+            return
+
+        query = urllib.parse.parse_qs(parts.query)
+        if 'client_id' not in query:
+            return
+
+        app_model = oauth2_models.get_application_model()
+        try:
+            oauth_app = app_model.objects.get(client_id=query['client_id'][0])
+        except app_model.DoesNotExist:
+            return
+
+        ctx['is_oauth_flow'] = True
+        ctx['oauth_app'] = oauth_app
+        return ctx
 
 
 class LogoutView(auth_views.LogoutView):

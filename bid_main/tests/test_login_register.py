@@ -1,3 +1,5 @@
+from urllib.parse import urlencode
+
 from django.urls import reverse, reverse_lazy
 from django.contrib.auth import get_user_model
 from django.test import TestCase
@@ -82,3 +84,29 @@ class TestLogout(TestCase):
             HTTP_REFERER='https://exploding-kittens.com/')
         self.assertEqual(302, resp.status_code)
         self.assertEqual('https://exploding-kittens.com/logout-confirm', resp['Location'])
+
+
+class LoginTest(TestCase):
+    login_url = reverse('bid_main:login')
+    authorize_url = reverse('oauth2_provider:authorize')
+
+    def test_bid_login(self):
+        """Logging in on Blender ID, not part of OAuth flow."""
+        resp = self.client.get(self.login_url)
+        self.assertEqual(200, resp.status_code)
+        self.assertIn('One Account, Everything Blender', resp.content.decode())
+
+    def test_oauth_login_happy(self):
+        """Logging in on Blender ID as part of OAuth flow."""
+
+        oauth_client = Application.objects.create(name="je moeder")
+        next_url = self.authorize_url + '?' + urlencode({'client_id': oauth_client.client_id})
+        resp = self.client.get(self.login_url + '?' + urlencode({'next': next_url}))
+        self.assertEqual(200, resp.status_code)
+        self.assertIn(f'Please sign in to continue to {oauth_client.name}', resp.content.decode())
+
+    def test_oauth_unknown_client_id(self):
+        next_url = self.authorize_url + '?' + urlencode({'client_id': 'nonexisting'})
+        resp = self.client.get(self.login_url + '?' + urlencode({'next': next_url}))
+        self.assertEqual(200, resp.status_code)
+        self.assertIn('One Account, Everything Blender', resp.content.decode())
