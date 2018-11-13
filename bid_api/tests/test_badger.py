@@ -2,7 +2,7 @@ from datetime import timedelta
 
 from django.http import HttpResponse
 from django.contrib.admin.models import LogEntry
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.utils import timezone
 
 from bid_main.models import Role
@@ -25,10 +25,10 @@ class BadgerBaseTest(AbstractAPITest):
         cls.role_badger = Role.objects.create(name='badger', is_badge=False)
 
         # Role needs to be saved before assigning many-to-many fields.
-        cls.role_badger.may_manage_roles = [cls.role_notabadge,
-                                            cls.role_badge1,
-                                            cls.role_badge2,
-                                            cls.role_inactivebadge]
+        cls.role_badger.may_manage_roles.set([cls.role_notabadge,
+                                              cls.role_badge1,
+                                              cls.role_badge2,
+                                              cls.role_inactivebadge])
         cls.role_badger.save()
 
     def post(self, view_name: str, badge: str, email: str, *, access_token='') -> HttpResponse:
@@ -41,7 +41,7 @@ class BadgerApiGrantTest(BadgerBaseTest):
     def setUp(self):
         super().setUp()
 
-        self.user.roles = [self.role_badger]
+        self.user.roles.set([self.role_badger])
         self.user.save()
 
         self.target_user = UserModel.objects.create_user('target@user.com', '123456',
@@ -128,7 +128,7 @@ class BadgerApiRevokeTest(BadgerBaseTest):
     def setUp(self):
         super().setUp()
 
-        self.user.roles = [self.role_badger]
+        self.user.roles.set([self.role_badger])
         self.user.save()
 
         # Incorrectly assign many roles, so that we can test what happens when they are
@@ -137,7 +137,7 @@ class BadgerApiRevokeTest(BadgerBaseTest):
                                                          nickname='there')
         self.assigned_roles = {self.role_notallowed, self.role_notabadge, self.role_inactivebadge,
                                self.role_badge1}
-        self.target_user.roles = list(self.assigned_roles)
+        self.target_user.roles.set(list(self.assigned_roles))
 
     def test_revoke_unknown_badge(self):
         response = self.post('bid_api:badger_revoke', 'unknown-badge', self.target_user.email)

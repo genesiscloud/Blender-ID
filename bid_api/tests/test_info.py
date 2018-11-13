@@ -3,7 +3,7 @@ from datetime import timedelta
 import json
 
 from django.http import HttpResponse
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.utils import timezone
 
 from .abstract import AbstractAPITest, AccessToken, UserModel

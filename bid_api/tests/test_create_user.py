@@ -3,7 +3,7 @@ import json
 
 from django.http import HttpResponse, HttpRequest
 from django.contrib.admin.models import LogEntry
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.utils import timezone
 
 from .abstract import AbstractAPITest, AccessToken, UserModel
