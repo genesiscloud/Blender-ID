@@ -25,10 +25,10 @@ urlpatterns = [
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
     url(r'^admin/', include('loginas.urls')),
     url(r'^admin/', admin.site.urls),
-    url(r'', include('bid_addon_support.urls', namespace='addon_support')),
-    url(r'^oauth/', include('blenderid.oauth2_urls', namespace='oauth2_provider')),
-    url(r'^api/', include('bid_api.urls', namespace='bid_api')),
-    url(r'', include('bid_main.urls', namespace='bid_main')),
+    url(r'', include('bid_addon_support.urls')),
+    url(r'^oauth/', include('blenderid.oauth2_urls')),
+    url(r'^api/', include('bid_api.urls')),
+    url(r'', include('bid_main.urls')),
 ]
 
 handler400 = error_views.ErrorView.as_view(template_name='errors/400.html', status=400)

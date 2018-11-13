@@ -6,6 +6,7 @@ from django.contrib.auth import views as auth_views
 from . import forms
 from .views import normal_pages, registration_email, json_api
 
+app_name = 'bid_main'
 urlpatterns = [
     url(r'^$', normal_pages.IndexView.as_view(), name='index'),
     url(r'^settings/profile$', normal_pages.ProfileView.as_view(), name='profile'),

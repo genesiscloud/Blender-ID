@@ -11,6 +11,7 @@ from django.conf.urls import url
 from oauth2_provider import views as default_oauth2_views
 from bid_main.views import oauth2
 
+app_name = 'oauth2_provider'
 urlpatterns = (
     url(r'^authorize/?$', oauth2.AuthorizationView.as_view(), name="authorize"),
     url(r'^token/?$', default_oauth2_views.TokenView.as_view(), name="token"),

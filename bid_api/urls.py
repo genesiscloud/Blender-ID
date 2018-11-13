@@ -2,6 +2,7 @@ from django.conf.urls import url
 
 from .views import info, badger, create_user, authenticate
 
+app_name = 'bid_api'
 urlpatterns = [
     url(r'^user$', info.user_info, name='user'),
     url(r'^me$', info.user_info),
