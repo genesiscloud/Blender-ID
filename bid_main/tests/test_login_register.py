@@ -99,11 +99,12 @@ class LoginTest(TestCase):
     def test_oauth_login_happy(self):
         """Logging in on Blender ID as part of OAuth flow."""
 
-        oauth_client = Application.objects.create(name="je moeder")
-        next_url = self.authorize_url + '?' + urlencode({'client_id': oauth_client.client_id})
+        oauth_app = Application.objects.create(name="je moeder")
+        next_url = self.authorize_url + '?' + urlencode({'client_id': oauth_app.client_id})
         resp = self.client.get(self.login_url + '?' + urlencode({'next': next_url}))
         self.assertEqual(200, resp.status_code)
-        self.assertIn(f'Please sign in to continue to {oauth_client.name}', resp.content.decode())
+        self.assertIn('Please sign in to continue to', resp.content.decode())
+        self.assertIn(oauth_app.name, resp.content.decode())
 
     def test_oauth_unknown_client_id(self):
         next_url = self.authorize_url + '?' + urlencode({'client_id': 'nonexisting'})
