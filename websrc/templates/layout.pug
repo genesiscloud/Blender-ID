@@ -13,12 +13,14 @@ html(lang="en")
 
 		link(rel="shortcut icon", href="{% static 'assets_shared/images/favicon.ico' %}")
 
+		| {% if settings.GOOGLE_ANALYTICS_TRACKING_ID %}
 		script(async, src="https://www.googletagmanager.com/gtag/js?id={{ settings.GOOGLE_ANALYTICS_TRACKING_ID }}")
 		script.
 			window.dataLayer = window.dataLayer || [];
 			function gtag(){dataLayer.push(arguments);}
 			gtag('js', new Date());
 			gtag('config', '{{ settings.GOOGLE_ANALYTICS_TRACKING_ID }}');
+		| {% endif %}
 
 		| {% block header %}
 		| {% endblock %}
