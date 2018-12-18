@@ -31,8 +31,8 @@ class BadgerBaseTest(AbstractAPITest):
                                               cls.role_inactivebadge])
         cls.role_badger.save()
 
-    def post(self, view_name: str, badge: str, email: str, *, access_token='') -> HttpResponse:
-        url_path = reverse(view_name, kwargs={'badge': badge, 'email': email})
+    def post(self, view_name: str, badge: str, email_or_uid: str, *, access_token='') -> HttpResponse:
+        url_path = reverse(view_name, kwargs={'badge': badge, 'email_or_uid': email_or_uid})
         response = self.authed_post(url_path, access_token=access_token)
         return response
 
@@ -86,6 +86,17 @@ class BadgerApiGrantTest(BadgerBaseTest):
         self.assertEqual(response.status_code, 200, f'response: {response}')
         entries = list(LogEntry.objects.filter(object_id=self.target_user.id))
         self.assertEqual(1, len(entries))
+
+    def test_grant_revoke_by_uid(self):
+        response = self.post('bid_api:badger_grant', 'badge1', str(self.target_user.id))
+        self.assertEqual(response.status_code, 200, f'response: {response}')
+        self.target_user.refresh_from_db()
+        self.assertEqual(list(self.target_user.roles.all()), [self.role_badge1])
+
+        response = self.post('bid_api:badger_revoke', 'badge1', str(self.target_user.id))
+        self.assertEqual(response.status_code, 200, f'response: {response}')
+        self.target_user.refresh_from_db()
+        self.assertEqual(list(self.target_user.roles.all()), [])
 
     def test_grant_multiple_roles(self):
         response = self.post('bid_api:badger_grant', 'badge1', self.target_user.email)

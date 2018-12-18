@@ -24,11 +24,11 @@ class BadgerView(AbstractAPIView):
     action = 'grant'
 
     @method_decorator(protected_resource(scopes=['badger']))
-    def post(self, request, badge: str, email: str) -> HttpResponse:
-        return self.do_badger(request, badge, email)
+    def post(self, request, badge: str, email_or_uid: str) -> HttpResponse:
+        return self.do_badger(request, badge, email_or_uid)
 
     @transaction.atomic()
-    def do_badger(self, request, badge: str, email: str) -> HttpResponse:
+    def do_badger(self, request, badge: str, email_or_uid: str) -> HttpResponse:
         """Performs the actual badger service, can be called without OAuth token
 
         This makes it possible for management commands to use this functionality.
@@ -45,23 +45,31 @@ class BadgerView(AbstractAPIView):
         if badge not in may_manage:
             log.warning(
                 'User %s tried to %s role %r to user %s, is not allowed to grant that role',
-                user, action, badge, email)
+                user, action, badge, email_or_uid)
             return HttpResponseForbidden()
-
-        # Try to find the target user.
-        try:
-            target_user: bid_main_models.User = UserModel.objects.get(email=email)
-        except UserModel.DoesNotExist:
-            log.warning('User %s tried to %s role %r to nonexistent user %s',
-                        user, action, badge, email)
-            return HttpResponseUnprocessableEntity()
 
         # Check the role for being an active badge.
         role = may_manage[badge]
         if not role.is_active:
             log.warning('User %s tried to %s non-active role %r to user %s',
-                        user, action, badge, email)
+                        user, action, badge, email_or_uid)
             return HttpResponseForbidden()
+
+        # Try to find the target user.
+        try:
+            user_id = int(email_or_uid, 10)
+        except ValueError:
+            match_user = {'email': email_or_uid}
+        else:
+            match_user = {'id': user_id}
+
+        try:
+            target_user: bid_main_models.User = UserModel.objects.get(**match_user)
+        except UserModel.DoesNotExist:
+            log.warning('User %s tried to %s role %r to nonexistent user %s',
+                        user, action, badge, email_or_uid)
+            return HttpResponseUnprocessableEntity()
+        email = target_user.email
 
         # Grant/revoke the role to/from the target user.
         if action == 'grant':
