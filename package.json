@@ -6,6 +6,9 @@
 		"type": "git",
 		"url": "git://git.blender.org/blender-id.git"
 	},
+	"__COMMENTS__": [
+		"natives@1.1.6 for Gulp 3.x on Node 10.x: https://github.com/gulpjs/gulp/issues/2162#issuecomment-385197164"
+	],
 	"devDependencies": {
 		"bootstrap-sass": "^3.3.7",
 		"gulp": "~3.9.1",
@@ -22,5 +25,11 @@
 		"gulp-sourcemaps": "~1.6.0",
 		"gulp-uglify": "~1.5.3",
 		"minimist": "^1.2.0"
+	},
+	"resolutions": {
+		"natives": "1.1.6"
+	},
+	"dependencies": {
+		"natives": "^1.1.6"
 	}
 }
