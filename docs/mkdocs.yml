@@ -1,0 +1,15 @@
+# Project information
+site_name: 'Blender ID'
+site_description: 'Blender ID.'
+site_url: 'https://docs.blender.org/id/'
+
+# Copyright
+copyright: 'Copyright 2018 Blender Foundation'
+
+theme:
+  name: 'material'
+  logo:
+    icon: 'verified_user'
+  palette:
+    primary: 'grey'
+    accent: 'blue'
