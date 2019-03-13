@@ -17,8 +17,6 @@
 				h3 {{ user.full_name }}
 			p {{ user.email }}
 		| {% else %}
-		a.bid-user-missing(href="{% url 'bid_main:profile' %}")
-			i.fa.fa-exclamation
 		.bid-user-info
 			h3
 				a.danger(href="{% url 'bid_main:profile' %}")

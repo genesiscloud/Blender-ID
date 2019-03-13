@@ -15,14 +15,12 @@ p.hide-after-post We are storing your confirmed email, please wait. If nothing h
 
 p.hide-after-post
 	button.enable-after-delay.btn(disabled)
-		i.fa.fa-retweet
 		| Retry
 
 p.show-after-ok(style='display: none') Congratulations, you have successfully confirmed your email address.
 
 p.show-after-ok(style='display: none')
 	a.btn.btn-success(href="{{ next_url }}")
-		i.fa.fa-arrow-right
 		| Go to {{ next_name }}
 | {% endblock %}
 

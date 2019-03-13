@@ -7,11 +7,7 @@
 .bid.box
 	.row
 		.col-md-8.col-md-offset-2
-			.bid-header
-				ul.bid-icons
-					li
-						i.fa.fa-exchange
-				h1 Connect Your Blender ID
+			h1 Connect Your Blender ID
 
 			hr
 
@@ -52,11 +48,9 @@
 
 				.bid-cta
 					button.btn.btn-primary(type="submit",name="allow",value='true')
-						i.fa.fa-check
 						| Yes, Authorize
 
 					a.btn(href="{% url 'bid_main:index' %}")
-						i.fa.fa-times
 						| Cancel
 			| {% else %}
 

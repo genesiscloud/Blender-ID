@@ -18,10 +18,8 @@ form(action="{% url 'bid_main:confirm-email' %}", method='POST')
 	| {% csrf_token %}
 	.bid-cta
 		a.btn(href="{% url 'bid_main:index' %}")
-			i.fa.fa-arrow-left
 			| Back to the dashboard
 		button.btn.btn-success(type='submit')
-			i.fa.fa-envelope
 			| Try again
 
 | {% endblock %}
