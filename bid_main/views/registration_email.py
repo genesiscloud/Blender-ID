@@ -1,6 +1,7 @@
 """User registration, email change and confirmation."""
 import logging
 
+from django.contrib.auth import views as auth_views
 from django.contrib.auth.forms import PasswordResetForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ValidationError
@@ -78,6 +79,12 @@ class RegistrationView(CreateView):
             return self.render_to_response(self.get_context_data(form=form))
 
         return redirect('bid_main:register-done')
+
+
+class InitialSetPasswordView(auth_views.PasswordResetConfirmView):
+    template_name = 'registration/initial_set_password.html'
+    success_url = reverse_lazy('bid_main:register-complete')
+    form_class = forms.SetInitialPasswordForm
 
 
 class ConfirmEmailView(LoginRequiredMixin, FormView):

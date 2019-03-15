@@ -55,11 +55,7 @@ urlpatterns = [
         name='register-done'),
     url(
         r'^register/password/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$',
-        auth_views.PasswordResetConfirmView.as_view(), {
-            'template_name': 'registration/initial_set_password.html',
-            'post_reset_redirect': 'bid_main:register-complete',
-            'set_password_form': forms.SetInitialPasswordForm,
-        }, name='register-confirm'),
+        registration_email.InitialSetPasswordView.as_view(), name='register-confirm'),
     url(r'^register/complete/$', auth_views.PasswordResetCompleteView.as_view(), {
         'template_name': 'registration/registration_complete.html',
     }, name='register-complete'),
