@@ -56,9 +56,9 @@ urlpatterns = [
     url(
         r'^register/password/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$',
         registration_email.InitialSetPasswordView.as_view(), name='register-confirm'),
-    url(r'^register/complete/$', auth_views.PasswordResetCompleteView.as_view(), {
-        'template_name': 'registration/registration_complete.html',
-    }, name='register-complete'),
+    url(r'^register/complete/$', auth_views.PasswordResetCompleteView.as_view(
+        template_name='registration/registration_complete.html'),
+        name='register-complete'),
 
     url(r'^confirm-email/start$',
         registration_email.ConfirmEmailView.as_view(),
