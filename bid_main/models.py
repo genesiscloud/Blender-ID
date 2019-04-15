@@ -205,7 +205,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     date_joined = models.DateTimeField(_('date joined'), default=timezone.now)
     last_update = models.DateTimeField(_('last update'), default=timezone.now)
     privacy_policy_agreed = models.DateTimeField(
-        _('privacy policy agreed'), null=True,
+        _('privacy policy agreed'), null=True, blank=True,
         help_text=_('Date when this user agreed to our privacy policy.'))
 
     email_change_preconfirm = models.EmailField(
