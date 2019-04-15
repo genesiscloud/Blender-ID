@@ -44,6 +44,9 @@ rsync -va static/ $DEPLOYHOST:$DEPLOYPATH/static/ --delete-after || exit 5
 rsync -va templates/ $DEPLOYHOST:$DEPLOYPATH/templates/ --delete-after || exit 6
 
 $SSH -TA << EOT
+# Make sure $PATH is as expected
+. ~/.profile
+
 # This creates the Virtualenv inside {project}/.venv
 export PIPENV_VENV_IN_PROJECT=1
 set -ex
