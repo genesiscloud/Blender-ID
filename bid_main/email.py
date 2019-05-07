@@ -123,7 +123,7 @@ def construct_verify_address(user, scheme: str, extra: dict=None) -> (str, str, 
     hmac_ob = _email_verification_hmac(b64info)
 
     url = reverse('bid_main:confirm-email-verified', kwargs={
-        'info': b64info,
+        'info': b64info.decode('ascii'),
         'hmac': hmac_ob.hexdigest()
     })
 

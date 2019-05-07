@@ -181,7 +181,8 @@ class WebhookTest(WebhookBaseTest):
 
         queued: models.WebhookQueuedCall = queue[0]
         self.assertEqual(0, queued.error_code)
-        self.assertEqual('Connection refused: POST http://www.unit.test/api/webhook',
+        self.assertEqual("Connection refused by Responses: POST http://www.unit.test/api/webhook "
+                         "doesn't match Responses Mock",
                          queued.error_msg)
 
         payload = json.loads(queued.payload)
