@@ -10,8 +10,8 @@ class ErrorView(TemplateView):
 
     status = 500
 
-    def dispatch(self, request, *args, **kwargs):
-        if request.method in {'HEAD', 'OPTIONS'}:
+    def dispatch(self, request=None, *args, **kwargs):
+        if request is None or request.method in {'HEAD', 'OPTIONS'}:
             # Don't render templates in this case.
             return HttpResponse(status=self.status)
 

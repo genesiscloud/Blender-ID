@@ -4,7 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-Django = {version = "<2.2", extras = ["bcrypt"]}  # until we upgrade to 2.1 or newer
+Django = {version = "*", extras = ["bcrypt"]}
 django-braces = "*"
 django-debug-toolbar = "*"
 django-oauth-toolkit = "*"
