@@ -8,7 +8,7 @@ purchases on the Blender Store.
 You can also authenticate within Blender via the Blender ID add-on, and log in authorized
 third-party websites and much more.
 
-Requires Python 3.6, Django 1.11,
+Requires Python 3.6, Django 2.2,
 [Django-OAuth-Toolkit](https://django-oauth-toolkit.readthedocs.io/), and a database.
 
 
