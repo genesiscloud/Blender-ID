@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/usr/bin/env bash
 
 #########################################
 # (Re)create the Blender ID virtualenv  #
@@ -8,11 +8,12 @@
 # upgrading Python or the system.       #
 #########################################
 
+set -e
+
 MY_DIR=$(dirname $(readlink -f $0))
 cd $MY_DIR
 
-export PIPENV_VENV_IN_PROJECT=1
-VENV=.venv
+VENV=./.venv
 
 if [ -e $VENV-DESTROYED ]; then
     echo "$VENV-DESTROYED exists; remove that one first."
@@ -28,7 +29,8 @@ read dummy
 
 [ -e $VENV ] && mv $VENV $VENV-DESTROYED
 
-pipenv install --deploy
+python3.6 -m venv $VENV
+poetry install --no-dev  # no need to activate, Poetry automatically picks up .venv
 
 echo
 echo "Done"
