@@ -1,0 +1,53 @@
+FROM alpine:3.9
+
+COPY aliases /etc/aliases
+
+# Installing the Python MySQL client still requires compilation (hence
+# libmysqlclient-dev, python3-dev, and build-essential).
+RUN set -ex; \
+    apk add \
+        python3 python3-dev \
+        nginx uwsgi uwsgi-python3 \
+        libffi-dev gcc musl-dev mariadb-dev jpeg-dev libpng-dev; \
+    rm -rf /var/cache/apk/*
+ENV LANG en_US.UTF-8
+
+# Globally install Poetry.
+RUN pip3 install poetry
+
+# Copy the Poetry files to create the virtualenv.
+COPY --chown=uwsgi:uwsgi staging/blender-id/pyproject.toml /var/www/blender-id/
+COPY --chown=uwsgi:uwsgi staging/blender-id/poetry.lock /var/www/blender-id/
+
+# Poetry automatically uses ./.venv/ if it exists and is a virtualenv.
+WORKDIR /var/www/blender-id
+RUN set -ex; \
+    python3 -m venv .venv; \
+    ./.venv/bin/pip3 install -U pip
+
+RUN poetry install --no-dev
+WORKDIR /
+
+# Some extra shell configuration
+COPY profile.d/* /etc/profile.d/
+
+# Configure nginx
+EXPOSE 80
+COPY nginx/default.conf /etc/nginx/conf.d/
+COPY nginx/errors/* /var/www/errors/
+RUN mkdir /run/nginx
+
+# Configure uWSGI
+RUN mkdir -p /var/run/uwsgi; chown uwsgi:uwsgi /var/run/uwsgi
+COPY --chown=uwsgi:uwsgi uwsgi/* /etc/uwsgi/conf.d/
+RUN chmod 644 /etc/uwsgi/conf.d/*.ini
+
+# Configure root files and entry point.
+COPY root_files/* /
+COPY ash_history /root/.ash_history
+
+VOLUME /var/log
+VOLUME /var/www/settings/
+
+# Running the base image directly just gives a login shell.
+CMD ["/bin/sh", "--login"]

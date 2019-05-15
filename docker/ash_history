@@ -1,0 +1,8 @@
+./entrypoint.sh
+uwsgi /etc/uwsgi/uwsgi.ini
+uwsgi --reload /var/run/uwsgi/blender-id.pid
+uwsgi --stop /var/run/uwsgi/blender-id.pid
+/uwsgi-restart blender-id
+tail -n 100 -f /var/log/nginx/error.log
+tail -n 100 -f /var/log/uwsgi/blender-id.log
+tail -n 100 -f /var/log/blender-id.log

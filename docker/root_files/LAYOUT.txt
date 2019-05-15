@@ -1,0 +1,7 @@
+
+/home/blender-id                          Home directory of user blender-id
+/var/www/blender-id                       Django project
+/var/www/settings/blenderid_settings.py   Django production configuration
+
+/var/spool/postfix    Postfix spool directory (mail queue)
+/var/log              Most of the logs

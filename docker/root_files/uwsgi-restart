@@ -1,0 +1,2 @@
+#!/bin/sh
+uwsgi --reload /var/run/uwsgi/blender-id.pid

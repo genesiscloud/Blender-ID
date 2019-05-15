@@ -13,3 +13,4 @@ db.sqlite3
 /.venv/
 .pytest_cache
 /docs/site/
+/docker/staging/
