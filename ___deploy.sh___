@@ -39,7 +39,7 @@ fi
 
 ./gulp --production
 
-pipenv run python3 manage.py collectstatic --noinput --verbosity 0  || exit 4
+poetry run python3 manage.py collectstatic --noinput --verbosity 0  || exit 4
 rsync -va static/ $DEPLOYHOST:$DEPLOYPATH/static/ --delete-after || exit 5
 rsync -va templates/ $DEPLOYHOST:$DEPLOYPATH/templates/ --delete-after || exit 6
 
@@ -47,11 +47,12 @@ $SSH -TA << EOT
 # Make sure $PATH is as expected
 . ~/.profile
 
-# This creates the Virtualenv inside {project}/.venv
-export PIPENV_VENV_IN_PROJECT=1
 set -ex
 
+# This creates the Virtualenv inside {project}/.venv
 cd $DEPLOYPATH
+[ -d .venv ] || python3 -m venv .venv
+
 git reset --hard
 git pull origin production
 git checkout production
@@ -62,9 +63,9 @@ sed -i~ 's/^DEBUG = .*/DEBUG = False/' blenderid/settings.py
 # Create the media directory if it doesn't exist yet.
 mkdir -p media
 
-pipenv install --deploy
-pipenv run python3 manage.py migrate
-pipenv run python3 manage.py collectmedia --noinput
+poetry install --no-dev
+poetry run python3 manage.py migrate
+poetry run python3 manage.py collectmedia --noinput
 
 sudo service uwsgi reload
 EOT
