@@ -30,6 +30,7 @@ read dummy
 [ -e $VENV ] && mv $VENV $VENV-DESTROYED
 
 python3.6 -m venv $VENV
+$VENV/bin/python -m pip install -U pip
 poetry install --no-dev  # no need to activate, Poetry automatically picks up .venv
 
 echo
