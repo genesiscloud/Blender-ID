@@ -2,8 +2,8 @@ import logging
 import typing
 
 from django.contrib.auth import get_user_model
-from django.http import (JsonResponse, HttpResponseBadRequest, HttpResponseNotFound)
-from django.shortcuts import render
+from django.http import (JsonResponse, HttpResponse, HttpResponseBadRequest, HttpResponseNotFound)
+from django.shortcuts import render, redirect
 from django.utils.decorators import method_decorator
 from oauth2_provider.decorators import protected_resource
 
@@ -143,6 +143,20 @@ class BadgesHTMLView(AbstractAPIView):
         return render(request, 'bid_api/badges/user_badges.html',
                       {'badges': badges,
                        'size_string': f'{size_in_px}x{size_in_px}'})
+
+
+class UserAvatarView(AbstractAPIView):
+    """Avatar for this user.
+
+    This is a public endpoint that redirects to the actual avatar thumbnail.
+    """
+
+    def get(self, request, user_id: str) -> HttpResponse:
+        try:
+            dbuser = UserModel.objects.get(id=int(user_id))
+        except UserModel.DoesNotExist:
+            return JsonResponse({'_message': 'user does not exist'}, status=404)
+        return redirect(dbuser.avatar.thumbnail_url())
 
 
 class StatsView(AbstractAPIView):

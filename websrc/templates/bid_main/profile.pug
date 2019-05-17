@@ -1,12 +1,26 @@
 | {% extends 'layout.html' %}
-| {% load gravatar %}
+| {% load avatar %}
 | {% block page_title %}Edit Your Profile -- Blender ID{% endblock %}
+
+| {% block header %}
+style.
+	.avatar-editor {
+		align-items: center;
+		justify-content: center;
+		padding-right: 2mm;
+	}
+	.avatar-editor img {
+		margin-right: 2mm;
+		border-right: thin solid var(--border-color);
+	}
+| {% endblock %}
+
 | {% block body %}
 
 .bid.box
 	h2 Edit Profile
 
-	form(action='', method='POST')
+	form(action='', method='POST', enctype="multipart/form-data")
 		| {% csrf_token %}
 		fieldset
 			.row
@@ -36,16 +50,20 @@
 					| {{ form.nickname.errors }}
 					| {{ form.non_field_errors }}
 
+					// Avatar input
+					label.control-label Avatar
+					.input-group.avatar-editor
+						| {% avatar size=64 %}
+						input#avatar-file-input.custom-file-input(type="file", name="avatar")
+						label
+							input(type="checkbox", name="avatar-clear")
+							| Clear
+					| {{ form.avatar.errors }}
+
 				.col-md-3
 					.bid-user.profile
 						.bid-user-info
-							a(href="https://gravatar.com")
-								img(
-									src='{% gravatar_url user.email 100 %}',
-									title='Change Gravatar',
-									alt="Change Gravatar")
-							a(href="https://gravatar.com")
-								small Change Gravatar
+							| {% avatar %}
 
 			.bid-cta
 				button.btn.btn-filled-success(type='submit')
@@ -55,7 +73,7 @@
 					| Save Changes
 
 				a.btn(href="{% url 'bid_main:index' %}")
-					| Discard
+					| Discard Changes
 
 				a.cta-tertiary(href="{% url 'bid_main:password_change' %}")
 					i.icon

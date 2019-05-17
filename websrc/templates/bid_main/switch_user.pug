@@ -1,28 +1,24 @@
 | {% extends 'layout.html' %}
-| {% load gravatar %}
+| {% load avatar %}
 | {% block page_title %}Switch Blender ID user{% endblock %}
 | {% block body %}
 .bid.box
 	small You are currently logged in as
 
 	.bid-user
-		| {% if user.full_name %}
 		a(href="{% url 'bid_main:index' %}")
-			img(
-				src='{% gravatar_url user.email 84 %}',
-				title='Profile Picture',
-				alt="Profile Picture")
+			| {% avatar %}
 		.bid-user-info
+			| {% if user.full_name %}
 			a(href="{% url 'bid_main:index' %}")
 				h3 {{ user.full_name }}
 			p {{ user.email }}
-		| {% else %}
-		.bid-user-info
+			| {% else %}
 			h3
 				a.danger(href="{% url 'bid_main:profile' %}")
 					| Please specify your full name
 			p {{ user.email }}
-		| {% endif %}
+			| {% endif %}
 
 	hr
 

@@ -1,7 +1,10 @@
 import logging
+import pathlib
 
 from django import forms
+from django.conf import settings
 from django.contrib.auth import forms as auth_forms
+from django.template import defaultfilters
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
@@ -64,7 +67,7 @@ class UserProfileForm(BootstrapModelFormMixin, forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ['full_name', 'email', 'nickname']
+        fields = ['full_name', 'email', 'nickname', 'avatar']
 
     def __init__(self, *args, **kwargs):
         instance = kwargs.get('instance')
@@ -104,6 +107,31 @@ class UserProfileForm(BootstrapModelFormMixin, forms.ModelForm):
         if not nickname:
             raise forms.ValidationError(_('Nickname is a required field'))
         return nickname
+
+    def clean_avatar(self):
+        data = self.cleaned_data['avatar']
+        if isinstance(data, bool):
+            # This happens when the user checks the 'clean' checkbox.
+            return data
+
+        filename = pathlib.PurePath(data.name)
+        if filename.suffix not in settings.AVATAR_ALLOWED_FILE_EXTS:
+            valid_exts = ", ".join(sorted(settings.AVATAR_ALLOWED_FILE_EXTS))
+            error = _("%(ext)s is not an allowed file extension. "
+                      "Authorized extensions are : %(valid_exts_list)s")
+            raise forms.ValidationError(error %
+                                        {'ext': filename.suffix,
+                                         'valid_exts_list': valid_exts})
+
+        if data.size > settings.AVATAR_MAX_SIZE_BYTES:
+            error = _("Your file is too big (%(size)s), "
+                      "the maximum allowed size is %(max_valid_size)s")
+            raise forms.ValidationError(error % {
+                'size': defaultfilters.filesizeformat(data.size),
+                'max_valid_size': defaultfilters.filesizeformat(settings.AVATAR_MAX_SIZE_BYTES)
+            })
+
+        return data
 
 
 class PasswordChangeForm(BootstrapModelFormMixin, auth_forms.PasswordChangeForm):

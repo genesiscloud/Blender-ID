@@ -43,7 +43,6 @@ INSTALLED_APPS = [
     'django.contrib.flatpages',
     'debug_toolbar',
     'oauth2_provider',
-    'django_gravatar',
     'sorl.thumbnail',
     'django_admin_select2',
     'loginas',
@@ -219,3 +218,11 @@ CACHES = {
         'LOCATION': 'cache',  # The table name.
     }
 }
+
+AVATAR_ALLOWED_FILE_EXTS = {'.jpeg', '.jpg', '.png', '.webp'}
+AVATAR_MAX_SIZE_BYTES = 2 * 1024**2
+AVATAR_DEFAULT_FILENAME = 'assets/img/default_user_avatar.png'
+AVATAR_CONTENT_TYPE = 'image/jpeg'
+AVATAR_DEFAULT_SIZE_PIXELS = 160
+THUMBNAIL_FORMAT = 'JPEG'
+THUMBNAIL_QUALITY = 83

@@ -103,6 +103,7 @@ class UserAdmin(BaseUserAdmin):
     fieldsets = (
         (None, {'fields': ('email',
                            'nickname',
+                           'avatar',
                            'email_change_preconfirm',
                            'password',
                            'full_name',
