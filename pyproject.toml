@@ -10,7 +10,6 @@ Django = {version = "~2.2", extras = ["bcrypt"]}
 django-braces = "~1.13"
 django-debug-toolbar = "~1.11"
 django-oauth-toolkit = "~1.2"
-"django-gravatar2" = "~1.4"
 django-loginas = "~0.3"
 mysqlclient = "~1"
 python-dateutil = "~2.8"

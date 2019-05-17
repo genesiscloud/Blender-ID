@@ -14,6 +14,7 @@ from django.utils.translation import ugettext_lazy as _
 import sorl.thumbnail
 
 import oauth2_provider.models as oa2_models
+from . import fields
 
 
 class RoleManager(models.Manager):
@@ -162,6 +163,8 @@ class User(AbstractBaseUser, PermissionsMixin):
             'unique': _("That name is already used by someone else."),
         },
     )
+
+    avatar = fields.AvatarField(upload_to='user-avatars', null=True, blank=True)
 
     roles = models.ManyToManyField(Role, related_name='users', blank=True)
     public_roles_as_string = models.CharField(

@@ -74,22 +74,6 @@ header.navbar
 		&.profile
 			margin-top: 30px
 
-		/* Empty square without gravatar. */
-		&-missing // .bid-user-missing
-			align-items: center
-			background-color: $color-text-dark-secondary
-			border-radius: 6px
-			color: white !important
-			display: flex
-			font-size: 2em
-			justify-content: center
-			height: 92px
-			text-decoration: none !important
-			width: 92px
-
-			&:hover
-				background-color: lighten($color-text-dark-secondary, 10%)
-
 		&-info // .bid-user-info
 			padding: 15px
 
@@ -493,3 +477,10 @@ li.badge .toggle-handle
 li.badge .toggle-group .btn
 	padding: 1px 5px
 	font-size: 10px
+
+/* User Avatar */
+\:root
+	--border-color: rgba(black, 0.15)
+.bid-user-info .user-avatar, .bid-user .user-avatar
+	border: thin solid var(--border-color)
+	box-shadow: 0 1px 4px rgba(black, 0.25)

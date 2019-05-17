@@ -1,0 +1,16 @@
+| {% load static thumbnail %}
+| {% if user.avatar %}
+| {% thumbnail user.avatar avatar_size_str crop="center" as thumb %}
+img.user-avatar(
+    alt="Avatar of {{ user.full_name }}",
+    src="{{ thumb.url }}",
+    width="{{ thumb.width }}",
+    height="{{ thumb.height }}")
+| {% endthumbnail %}
+| {% else %}
+img.user-avatar.default-avatar(
+    alt="Avatar of {{ user.full_name }}",
+    src="{% static 'assets/img/default_user_avatar.png' %}",
+    width="{{ avatar_size }}",
+    height="{{ avatar_size }}")
+| {% endif %}

@@ -146,14 +146,6 @@ sqlparse = ">=0.2.0"
 
 [[package]]
 category = "main"
-description = "Essential Gravatar support for Django. Features helper methods, templatetags and a full test suite!"
-name = "django-gravatar2"
-optional = false
-python-versions = "*"
-version = "1.4.2"
-
-[[package]]
-category = "main"
 description = "An app to add a \"Log in as user\" button in the Django user admin page."
 name = "django-loginas"
 optional = false
@@ -593,7 +585,7 @@ python-versions = "*"
 version = "0.1.7"
 
 [metadata]
-content-hash = "cc869b7d6db3e5113a7b590d8d51aaa134bea19a0d46fcdbfb040731162946e2"
+content-hash = "bd1a72f96d8101fbac6033c210fe52b107a2c94b265e69f73f9456a72ed2fc0f"
 python-versions = "^3.6"
 
 [metadata.hashes]
@@ -613,7 +605,6 @@ django = ["6fcc3cbd55b16f9a01f37de8bcbe286e0ea22e87096557f1511051780338eaea", "b
 django-admin-select2 = ["cea780b7c547cb291553b2f66f5b37e37d0fac1e85e41f1b28d32cfd720c0fce"]
 django-braces = ["a457d74ea29478123c0c4652272681b3cea0bf1232187fd9f9b6f1d97d32a890", "ba68e98b817c6f01d71d10849f359979617b3fe4cefb7f289adefddced092ddc"]
 django-debug-toolbar = ["89d75b60c65db363fb24688d977e5fbf0e73386c67acf562d278402a10fc3736", "c2b0134119a624f4ac9398b44f8e28a01c7686ac350a12a74793f3dd57a9eea0"]
-django-gravatar2 = ["46cd5cecf46d7c6155aa31badb2575f634fc6fe65ad73c2b711a2fee3b205be3", "d6ec4ae679a8f4e4ea349259543fb1998e3415e08c3acd2b3648dd7466357204"]
 django-loginas = ["bd72331883954836e0e78df63e4e49e928c284d0f889f40cd227f892b1d26eff", "d45ef6d67414526aae3020948ad9ac2f5e5f806a3f2d197dbdc148ce685b147a"]
 django-oauth-toolkit = ["ad1b76275950ebbff708222cec57bbdb879f89bac7df6b9dee0f4b9db485c264"]
 docutils = ["02aec4bd92ab067f6ff27a38a38a41173bf01bed8f89157768c1573f53e474a6", "51e64ef2ebfb29cae1faa133b3710143496eca21c530f3f71424d77687764274", "7a4bd47eaf6596e1295ecb11361139febe29b084a87bf005bf899f9a42edc3c6"]

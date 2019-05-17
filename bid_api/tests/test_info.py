@@ -2,6 +2,7 @@ import pathlib
 from datetime import timedelta
 import json
 
+from django.conf import settings
 from django.http import HttpResponse
 from django.urls import reverse
 from django.utils import timezone
@@ -401,3 +402,76 @@ class UserBadgeHTMLTest(AbstractBadgeTest):
         resp = self.get(self.target_user.id, size='', access_token='token-with-badge-scope')
         self.assertEqual(204, resp.status_code)
         self.assertEqual(b'', resp.content)
+
+
+class UserAvatarTest(AbstractAPITest):
+    def setUp(self):
+        super().setUp()
+
+        # Fake the media root so that the avatar files actually exist and can be thumbnailed.
+        my_dir = pathlib.Path(__file__).absolute().parent
+        self.fake_media_root = my_dir / 'media'
+        self.settings_modifier = self.settings(
+            MEDIA_ROOT=self.fake_media_root,
+        )
+        self.settings_modifier.__enter__()
+
+        self.target_user = UserModel.objects.create_user(
+            'target@user.com', '123456',
+            full_name='मूंगफली मक्खन प्रेमी',
+            nickname='मूँगफली',
+        )
+
+        target_user_token = AccessToken.objects.create(
+            user=self.target_user,
+            scope='email',
+            expires=timezone.now() + timedelta(seconds=300),
+            token='token-with-email-scope',
+            application=self.application
+        )
+        target_user_token.save()
+
+    def tearDown(self):
+        self.settings_modifier.__exit__(None, None, None)
+        super().tearDown()
+
+    def get(self, user_id: str, *, access_token='') -> HttpResponse:
+        kwargs = {'user_id': user_id}
+        url_path = reverse('bid_api:user-avatar', kwargs=kwargs)
+        response = self.authed_get(url_path, access_token=access_token)
+        return response
+
+    def test_get_default_avatar(self):
+        resp = self.get(self.target_user.id, access_token='token-with-email-scope')
+        self.assertIn(resp.status_code, {302, 307}, 'Redirect MUST be temporary')
+
+        # For some reason the file isn't served by the staticfiles sytem while testing,
+        # so we just check the URL.
+        redir_url = resp['Location']
+        expect_prefix = f'https://example.com{settings.STATIC_URL}'
+        self.assertTrue(redir_url.startswith(expect_prefix),
+                        f'{redir_url!r} must start with {expect_prefix!r}')
+        self.assertTrue(redir_url.endswith('.png'), 'Default avatar must be PNG')
+
+    def test_get_uploaded_avatar(self):
+        avatar_fname = 'badges/t-rex.png'
+        self.target_user.avatar = avatar_fname
+        self.target_user.save()
+
+        resp = self.get(self.target_user.id, access_token='token-with-email-scope')
+        self.assertIn(resp.status_code, {302, 307}, 'Redirect MUST be temporary')
+
+        # For some reason the file isn't served by the staticfiles sytem while testing,
+        # so we just check the URL.
+        redir_url = resp['Location']
+        expect_prefix = f'https://example.com{settings.MEDIA_URL}'
+        self.assertTrue(redir_url.startswith(expect_prefix),
+                        f'{redir_url!r} must start with {expect_prefix!r}')
+        self.assertTrue(redir_url.endswith('.jpg'),
+                        f'Default avatar must be JPEG, but URL is {redir_url}')
+
+        # The file shouldn't be sent directly, but rather the 160x160 pixel cached version.
+        avatar_path = pathlib.Path(self.fake_media_root) / avatar_fname
+        with avatar_path.open('rb') as infile:
+            original_image_bytes = infile.read()
+        self.assertNotEqual(resp.content, original_image_bytes)

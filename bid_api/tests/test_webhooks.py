@@ -2,6 +2,7 @@ import datetime
 import hashlib
 import hmac
 import json
+import pathlib
 
 import responses
 from django.test import TestCase
@@ -9,6 +10,7 @@ from django.utils import timezone
 
 from .abstract import UserModel
 from bid_main.models import Role
+import bid_main.fields
 from bid_api import models
 
 # Import for side-effects of registering the signals
@@ -29,6 +31,8 @@ class WebhookBaseTest(TestCase):
         )
         self.hook.save()
         super().setUp()
+
+        self.default_user_avatar_url = bid_main.fields.AvatarFieldFile.default_thumbnail_url()
 
 
 class WebhookTest(WebhookBaseTest):
@@ -55,7 +59,9 @@ class WebhookTest(WebhookBaseTest):
                           'old_email': 'test@user.com',
                           'full_name': '',
                           'email': 'new@user.com',
-                          'roles': []},
+                          'roles': [],
+                          'avatar_changed': False,
+                          },
                          payload)
 
         # This is just a stupid copy of the actual code, but I have no other way to
@@ -87,8 +93,36 @@ class WebhookTest(WebhookBaseTest):
                           'old_email': 'test@user.com',
                           'full_name': 'ဖန်စီဘောင်းဘီ',
                           'email': 'new@user.com',
-                          'roles': []},
+                          'roles': [],
+                          'avatar_changed': False,
+                          },
                          payload)
+
+    @responses.activate
+    def test_modify_user_avatar(self):
+        responses.add(responses.POST,
+                      self.HOOK_URL,
+                      json={'status': 'success'},
+                      status=200)
+
+        my_dir = pathlib.Path(__file__).absolute().parent
+        with self.settings(MEDIA_ROOT=my_dir / 'media'):
+            user = UserModel.objects.create_user('test@user.com', '123456')
+            user.avatar = 'badges/t-rex.png'
+            user.save()
+
+            self.assertTrue(user.webhook_user_modified)
+
+            self.assertEqual(1, len(responses.calls))
+            payload = json.loads(responses.calls[0].request.body)
+            self.assertEqual({'id': user.id,
+                              'full_name': '',
+                              'email': 'test@user.com',
+                              'old_email': 'test@user.com',
+                              'roles': [],
+                              'avatar_changed': True,
+                              },
+                             payload)
 
     @responses.activate
     def test_modify_user_add_role(self):
@@ -129,6 +163,7 @@ class WebhookTest(WebhookBaseTest):
                           'old_email': 'test@user.com',
                           'full_name': 'ဖန်စီဘောင်းဘီ',
                           'email': 'test@user.com',
+                          'avatar_changed': False,
                           'roles': ['cloud_subscriber']},
                          payload)
         payload = json.loads(responses.calls[1].request.body)
@@ -136,6 +171,7 @@ class WebhookTest(WebhookBaseTest):
                           'old_email': 'test@user.com',
                           'full_name': 'ဖန်စီဘောင်းဘီ',
                           'email': 'test@user.com',
+                          'avatar_changed': False,
                           'roles': []},
                          payload)
 
@@ -163,6 +199,7 @@ class WebhookTest(WebhookBaseTest):
                           'old_email': 'test@user.com',
                           'full_name': 'ဖန်စီဘောင်းဘီ',
                           'email': 'test@user.com',
+                          'avatar_changed': False,
                           'roles': []},
                          payload,
                          'The payload in the queue should be the POSTed JSON')
@@ -190,6 +227,7 @@ class WebhookTest(WebhookBaseTest):
                           'old_email': 'test@user.com',
                           'full_name': 'ဖန်စီဘောင်းဘီ',
                           'email': 'test@user.com',
+                          'avatar_changed': False,
                           'roles': []},
                          payload,
                          'The payload in the queue should be the POSTed JSON')
@@ -229,6 +267,7 @@ class WebhookTest(WebhookBaseTest):
                           'old_email': 'test@user.com',
                           'full_name': 'ဖန်စီဘောင်းဘီ',
                           'email': 'test@user.com',
+                          'avatar_changed': False,
                           'roles': []},
                          payload)
 
@@ -331,6 +370,7 @@ class WebhookTest(WebhookBaseTest):
                           'old_email': 'test@user.com',
                           'full_name': 'ဖန်စီဘောင်းဘီ',
                           'email': 'test@user.com',
+                          'avatar_changed': False,
                           'roles': []},
                          payload)
 
@@ -417,6 +457,7 @@ class WebhookFlushDelayTest(WebhookBaseTest):
     This prevents setting queued_call.created after saving it and saving
     it again.
     """
+
     def queue_call(self):
         queued_call = models.WebhookQueuedCall(
             webhook=self.hook,
@@ -477,7 +518,7 @@ class WebhookFlushTimeTest(WebhookBaseTest):
             return
         self.fail(f'{time1} is not close to {time2} + {delta}:\n'
                   f'Actual  : {time1}\n'
-                  f'Expected: {time2+delta}')
+                  f'Expected: {time2 + delta}')
 
     def queue_call(self, created: datetime.datetime):
         queued_call = models.WebhookQueuedCall(
@@ -530,7 +571,6 @@ class WebhookFlushTimeTest(WebhookBaseTest):
 
         flush_time = self.hook.flush_time(now=now)
         self.assertCloseTo(flush_time, now, seconds=12)
-
 
     def test_more_queued_47_min_ago_flushed_3_sec_ago(self):
         now = timezone.now()

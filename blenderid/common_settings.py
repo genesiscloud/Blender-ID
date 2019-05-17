@@ -17,8 +17,9 @@ from django.urls import reverse_lazy
 
 BASE_DIR = pathlib.Path(__file__).absolute().parent.parent
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/1.9/howto/deployment/checklist/
+# Used when generating links to ourselves outside of the context of a request.
+# Preferrably HttpRequest.build_absolute_uri() is used.
+PREFERRED_SCHEME = 'https'
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = '-secret-'
@@ -43,7 +44,6 @@ INSTALLED_APPS = [
     'django.contrib.flatpages',
     'debug_toolbar',
     'oauth2_provider',
-    'django_gravatar',
     'sorl.thumbnail',
     'django_admin_select2',
     'loginas',
@@ -219,3 +219,11 @@ CACHES = {
         'LOCATION': 'cache',  # The table name.
     }
 }
+
+AVATAR_ALLOWED_FILE_EXTS = {'.jpeg', '.jpg', '.png', '.webp'}
+AVATAR_MAX_SIZE_BYTES = 2 * 1024**2
+AVATAR_DEFAULT_FILENAME = 'assets/img/default_user_avatar.png'
+AVATAR_CONTENT_TYPE = 'image/jpeg'
+AVATAR_DEFAULT_SIZE_PIXELS = 160
+THUMBNAIL_FORMAT = 'JPEG'
+THUMBNAIL_QUALITY = 83

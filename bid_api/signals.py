@@ -4,6 +4,7 @@ import json
 import logging
 
 from django.contrib.auth import get_user_model
+from django.core.files.storage import default_storage
 from django.db.models.signals import pre_save, post_save
 from django.dispatch import receiver, Signal
 
@@ -13,7 +14,7 @@ log = logging.getLogger(__name__)
 UserModel = get_user_model()
 user_email_changed = Signal(providing_args=['user', 'old_email'])
 
-USER_SAVE_INTERESTING_FIELDS = {'email', 'full_name', 'public_roles_as_string'}
+USER_SAVE_INTERESTING_FIELDS = {'email', 'full_name', 'public_roles_as_string', 'avatar'}
 WEBHOOK_TIMEOUT_SECS = 5
 
 
@@ -104,18 +105,31 @@ def modified_user_to_webhooks(sender, user: UserModel, **kwargs):
 
     # Get the old email address so that the webhook receiver can match by
     # either database ID or email address.
-    old_email = getattr(user, 'webhook_pre_save', {}).get('email', None)
+    webhook_pre_save = getattr(user, 'webhook_pre_save', {})
+    old_email = webhook_pre_save.get('email')
+
+    # Map all falsey values to empty string for more consistent comparison later.
+    # An empty avatar can be either '' or None.
+    old_avatar = webhook_pre_save.get('avatar') or ''
+    cur_avatar = user.avatar or ''
+
+    if old_avatar and old_avatar != cur_avatar:
+        log.debug('User changed avatar, going to delete old avatar file %r', old_avatar)
+        default_storage.delete(old_avatar)
 
     if old_email != user.email:
         log.debug('User changed email from %s to %s', old_email, user.email)
         user_email_changed.send(sender, user=user, old_email=old_email)
 
     # Do our own JSON encoding so that we can compute the HMAC using the hook's secret.
-    payload = {'id': user.id,
-               'old_email': old_email,
-               'full_name': user.get_full_name(),
-               'email': user.email,
-               'roles': user.public_roles_as_string.split()}
+    payload = {
+        'id': user.id,
+        'old_email': old_email,
+        'full_name': user.get_full_name(),
+        'email': user.email,
+        'roles': user.public_roles_as_string.split(),
+        'avatar_changed': old_avatar != cur_avatar,
+    }
     json_payload = json.dumps(payload).encode()
 
     sess = models.webhook_session()

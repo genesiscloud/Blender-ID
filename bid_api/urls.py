@@ -7,6 +7,7 @@ urlpatterns = [
     url(r'^user$', info.user_info, name='user'),
     url(r'^me$', info.user_info),
     url(r'^user/(?P<user_id>\d+)$', info.UserInfoView.as_view(), name='user-info-by-id'),
+    url(r'^user/(?P<user_id>\d+)/avatar$', info.UserAvatarView.as_view(), name='user-avatar'),
     url(r'^badges/(?P<user_id>\d+)$', info.UserBadgeView.as_view(), name='user-badges-by-id'),
     url(r'^badges/(?P<user_id>\d+)/html$', info.BadgesHTMLView.as_view(), name='user-badges-html'),
     url(r'^badges/(?P<user_id>\d+)/html/(?P<size>[a-z])$', info.BadgesHTMLView.as_view(),

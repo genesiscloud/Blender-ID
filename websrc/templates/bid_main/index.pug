@@ -1,6 +1,6 @@
 | {% extends 'layout.html' %}
-| {% load gravatar static %}
-| {% load badges %}
+| {% load static %}
+| {% load avatar badges %}
 
 | {% block header %}
 link(href="{% static 'assets_vendor/css/bootstrap-toggle.min.css' %}", rel='stylesheet')
@@ -21,10 +21,8 @@ link(href="{% static 'assets_vendor/css/bootstrap-toggle.min.css' %}", rel='styl
 	.bid-user
 		| {% if user.full_name %}
 		a(href="{% url 'bid_main:profile' %}")
-			img(
-				src='{% gravatar_url user.email 84 %}',
-				title='Profile Picture',
-				alt="Profile Picture")
+			| {% avatar %}
+
 		| {% else %}
 		a.bid-user-missing(href="{% url 'bid_main:profile' %}")
 			| ?
