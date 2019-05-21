@@ -391,7 +391,7 @@ class UserBadgeHTMLTest(AbstractBadgeTest):
         other_user_token.save()
 
         resp = self.get(self.target_user.id, size='', access_token='other-user-token')
-        self.assertEqual(400, resp.status_code)
+        self.assertEqual(403, resp.status_code)
 
     def test_hide_private_badges(self):
         # Mark the Cloud badge as private. This should hide the user's only badge, and

@@ -2,8 +2,7 @@ import logging
 import typing
 
 from django.contrib.auth import get_user_model
-from django.http import (JsonResponse, HttpResponseBadRequest, HttpResponseNotFound,
-                         HttpResponseForbidden)
+from django.http import (JsonResponse, HttpResponseBadRequest, HttpResponseNotFound)
 from django.shortcuts import render
 from django.utils.decorators import method_decorator
 from oauth2_provider.decorators import protected_resource
@@ -69,30 +68,16 @@ class UserBadgeView(AbstractAPIView):
 
     @method_decorator(protected_resource(scopes=['badge']))
     def get(self, request, user_id) -> JsonResponse:
+        err = self.check_user_id(request, user_id)
+        if err is not None:
+            return err
 
-        try:
-            uid = int(user_id)
-        except TypeError:
-            # This is unlikely to happen as the URL only matches digits.
-            return JsonResponse({'message': 'invalid user ID'}, status=400)
-
-        if request.user.id != uid:
-            return JsonResponse(
-                {'message': 'you can only request badges for the owner of this token'},
-                status=403)
-
-        log.debug('Fetching badges of user %d on behalf of API user %s', uid, request.user)
-        try:
-            user = UserModel.objects.get(id=uid)
-        except UserModel.DoesNotExist:
-            # This is very unlikely, as we could authenticate the user from a token.
-            return JsonResponse({'message': 'user not found'}, status=422)
-
+        log.debug('Fetching badges of user %s', request.user)
         badges = {
             role.name: self.badge_dict(request, role)
-            for role in user.public_badges()
+            for role in request.user.public_badges()
         }
-        return JsonResponse({'user_id': user.id,
+        return JsonResponse({'user_id': request.user.id,
                              'badges': badges})
 
     def badge_dict(self, request, role):
@@ -138,10 +123,9 @@ class BadgesHTMLView(AbstractAPIView):
         and without having to cache the authentication token too.
         """
 
-        if str(request.user.id) != user_id:
-            self.log.warning('Request from %s for user %s did not match auth token owner %s',
-                             request.META.get('REMOTE_ADDR', '-unknown-'), user_id, request.user.id)
-            return HttpResponseBadRequest(f'User ID {user_id} does not match auth token.')
+        err = self.check_user_id(request, user_id)
+        if err is not None:
+            return err
 
         badges: typing.Iterable[Role] = request.user.public_badges()
         if not badges:
