@@ -148,6 +148,6 @@ html(lang="en")
 		| {% include "_footer.html" %}
 		| {% endblock footer %}
 
-		script(src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js")
+		script(src="{% static 'assets_vendor/js/jquery.min.js' %}")
 
 		| {% block footer_scripts %}{% endblock %}
