@@ -9,7 +9,7 @@ from django.utils.decorators import method_decorator
 from oauth2_provider.decorators import protected_resource
 
 from .abstract import AbstractAPIView
-from ..http import HttpResponseNoContent
+from ..http_responses import HttpResponseNoContent
 from bid_main.models import Role
 
 log = logging.getLogger(__name__)
