@@ -13,7 +13,7 @@ from django.utils.decorators import method_decorator
 from oauth2_provider.decorators import protected_resource
 
 from bid_main import models as bid_main_models
-from ..http import HttpResponseUnprocessableEntity
+from ..http_responses import HttpResponseUnprocessableEntity
 from .abstract import AbstractAPIView
 
 log = logging.getLogger(__name__)
