@@ -194,7 +194,7 @@ LOGOUT_URL = reverse_lazy('bid_main:logout')
 # Hosts that we allow redirecting to with a next=xxx parameter on the /login and /switch
 # endpoints. This is a limited set for security reasons.
 NEXT_REDIR_AFTER_LOGIN_ALLOWED_HOSTS = {
-    'blender-cloud:5000', 'blender-cloud:5001',
+    'cloud.local:5000', 'cloud.local:5001',
     'cloud.blender.org', 'blender.cloud',
     'blender.community',
 }
