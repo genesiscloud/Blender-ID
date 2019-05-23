@@ -20,4 +20,5 @@ How to deploy Blender ID in production and how to push updates.
 
 ## Full setup from scratch
 
-See docker/README.md in the Blender ID sources.
+See [docker/README.md](https://developer.blender.org/diffusion/BID/browse/master/docker/README.md?as=remarkup)
+in the Blender ID sources.
