@@ -1,20 +1,20 @@
-var argv         = require('minimist')(process.argv.slice(2));
-var autoprefixer = require('gulp-autoprefixer');
-var chmod        = require('gulp-chmod');
-var concat       = require('gulp-concat');
-var gulp         = require('gulp');
-var gulpif       = require('gulp-if');
-var livereload   = require('gulp-livereload');
-var plumber      = require('gulp-plumber');
-var pug          = require('gulp-pug');
-var rename       = require('gulp-rename');
-var sass         = require('gulp-sass');
-var sourcemaps   = require('gulp-sourcemaps');
-var uglify       = require('gulp-uglify');
-var cache        = require('gulp-cached');
-var spawn        = require('child_process').spawn;
+let argv         = require('minimist')(process.argv.slice(2));
+let autoprefixer = require('gulp-autoprefixer');
+let chmod        = require('gulp-chmod');
+let concat       = require('gulp-concat');
+let gulp         = require('gulp');
+let gulpif       = require('gulp-if');
+let livereload   = require('gulp-livereload');
+let plumber      = require('gulp-plumber');
+let pug          = require('gulp-pug');
+let rename       = require('gulp-rename');
+let sass         = require('gulp-sass');
+let sourcemaps   = require('gulp-sourcemaps');
+let uglify       = require('gulp-uglify');
+let cache        = require('gulp-cached');
+let spawn        = require('child_process').spawn;
 
-var enabled = {
+let enabled = {
     uglify: argv.production,
     maps: argv.production,
     failCheck: !argv.production,
@@ -26,19 +26,19 @@ var enabled = {
 /* Order matters. First compile templates in BWA, then the local project.
  * If local templates have the same name as those in BWA, they will be used.
  * e.g. `src/templates/_footer.pug` will override the one from BWA. */
-var pugs = [
+let pugs = [
     'webstatic/assets_shared/templates/**/*.pug',
     'websrc/templates/**/*.pug'
 ];
 
-var sasses = [
+let sasses = [
     'webstatic/assets_shared/styles/**/*.sass',
     'websrc/styles/**/*.sass'
 ];
 
 
 /* Stylesheets */
-gulp.task('styles', function() {
+gulp.task('styles', function(done) {
     gulp.src('websrc/styles/**/*.sass')
         .pipe(gulpif(enabled.failCheck, plumber()))
         .pipe(gulpif(enabled.maps, sourcemaps.init()))
@@ -49,11 +49,12 @@ gulp.task('styles', function() {
         .pipe(gulpif(enabled.maps, sourcemaps.write(".")))
         .pipe(gulp.dest('webstatic/assets/css'))
         .pipe(gulpif(enabled.liveReload, livereload()));
+    done();
 });
 
 
 /* Templates - Pug */
-gulp.task('templates', function() {
+gulp.task('templates', function(done) {
     gulp.src(pugs)
         .pipe(gulpif(enabled.failCheck, plumber()))
         .pipe(cache('templating'))
@@ -62,11 +63,12 @@ gulp.task('templates', function() {
         }))
         .pipe(gulp.dest('templates/'))
         .pipe(gulpif(enabled.liveReload, livereload()));
+    done();
 });
 
 
 /* Individual Uglified Scripts */
-gulp.task('scripts', function() {
+gulp.task('scripts', function(done) {
     gulp.src('websrc/scripts/*.js')
         .pipe(gulpif(enabled.failCheck, plumber()))
         .pipe(cache('scripting'))
@@ -77,12 +79,13 @@ gulp.task('scripts', function() {
         .pipe(chmod(644))
         .pipe(gulp.dest('webstatic/assets/js/'))
         .pipe(gulpif(enabled.liveReload, livereload()));
+    done();
 });
 
 
 /* Collection of scripts in websrc/scripts/tutti/ to merge into tutti.min.js */
 /* Since it's always loaded, it's only for functions that we want site-wide */
-gulp.task('scripts_tutti', function() {
+gulp.task('scripts_tutti', function(done) {
     gulp.src('websrc/scripts/tutti/**/*.js')
         .pipe(gulpif(enabled.failCheck, plumber()))
         .pipe(gulpif(enabled.maps, sourcemaps.init()))
@@ -92,11 +95,12 @@ gulp.task('scripts_tutti', function() {
         .pipe(chmod(0o644))
         .pipe(gulp.dest('webstatic/assets/js/'))
         .pipe(gulpif(enabled.liveReload, livereload()));
+    done();
 });
 
 
 // While developing, run 'gulp watch'
-gulp.task('watch',function() {
+gulp.task('watch',function(done) {
     // Only listen for live reloads if ran with --livereload
     if (argv.livereload){
         livereload.listen();
@@ -105,12 +109,13 @@ gulp.task('watch',function() {
     gulp.watch(sasses,['styles']);
     gulp.watch(pugs,['templates']);
 
-    gulp.watch('websrc/scripts/*.js',['scripts']);
-    gulp.watch('websrc/scripts/tutti/*.js',['scripts_tutti']);
+    gulp.watch('websrc/scripts/*.js', gulp.series('scripts'));
+    gulp.watch('websrc/scripts/tutti/*.js',gulp.series('scripts_tutti'));
+    done();
 });
 
 
-gulp.task('shared', function() {
+gulp.task('shared', function(done) {
     /*
       Set the working directory of your current process as
       the directory where the target Gulpfile exists.
@@ -118,7 +123,7 @@ gulp.task('shared', function() {
     process.chdir('webstatic/assets_shared');
 
     // Run the `gulp` executable
-    var child = spawn('../../node_modules/.bin/gulp');
+    let child = spawn('../../node_modules/.bin/gulp');
 
     // Print output from Gulpfile
     child.stdout.on('data', function(data) {
@@ -126,7 +131,8 @@ gulp.task('shared', function() {
             console.log(data.toString());
         }
     });
+    done();
 });
 
 // Run 'gulp' to build everything at once
-gulp.task('default', ['styles', 'templates', 'scripts', 'scripts_tutti']);
+gulp.task('default', gulp.parallel('styles', 'templates', 'scripts', 'scripts_tutti'));
