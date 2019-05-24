@@ -106,8 +106,8 @@ gulp.task('watch',function(done) {
         livereload.listen();
     }
 
-    gulp.watch(sasses,['styles']);
-    gulp.watch(pugs,['templates']);
+    gulp.watch(sasses, gulp.series('styles'));
+    gulp.watch(pugs, gulp.series('templates'));
 
     gulp.watch('websrc/scripts/*.js', gulp.series('scripts'));
     gulp.watch('websrc/scripts/tutti/*.js',gulp.series('scripts_tutti'));
