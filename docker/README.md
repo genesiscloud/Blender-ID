@@ -37,7 +37,7 @@ Install this cron job in `/etc/cron.d/blender-id` on the host:
     MAILTO=your-address@example.com
 
     47   * * * *  root docker exec --user uwsgi blender-id /manage.sh clearsessions
-    13   * * * *  root docker exec --user uwsgi blender-id /manage.sh thumbnail cleanup
+    13   * * * *  root docker exec --user uwsgi blender-id /manage.sh thumbnail cleanup --verbosity 0
     */5  * * * *  root docker exec --user uwsgi blender-id /manage.sh flush_webhooks --flush --verbosity 0
 
 
