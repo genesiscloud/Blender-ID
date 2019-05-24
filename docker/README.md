@@ -31,6 +31,15 @@ For a **full** deployment:
 - `./build_docker_img.sh full`
 - `./2server.sh sintel.blender.org`
 
+Install this cron job in `/etc/cron.d/blender-id` on the host:
+
+    PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+    MAILTO=your-address@example.com
+
+    47   * * * *  root docker exec --user uwsgi blender-id /manage.sh clearsessions
+    13   * * * *  root docker exec --user uwsgi blender-id /manage.sh thumbnail cleanup
+    */5  * * * *  root docker exec --user uwsgi blender-id /manage.sh flush_webhooks --flush --verbosity 0
+
 
 ## TLS Certificates
 
