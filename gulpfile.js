@@ -4,7 +4,6 @@ let chmod        = require('gulp-chmod');
 let concat       = require('gulp-concat');
 let gulp         = require('gulp');
 let gulpif       = require('gulp-if');
-let livereload   = require('gulp-livereload');
 let plumber      = require('gulp-plumber');
 let pug          = require('gulp-pug');
 let rename       = require('gulp-rename');
@@ -19,7 +18,6 @@ let enabled = {
     maps: argv.production,
     failCheck: !argv.production,
     prettyPug: !argv.production,
-    liveReload: !argv.production
 };
 
 
@@ -47,8 +45,7 @@ gulp.task('styles', function(done) {
             ))
         .pipe(autoprefixer("last 3 versions"))
         .pipe(gulpif(enabled.maps, sourcemaps.write(".")))
-        .pipe(gulp.dest('webstatic/assets/css'))
-        .pipe(gulpif(enabled.liveReload, livereload()));
+        .pipe(gulp.dest('webstatic/assets/css'));
     done();
 });
 
@@ -61,8 +58,7 @@ gulp.task('templates', function(done) {
         .pipe(pug({
             pretty: enabled.prettyPug
         }))
-        .pipe(gulp.dest('templates/'))
-        .pipe(gulpif(enabled.liveReload, livereload()));
+        .pipe(gulp.dest('templates/'));
     done();
 });
 
@@ -77,8 +73,7 @@ gulp.task('scripts', function(done) {
         .pipe(rename({suffix: '.min'}))
         .pipe(gulpif(enabled.maps, sourcemaps.write(".")))
         .pipe(chmod(644))
-        .pipe(gulp.dest('webstatic/assets/js/'))
-        .pipe(gulpif(enabled.liveReload, livereload()));
+        .pipe(gulp.dest('webstatic/assets/js/'));
     done();
 });
 
@@ -93,19 +88,13 @@ gulp.task('scripts_tutti', function(done) {
         .pipe(gulpif(enabled.uglify, uglify()))
         .pipe(gulpif(enabled.maps, sourcemaps.write(".")))
         .pipe(chmod(0o644))
-        .pipe(gulp.dest('webstatic/assets/js/'))
-        .pipe(gulpif(enabled.liveReload, livereload()));
+        .pipe(gulp.dest('webstatic/assets/js/'));
     done();
 });
 
 
 // While developing, run 'gulp watch'
 gulp.task('watch',function(done) {
-    // Only listen for live reloads if ran with --livereload
-    if (argv.livereload){
-        livereload.listen();
-    }
-
     gulp.watch(sasses, gulp.series('styles'));
     gulp.watch(pugs, gulp.series('templates'));
 
