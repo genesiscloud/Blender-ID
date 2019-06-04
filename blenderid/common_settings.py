@@ -221,6 +221,7 @@ CACHES = {
 }
 
 AVATAR_ALLOWED_FILE_EXTS = {'.jpeg', '.jpg', '.png', '.webp'}
+# Make sure this is less than the client_max_body_size nginx setting:
 AVATAR_MAX_SIZE_BYTES = 2 * 1024**2
 AVATAR_DEFAULT_FILENAME = 'assets/img/default_user_avatar.png'
 AVATAR_CONTENT_TYPE = 'image/jpeg'
