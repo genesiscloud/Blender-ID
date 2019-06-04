@@ -115,7 +115,7 @@ class UserProfileForm(BootstrapModelFormMixin, forms.ModelForm):
             return data
 
         filename = pathlib.PurePath(data.name)
-        if filename.suffix not in settings.AVATAR_ALLOWED_FILE_EXTS:
+        if filename.suffix.lower() not in settings.AVATAR_ALLOWED_FILE_EXTS:
             valid_exts = ", ".join(sorted(settings.AVATAR_ALLOWED_FILE_EXTS))
             error = _("%(ext)s is not an allowed file extension. "
                       "Authorized extensions are : %(valid_exts_list)s")
