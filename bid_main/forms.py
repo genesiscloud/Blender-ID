@@ -110,8 +110,9 @@ class UserProfileForm(BootstrapModelFormMixin, forms.ModelForm):
 
     def clean_avatar(self):
         data = self.cleaned_data['avatar']
-        if isinstance(data, bool):
-            # This happens when the user checks the 'clean' checkbox.
+        if isinstance(data, bool) or not data:
+            # Bool data happens when the user checks the 'clean' checkbox.
+            # None happens when there is no avatar.
             return data
 
         filename = pathlib.PurePath(data.name)
