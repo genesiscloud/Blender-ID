@@ -7,7 +7,7 @@ COPY aliases /etc/aliases
 RUN set -ex; \
     apk add \
         python3 python3-dev \
-        nginx uwsgi uwsgi-python3 \
+        nginx uwsgi uwsgi-python3 uwsgi-logfile \
         libffi-dev gcc musl-dev mariadb-dev jpeg-dev libpng-dev; \
     rm -rf /var/cache/apk/*
 ENV LANG en_US.UTF-8
