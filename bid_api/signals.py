@@ -127,7 +127,7 @@ def modified_user_to_webhooks(sender, user: UserModel, **kwargs):
         'old_email': old_email,
         'full_name': user.get_full_name(),
         'email': user.email,
-        'roles': user.public_roles_as_string.split(),
+        'roles': sorted(user.public_roles()),
         'avatar_changed': old_avatar != cur_avatar,
     }
     json_payload = json.dumps(payload).encode()
