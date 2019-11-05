@@ -174,10 +174,11 @@ class UserAdmin(BaseUserAdmin):
         template = (
             '<a title="Store" href="https://store.blender.org/wp-admin/users.php?s={}">S</a>&nbsp;'
             '<a title="Cloud" href="https://cloud.blender.org/u/?q={}&page=0">C</a>&nbsp;'
-            '<a title="Fund" href="https://fund.blender.org/admin/auth/user/?q={}">F</a>'
+            '<a title="Fund" href="https://fund.blender.org/admin/auth/user/?q={}">F</a>&nbsp;'
+            '<a title="My Data" href="https://mydata.blender.org/admin/auth/user/?q={}">MD</a>'
         )
         email = urllib.parse.quote(user.email)
-        return format_html(template, email, email, email)
+        return format_html(template, email, email, email, email)
 
     def save_formset(self, request, form, formset, change):
         """Sets the note.creator for new notes to the current user."""
