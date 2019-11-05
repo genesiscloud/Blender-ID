@@ -1,8 +1,11 @@
+import urllib.parse
+
 from django.contrib import admin
 from django.contrib import messages
 from django.contrib.admin.models import LogEntry, CHANGE
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+from django.utils.html import format_html
 from django.utils.translation import ugettext_lazy as _
 
 from . import models
@@ -139,7 +142,7 @@ class UserAdmin(BaseUserAdmin):
     )
 
     list_display = ('email', 'full_name', 'is_active', 'is_staff', 'deletion_requested',
-                    'role_names', 'last_update', 'confirmed_email_at', 'privacy_policy_agreed')
+                    'role_names', 'last_update', 'confirmed_email_at', 'links')
     list_display_links = ('email', 'full_name')
     list_filter = ('roles', 'is_active', 'deletion_requested', 'groups',
                    'confirmed_email_at', 'is_staff', 'is_superuser',
@@ -164,6 +167,17 @@ class UserAdmin(BaseUserAdmin):
             suffix = ', … and %i more…' % (len(roles) - 3)
             roles = roles[:3]
         return ', '.join(g.name for g in roles) + suffix
+
+    @staticmethod
+    def links(user) -> str:
+        """Links to Store & Cloud."""
+        template = (
+            '<a title="Store" href="https://store.blender.org/wp-admin/users.php?s={}">S</a>&nbsp;'
+            '<a title="Cloud" href="https://cloud.blender.org/u/?q={}&page=0">C</a>&nbsp;'
+            '<a title="Fund" href="https://fund.blender.org/admin/auth/user/?q={}">F</a>'
+        )
+        email = urllib.parse.quote(user.email)
+        return format_html(template, email, email, email)
 
     def save_formset(self, request, form, formset, change):
         """Sets the note.creator for new notes to the current user."""
