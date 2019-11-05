@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.contrib import messages
 from django.contrib.admin.models import LogEntry, CHANGE
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
@@ -66,9 +67,16 @@ def deactivate(modeladmin, request, queryset):
     _add_change_log(queryset, request, 'Deactivated user')
 
 
+@short_description('Request deletion of selected users')
+def request_deletion(modeladmin, request, queryset):
+    matched_count: int = queryset.update(deletion_requested=True)
+    _add_change_log(queryset, request, "Marked user as 'deletion requested'")
+    modeladmin.message_user(request, f'{matched_count} users marked for deletion',
+                            level=messages.WARNING)
+
+
 @short_description('Send address confirmation mails to selected users')
 def send_confirm_mails(modeladmin, request, queryset):
-    from django.contrib import messages
     from .email import send_verify_address
 
     mailed = {
@@ -103,6 +111,7 @@ class UserAdmin(BaseUserAdmin):
     fieldsets = (
         (None, {'fields': ('email',
                            'nickname',
+                           'deletion_requested',
                            'avatar',
                            'email_change_preconfirm',
                            'password',
@@ -129,17 +138,18 @@ class UserAdmin(BaseUserAdmin):
         }),
     )
 
-    list_display = ('email', 'full_name', 'is_active', 'is_staff', 'role_names', 'last_update',
-                    'confirmed_email_at', 'privacy_policy_agreed')
+    list_display = ('email', 'full_name', 'is_active', 'is_staff', 'deletion_requested',
+                    'role_names', 'last_update', 'confirmed_email_at', 'privacy_policy_agreed')
     list_display_links = ('email', 'full_name')
-    list_filter = ('roles', 'is_active', 'groups',
+    list_filter = ('roles', 'is_active', 'deletion_requested', 'groups',
                    'confirmed_email_at', 'is_staff', 'is_superuser',
                    'date_joined', 'privacy_policy_agreed')
     list_per_page = 12
     search_fields = ('email', 'full_name', 'email_change_preconfirm', 'nickname')
     ordering = ('-last_update',)
+    readonly_fields = ('deletion_requested',)
 
-    actions = [activate, deactivate, make_staff, unmake_staff, send_confirm_mails]
+    actions = [request_deletion, activate, deactivate, make_staff, unmake_staff, send_confirm_mails]
 
     def role_names(self, user):
         """Lists role names of the user.

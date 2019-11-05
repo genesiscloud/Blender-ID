@@ -205,6 +205,12 @@ class User(AbstractBaseUser, PermissionsMixin):
             'Unselect this instead of deleting accounts.'
         ),
     )
+    deletion_requested = models.BooleanField(
+        default=False,
+        help_text=_('Indicates whether deletion of this account was requested. Once turned on, '
+                    'should not be turned off. Can be set on the users list.'),
+    )
+
     date_joined = models.DateTimeField(_('date joined'), default=timezone.now)
     last_update = models.DateTimeField(_('last update'), default=timezone.now)
     privacy_policy_agreed = models.DateTimeField(
