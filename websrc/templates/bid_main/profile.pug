@@ -1,19 +1,6 @@
 | {% extends 'layout.html' %}
 | {% load avatar %}
-| {% block page_title %}Edit Your Profile -- Blender ID{% endblock %}
-
-| {% block header %}
-style.
-	.avatar-editor {
-		align-items: center;
-		justify-content: center;
-		padding-right: 2mm;
-	}
-	.avatar-editor img {
-		margin-right: 2mm;
-		border-right: thin solid var(--border-color);
-	}
-| {% endblock %}
+| {% block page_title %}Edit Profile{% endblock %}
 
 | {% block body %}
 
@@ -25,15 +12,17 @@ style.
 		fieldset
 			.row
 				.col-md-9
-					// Full name input
-					label.control-label Full Name
-					.input-group(class="{% if not user.full_name %}form-required{% endif %}")
+
+					//- Full name input
+					//- TODO: Use HTML5 form validation.
+					.form-group(class="{% if not user.full_name %}form-required{% endif %}")
+						label.control-label Full Name
 						| {{ form.full_name }}
 					| {{ form.full_name.errors }}
 
-					// Email display
-					label.control-label Email
-					.input-group
+					//- Email display
+					.form-group
+						label.control-label Email
 						| {{ form.email }}
 					| {% if user.email_change_preconfirm %}
 					p.help-text A change to {{ user.email_change_preconfirm }} is already pending.
@@ -44,26 +33,22 @@ style.
 						='.'
 					| {% endif %}
 					// Nickname input
-					label.control-label Nickname
-					.input-group
+					.form-group
+						label.control-label Nickname
 						| {{ form.nickname }}
 					| {{ form.nickname.errors }}
 					| {{ form.non_field_errors }}
 
 					// Avatar input
-					label.control-label Avatar
-					.input-group.avatar-editor
-						| {% avatar size=64 %}
+					| {% avatar size=128 %}
+					.custom-file.my-3
 						input#avatar-file-input.custom-file-input(type="file", name="avatar")
-						label
-							input(type="checkbox", name="avatar-clear")
-							| Clear
-					| {{ form.avatar.errors }}
+						label.custom-file-label Choose file
 
-				.col-md-3
-					.bid-user.profile
-						.bid-user-info
-							| {% avatar %}
+					.form-check
+						input.form-check-input(type="checkbox", name="avatar-clear")
+						label.form-check-label Clear Avatar
+					| {{ form.avatar.errors }}
 
 			.bid-cta
 				button.btn.btn-filled-success(type='submit')
@@ -72,20 +57,18 @@ style.
 							path(d='M173.898 439.404l-166.4-166.4c-9.997-9.997-9.997-26.206 0-36.204l36.203-36.204c9.997-9.998 26.207-9.998 36.204 0L192 312.69 432.095 72.596c9.997-9.997 26.207-9.997 36.204 0l36.203 36.204c9.997 9.997 9.997 26.206 0 36.204l-294.4 294.401c-9.998 9.997-26.207 9.997-36.204-.001z')
 					| Save Changes
 
-				a.btn(href="{% url 'bid_main:index' %}")
+				a.btn.ml-auto(href="{% url 'bid_main:index' %}")
 					| Discard Changes
 
-				a.cta-tertiary(href="{% url 'bid_main:password_change' %}")
-					i.icon
-						svg(xmlns='http://www.w3.org/2000/svg', viewbox='0 0 512 512')
-							path(d='M496 128c0 221.282-135.934 344.645-221.539 380.308a48 48 0 0 1-36.923 0C130.495 463.713 16 326.487 16 128a48 48 0 0 1 29.539-44.308l192-80a48 48 0 0 1 36.923 0l192 80A48 48 0 0 1 496 128zM256 446.313l.066.034c93.735-46.689 172.497-156.308 175.817-307.729L256 65.333v380.98z')
+			.bid-links
+				a(href="{% url 'bid_main:password_change' %}")
 					| Change Password
+
+				| {% if user.is_staff %}
+				a.ml-auto(href="{% url 'admin:bid_main_user_change' user.id %}") Edit Account in Admin
+				| {% endif %}
 
 	form#cancel_email_change(action="{% url 'bid_main:cancel-email-change' %}", method='POST')
 		| {% csrf_token %}
 
-	| {% if user.is_staff %}
-	.bid-links
-		a(href="{% url 'admin:bid_main_user_change' user.id %}") Edit account in admin
-	| {% endif %}
 | {% endblock %}
