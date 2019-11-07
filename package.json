@@ -7,7 +7,6 @@
 		"url": "git://git.blender.org/blender-id.git"
 	},
 	"devDependencies": {
-		"bootstrap-sass": "^3.3.7",
 		"gulp": "^4.0.2",
 		"gulp-autoprefixer": "~2.3.1",
 		"gulp-cached": "~1.1.0",
