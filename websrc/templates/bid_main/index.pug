@@ -22,11 +22,8 @@ link(href="{% static 'assets_vendor/css/bootstrap-toggle.min.css' %}", rel='styl
 		| {% if user.full_name %}
 		a(href="{% url 'bid_main:profile' %}")
 			| {% avatar %}
-
-		| {% else %}
-		a.bid-user-missing(href="{% url 'bid_main:profile' %}")
-			| ?
 		| {% endif %}
+
 		.bid-user-info
 			h3
 				| {{ user.full_name }}
@@ -54,18 +51,12 @@ link(href="{% static 'assets_vendor/css/bootstrap-toggle.min.css' %}", rel='styl
 
 	.bid-cta
 		a.btn(href="{% url 'bid_main:profile' %}")
-			i.icon
-				svg(xmlns='http://www.w3.org/2000/svg', viewbox='0 0 576 512')
-					path(d='M402.6 83.2l90.2 90.2c3.8 3.8 3.8 10 0 13.8L274.4 405.6l-92.8 10.3c-12.4 1.4-22.9-9.1-21.5-21.5l10.3-92.8L388.8 83.2c3.8-3.8 10-3.8 13.8 0zm162-22.9l-48.8-48.8c-15.2-15.2-39.9-15.2-55.2 0l-35.4 35.4c-3.8 3.8-3.8 10 0 13.8l90.2 90.2c3.8 3.8 10 3.8 13.8 0l35.4-35.4c15.2-15.3 15.2-40 0-55.2zM384 346.2V448H64V128h229.8c3.2 0 6.2-1.3 8.5-3.5l40-40c7.6-7.6 2.2-20.5-8.5-20.5H48C21.5 64 0 85.5 0 112v352c0 26.5 21.5 48 48 48h352c26.5 0 48-21.5 48-48V306.2c0-10.7-12.9-16-20.5-8.5l-40 40c-2.2 2.3-3.5 5.3-3.5 8.5z')
 			| Edit Profile
 
-		a.cta-tertiary(href="{% url 'bid_main:password_change' %}")
-			i.icon
-				svg(xmlns='http://www.w3.org/2000/svg', viewbox='0 0 512 512')
-					path(d='M496 128c0 221.282-135.934 344.645-221.539 380.308a48 48 0 0 1-36.923 0C130.495 463.713 16 326.487 16 128a48 48 0 0 1 29.539-44.308l192-80a48 48 0 0 1 36.923 0l192 80A48 48 0 0 1 496 128zM256 446.313l.066.034c93.735-46.689 172.497-156.308 175.817-307.729L256 65.333v380.98z')
+	.bid-links
+		a(href="{% url 'bid_main:password_change' %}")
 			| Change Password
 
-	.bid-links
 		a(href="{% url 'bid_main:switch_user' %}")
 			| Not you? Log in as someone else
 
@@ -76,7 +67,7 @@ link(href="{% static 'assets_vendor/css/bootstrap-toggle.min.css' %}", rel='styl
 
 
 .bid-roles.container.bid.box
-	h3.text-center Your Badges
+	h3 Your Badges
 
 	| {% with badges=user.all_badges %}
 	| {% if badges %}
@@ -97,16 +88,16 @@ link(href="{% static 'assets_vendor/css/bootstrap-toggle.min.css' %}", rel='styl
 	| {% endif %}
 	| {% endwith %}
 
-.bid-roles
+.bid-roles.container.bid.box
 	h3 Your Blender ID Apps
 
-	ul
+	ul.list-unstyled
 		| {% if 'cloud' in apps %}
 		li
 			.bid-roles-role
 				.bid-roles-role-info
-					a.title(href="https://cloud.blender.org") Blender Cloud
-					hr
+					h4
+						a(href="https://cloud.blender.org") Blender Cloud
 					ul
 						| {% if cloud_needs_renewal %}
 						li.link-renew-cloud
@@ -121,8 +112,8 @@ link(href="{% static 'assets_vendor/css/bootstrap-toggle.min.css' %}", rel='styl
 		li
 			.bid-roles-role
 				.bid-roles-role-info
-					a.title(href="https://store.blender.org/") Blender Store
-					hr
+					h4
+						a(href="https://store.blender.org/") Blender Store
 					ul
 						li
 							a(href='https://store.blender.org/my-account/') Your Store account
@@ -133,8 +124,8 @@ link(href="{% static 'assets_vendor/css/bootstrap-toggle.min.css' %}", rel='styl
 		li
 			.bid-roles-role
 				.bid-roles-role-info
-					a.title(href="https://www.blendernetwork.org") Blender Network
-					hr
+					h4
+						a(href="https://www.blendernetwork.org") Blender Network
 					ul
 						li
 							a(href='https://www.blendernetwork.org/billing/') Subscription Details
@@ -146,8 +137,8 @@ link(href="{% static 'assets_vendor/css/bootstrap-toggle.min.css' %}", rel='styl
 		li
 			.bid-roles-role
 				.bid-roles-role-info
-					a.title(href="https://www.blendernetwork.org/certification/") Blender Foundation Certified Trainer
-					hr
+					h4
+						a(href="https://www.blendernetwork.org/certification/") Blender Foundation Certified Trainer
 					ul
 						li
 							a(href='https://www.blendernetwork.org/certification/') Certification Details
