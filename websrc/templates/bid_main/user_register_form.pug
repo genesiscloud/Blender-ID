@@ -17,20 +17,20 @@
 				| {% csrf_token %}
 				fieldset
 					// Full name input
-					label.control-label(for="{{ form.full_name.id_for_label }}") Full Name
-					.input-group
+					.form-group
+						label(for="{{ form.full_name.id_for_label }}") Full Name
 						| {{ form.full_name }}
 					| {{ form.full_name.errors }}
 
 					// Email input
-					label.control-label(for="{{ form.email.id_for_label }}") Email
-					.input-group
+					.form-group
+						label(for="{{ form.email.id_for_label }}") Email
 						| {{ form.email }}
 					| {{ form.email.errors }}
 
 					// Nickname input
-					label.control-label(for="{{ form.nickname.id_for_label }}") Nickname
-					.input-group
+					.form-group
+						label(for="{{ form.nickname.id_for_label }}") Nickname
 						| {{ form.nickname }}
 					| {{ form.nickname.errors }}
 
