@@ -130,7 +130,7 @@ html(lang="en")
 						| {% endblock sidebar %}
 					| {% endif %}
 
-					div(class="{% if user.is_authenticated %}col-md-9{% else %}col-md-8 col-md-offset-2{% endif %}")
+					div(class="{% if user.is_authenticated %}col-md-9{% else %}col-md-8 mx-auto{% endif %}")
 						| {% block body %}{% endblock %}
 
 		| {% get_flatpages as flatpages %}

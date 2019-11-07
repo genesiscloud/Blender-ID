@@ -13,7 +13,7 @@
 		| (the link opens in a new tab).
 
 	.row
-		.col-md-8.col-md-offset-2
+		.col-md-8.mx-auto
 			form(role='login', action='', method='POST')
 				| {% csrf_token %}
 				| {{ form.next_url }}
