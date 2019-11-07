@@ -25,10 +25,6 @@ header.navbar
 		h1
 			font-weight: lighter
 
-		fieldset
-			label
-				margin-top: 20px
-
 	&-user // .bid-user
 		align-items: center
 		display: flex
@@ -114,33 +110,10 @@ header.navbar
 			max-width: 200px
 			width: 100%
 
-
 	.input
-		&-group // .input-group
-			margin: 10px auto
-			box-shadow: 0 0 1px rgba(black, .5)
-			border-radius: 6px
-			overflow: hidden
-
-			input
-				flex: 1
-				border-bottom: none
-
-			&-addon // .input-group-addon
-				align-items: center
-				background-color: $color-background
-				border-bottom: none
-				display: flex
-				justify-content: center
-				padding: 0 20px
-
-			.form-control
-				border-bottom: none
-
 		&-help // .input-help
 			text-align: left
 			color: $color-text-dark-primary
-
 
 	&-header // .bid-header
 		font-size: 1.1em
@@ -388,9 +361,6 @@ form .help-text
 	text-align: left
 	margin: 0 !important
 
-input[type=checkbox], input[type=radio]
-	flex: none !important
-
 .privacy-policy-must-agree
 	color: $color-text-dark
 	padding: 0.5em
@@ -435,10 +405,6 @@ li.badge span.badge-privacy-toggle > *
 li.badge span.badge-privacy-toggle .toggle
 	margin-left: 2ex
 	border: thin rgba(0, 0, 0, .25) solid
-
-.form-required
-	box-shadow: 0 0 0 2px $color-danger !important
-
 
 /* Bootstrap Toggle v2.2.2 corrections for Bootstrap 4*/
 /* See https://github.com/minhur/bootstrap-toggle/issues/186 */
