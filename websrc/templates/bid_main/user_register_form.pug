@@ -34,6 +34,13 @@
 						| {{ form.nickname }}
 					| {{ form.nickname.errors }}
 
+					// Privacy Policy checkbox
+					.form-group.form-check
+						| {{ form.agree }}
+						label(style='display: inline', for='{{ form.agree.id_for_label }}')
+						| I have read and agree to the #[a(href='/privacy-policy', target='_blank') Privacy Policy].
+					| {{ form.agree.errors }}
+
 					p We will send you an email with instructions to set a password.
 
 					| {{ form.non_field_errors }}

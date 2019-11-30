@@ -14,21 +14,41 @@ log = logging.getLogger(__name__)
 
 
 class BootstrapModelFormMixin:
-    """Adds the Bootstrap CSS class 'form-control' to all form fields."""
+    """Adds Bootstrap CSS classes to all form fields."""
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         kwargs.setdefault('label_suffix', '')
 
         for field_name, field in self.fields.items():
-            field.widget.attrs['class'] = 'form-control'
+            # Add Bootstrap CSS 'form-control' class to style form fields
+            # Checkbox inputs are an exception and require a 'form-check-input' class
+            # More information on form classes https://getbootstrap.com/docs/4.3/components/forms/
+            if field.widget.input_type == 'checkbox':
+                field.widget.attrs['class'] = 'form-check-input'
+            else:
+                field.widget.attrs['class'] = 'form-control'
 
 
 class UserRegistrationForm(BootstrapModelFormMixin, forms.ModelForm):
     # This class uses 'bid_main/user_register_form.html' to render
     class Meta:
         model = User
-        fields = ['full_name', 'email', 'nickname']
+        fields = ['full_name', 'email', 'nickname', 'agree_privacy_policy']
+
+    agree_privacy_policy = forms.BooleanField(
+        initial=False,
+        required=True,
+        error_messages={'required': _('It is not possible to register a Blender ID account '
+                                      'without agreeing to the privacy policy')},
+        help_text='Check to agree with our privacy policy',
+    )
+
+    def save(self, commit=True):
+        # When Django calls this function the user has agreed to the privacy policy,
+        # otherwise the 'required=True' would have kicked in.
+        self.instance.privacy_policy_agreed = timezone.now()
+        return super().save(commit=commit)
 
 
 class SetInitialPasswordForm(BootstrapModelFormMixin, auth_forms.SetPasswordForm):
