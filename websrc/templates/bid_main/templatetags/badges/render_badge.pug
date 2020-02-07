@@ -3,7 +3,7 @@ mixin badge
 	img(src="{{ badge.badge_img.url }}",
 		width="{{ badge.badge_img_width }}",
 		height="{{ badge.badge_img_height }}",
-		class="img-responsive",
+		class="img-fluid",
 		alt="{{ badge.description }}")
 	br
 	| {% endif %}
