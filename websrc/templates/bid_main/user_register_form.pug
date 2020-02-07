@@ -36,10 +36,10 @@
 
 					// Privacy Policy checkbox
 					.form-group.form-check
-						| {{ form.agree }}
-						label(style='display: inline', for='{{ form.agree.id_for_label }}')
+						| {{ form.agree_privacy_policy }}
+						label(style='display: inline', for='{{ form.agree_privacy_policy.id_for_label }}')
 						| I have read and agree to the #[a(href='/privacy-policy', target='_blank') Privacy Policy].
-					| {{ form.agree.errors }}
+					| {{ form.agree_privacy_policy.errors }}
 
 					p We will send you an email with instructions to set a password.
 
